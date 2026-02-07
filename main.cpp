@@ -1,19 +1,11 @@
-/*
-  Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
-
-  This software is provided 'as-is', without any express or implied
-  warranty.  In no event will the authors be held liable for any damages
-  arising from the use of this software.
-
-  Permission is granted to anyone to use this software for any purpose,
-  including commercial applications, and to alter it and redistribute it
-  freely.
-*/
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 #include <cstdlib>
 #include <vector>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include "imgui.h"
+#include "imgui_impl_sdl3.h"
+#include "imgui_impl_sdlgpu3.h"
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -32,12 +24,30 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     if (!state) return SDL_APP_FAILURE;
 
     /* Create the window */
-    if (!SDL_CreateWindowAndRenderer("Hello World", 800, 600, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
+    if (!SDL_CreateWindowAndRenderer("Hello World", 1920, 1080, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
         SDL_Log("Couldn't create window and renderer: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
 
     *appstate = state;
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplSDL3_InitForSDLGPU(window);
+    ImGui_ImplSDLGPU3_InitInfo init_info = {};
+    init_info.Device = gpu_device;
+    init_info.ColorTargetFormat = SDL_GetGPUSwapchainTextureFormat(gpu_device, window);
+    init_info.MSAASamples = SDL_GPU_SAMPLECOUNT_1;                      // Only used in multi-viewports mode.
+    init_info.SwapchainComposition = SDL_GPU_SWAPCHAINCOMPOSITION_SDR;  // Only used in multi-viewports mode.
+    init_info.PresentMode = SDL_GPU_PRESENTMODE_VSYNC;
+    ImGui_ImplSDLGPU3_Init(&init_info);
 
     return SDL_APP_CONTINUE;
 }
@@ -45,8 +55,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-    if ((event->type == SDL_EVENT_KEY_DOWN && event->key.key == SDLK_ESCAPE) ||
-        event->type == SDL_EVENT_QUIT) {
+    AppState *state = static_cast<AppState *>(appstate);
+    if (event->type == SDL_EVENT_KEY_DOWN && event->key.key == SDLK_ESCAPE) {
+        state->debug_messages.emplace_back("Key down");
+    }
+    if (event->type == SDL_EVENT_QUIT) {
         return SDL_APP_SUCCESS;  /* end the program, reporting success to the OS. */
     }
     return SDL_APP_CONTINUE;
@@ -63,32 +76,18 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     Uint64 delta_time_ns = current_time_ns - last_time_ns;
     state->current_time_ns = current_time_ns;
 
-    double current_time = current_time_ns / 1000000000.0;
-    double last_time = last_time_ns / 1000000000.0;
     double delta_time = delta_time_ns / 1000000000.0;
     double frame_rate = 1.0 / delta_time;
-    char message_current_time[64];
-    char message_last_time[64];
-    char message_delta_time[64];
     char message_frame_rate[64];
-    SDL_snprintf(message_current_time, sizeof(message_current_time), "current_time: %.3f", current_time);
-    SDL_snprintf(message_last_time, sizeof(message_last_time), "last_time: %.3f", last_time);
-    SDL_snprintf(message_delta_time, sizeof(message_delta_time), "delta_time: %.3f", delta_time);
     SDL_snprintf(message_frame_rate, sizeof(message_frame_rate), "frame_rate: %.1f", frame_rate);
-    state->debug_messages.emplace_back(message_current_time);
-    state->debug_messages.emplace_back(message_last_time);
-    state->debug_messages.emplace_back(message_delta_time);
     state->debug_messages.emplace_back(message_frame_rate);
 
     int w = 0, h = 0;
-    float x, y;
     const float scale = 1.0f;
 
     /* Center the message and scale it up */
     SDL_GetRenderOutputSize(renderer, &w, &h);
     SDL_SetRenderScale(renderer, scale, scale);
-    x = ((w / scale) - SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE * SDL_strlen(message_current_time)) / 2;
-    y = ((h / scale) - SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE) / 2;
 
     /* 清屏 */
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -99,6 +98,9 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         SDL_RenderDebugText(renderer, 0, SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE * i, state->debug_messages[i].c_str());
     }
     SDL_RenderPresent(renderer);
+
+    ImGui::Text("Hello, world %d", 123);
+    if (ImGui::Button("Save")) {}
 
     /* 帧结束 */
     state->debug_messages.clear();
