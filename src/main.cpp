@@ -9,9 +9,17 @@
 #include "imgui_impl_sdlgpu3.h"
 
 // 本示例状态
+bool show_example_window = false;
 bool show_demo_window = false;
 bool show_another_window = false;
-bool show_another_window2 = true;
+bool show_another_window2 = false;
+
+// 引擎窗口控制
+bool show_scene_tree_window = true;
+bool show_scene_edit_viewport_window = true;
+bool show_console_window = true;
+bool show_gameobject_component_window = true;
+
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 long window_title_update_time = 0;
 
@@ -186,15 +194,22 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     {
         if (ImGui::BeginMenu("文件"))
         {
-            if (ImGui::MenuItem("新建")) { /* ... */ }
-            if (ImGui::MenuItem("打开")) { /* ... */ }
+            if (ImGui::MenuItem("保存")) { /* ... */ }
             ImGui::Separator();
-            if (ImGui::MenuItem("退出")) { /* ... */ }
+            if (ImGui::MenuItem("关闭")) { return SDL_APP_SUCCESS; }
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("编辑"))
+        if (ImGui::BeginMenu("窗口"))
         {
-            if (ImGui::MenuItem("撤销")) { /* ... */ }
+            ImGui::Checkbox("控制台", &show_console_window);
+            ImGui::Checkbox("场景树", &show_scene_tree_window);
+            ImGui::Checkbox("GameObject组件", &show_gameobject_component_window);
+            ImGui::Checkbox("场景编辑视口", &show_scene_edit_viewport_window);
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("帮助"))
+        {
+            if (ImGui::MenuItem("关于Dear Engine")) { /* ... */ }
             ImGui::EndMenu();
         }
         ImGui::EndMenuBar();
@@ -218,13 +233,41 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
             SDL_SetWindowTitle(state->window, new_title.c_str());
             window_title_update_time = (long)(current_time/0.2);
         }
+
+        {   // 引擎窗口绘制
+
+            // 控制台
+            if (show_console_window) {
+                ImGui::Begin("控制台");
+                ImGui::End();
+            }
+
+            // 场景树
+            if (show_scene_tree_window) {
+                ImGui::Begin("场景树");
+                ImGui::End();
+            }
+
+            // GameObject组件
+            if (show_gameobject_component_window) {
+                ImGui::Begin("GameObject组件");
+                ImGui::End();
+            }
+
+            // 场景编辑视口
+            if (show_scene_edit_viewport_window) {
+                ImGui::Begin("场景编辑视口");
+                ImGui::End();
+            }
+        }
     }
 
-    // 1. 显示大型演示窗口（大部分示例代码在 ImGui::ShowDemoWindow() 中，可浏览其代码以进一步了解 Dear ImGui）。
+    // 可选. 显示大型演示窗口（大部分示例代码在 ImGui::ShowDemoWindow() 中，可浏览其代码以进一步了解 Dear ImGui）。
     if (show_demo_window)
         ImGui::ShowDemoWindow(&show_demo_window);
 
     // 2. 显示我们自定义的简单窗口，使用 Begin/End 对创建命名窗口。
+    if (show_example_window)
     {
         static float f = 0.0f;
         static int counter = 0;
