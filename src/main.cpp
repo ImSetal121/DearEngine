@@ -8,18 +8,16 @@
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlgpu3.h"
+#include "window/ConsoleWindow.h"
+#include "window/GameobjectComponentWindow.h"
+#include "window/SceneTreeWindow.h"
+#include "window/SceneViewportWindow.h"
 
 // 本示例状态
 bool show_example_window = false;
 bool show_demo_window = false;
 bool show_another_window = false;
 bool show_another_window2 = false;
-
-// 引擎窗口控制
-bool show_scene_tree_window = true;
-bool show_scene_edit_viewport_window = true;
-bool show_console_window = true;
-bool show_gameobject_component_window = true;
 
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 long window_title_update_time = 0;
@@ -30,6 +28,11 @@ struct AppState {
     SDL_GPUDevice *gpu_device = nullptr;
     // 引擎相关
     Uint64 current_time_ns = 0;
+    // 引擎窗口
+    ConsoleWindow *console_window = nullptr;
+    SceneTreeWindow *scene_tree_window = nullptr;
+    GameobjectComponentWindow *gameobject_component_window = nullptr;
+    SceneViewportWindow *scene_viewport_window = nullptr;
 };
 
 /* This function runs once at startup. */
@@ -147,6 +150,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     *appstate = state;
 
+    // 初始化state
+    state->console_window = new ConsoleWindow();
+    state->scene_tree_window = new SceneTreeWindow();
+    state->gameobject_component_window = new GameobjectComponentWindow();
+    state->scene_viewport_window = new SceneViewportWindow();
+
     return SDL_APP_CONTINUE;
 }
 
@@ -214,10 +223,10 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         }
         if (ImGui::BeginMenu("窗口"))
         {
-            ImGui::Checkbox("控制台", &show_console_window);
-            ImGui::Checkbox("场景树", &show_scene_tree_window);
-            ImGui::Checkbox("GameObject组件", &show_gameobject_component_window);
-            ImGui::Checkbox("场景编辑视口", &show_scene_edit_viewport_window);
+            ImGui::Checkbox(state->console_window->Title(), &state->console_window->open);
+            ImGui::Checkbox(state->scene_tree_window->Title(), &state->scene_tree_window->open);
+            ImGui::Checkbox(state->gameobject_component_window->Title(), &state->gameobject_component_window->open);
+            ImGui::Checkbox(state->scene_viewport_window->Title(), &state->scene_viewport_window->open);
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("帮助"))
@@ -249,29 +258,11 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
         {   // 引擎窗口绘制
 
-            // 控制台
-            if (show_console_window) {
-                ImGui::Begin("控制台");
-                ImGui::End();
-            }
+            state->console_window->Draw();  // 控制台
+            state->scene_tree_window->Draw();   // 场景树
+            state->gameobject_component_window->Draw();   // GameObject组件
+            state->scene_viewport_window->Draw();   // 场景编辑视口
 
-            // 场景树
-            if (show_scene_tree_window) {
-                ImGui::Begin("场景树");
-                ImGui::End();
-            }
-
-            // GameObject组件
-            if (show_gameobject_component_window) {
-                ImGui::Begin("GameObject组件");
-                ImGui::End();
-            }
-
-            // 场景编辑视口
-            if (show_scene_edit_viewport_window) {
-                ImGui::Begin("场景编辑视口");
-                ImGui::End();
-            }
         }
     }
 

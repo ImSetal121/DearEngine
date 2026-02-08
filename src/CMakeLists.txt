@@ -1,7 +1,12 @@
 # 只负责 LearnCPP 可执行文件（源、链接、include）
 
+file(GLOB_RECURSE SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+file(GLOB_RECURSE HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
+
+set(ALL_FILES ${SRC_FILES} ${HEADER_FILES})
+
 add_executable(LearnCPP
-        main.cpp
+        ${ALL_FILES}
         # ImGui 核心
         ${IMGUI_DIR}/imgui.cpp
         ${IMGUI_DIR}/imgui_draw.cpp
