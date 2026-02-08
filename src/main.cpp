@@ -1,23 +1,33 @@
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 #include <cstdlib>
 #include <vector>
+#include <string>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlgpu3.h"
 
-static SDL_Window *window = NULL;
-static SDL_GPUDevice *gpu_device = NULL;
-
 // 本示例状态
-bool show_demo_window = true;
+bool show_demo_window = false;
 bool show_another_window = false;
+bool show_another_window2 = true;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+long window_title_update_time = 0;
+
+struct AppState {
+    // SDL相关
+    SDL_Window *window = nullptr;
+    SDL_GPUDevice *gpu_device = nullptr;
+    // 引擎相关
+    Uint64 current_time_ns = 0;
+};
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
+    // 初始化AppState
+    auto *state = new AppState();
 
     // 初始化 SDL
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
@@ -29,30 +39,30 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     // 创建 SDL 窗口与图形上下文
     float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     SDL_WindowFlags window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
-    window = SDL_CreateWindow("Dear ImGui SDL3+SDL_GPU example", (int)(1280 * main_scale), (int)(800 * main_scale), window_flags);
-    if (window == nullptr)
+    state->window = SDL_CreateWindow("Dear Engine.", (int)(1280 * main_scale), (int)(800 * main_scale), window_flags);
+    if (state->window == nullptr)
     {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-    SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-    SDL_ShowWindow(window);
+    SDL_SetWindowPosition(state->window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    SDL_ShowWindow(state->window);
 
     // 创建 GPU 设备
-    gpu_device = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_METALLIB,true,nullptr);
-    if (gpu_device == nullptr)
+    state->gpu_device = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_METALLIB,true,nullptr);
+    if (state->gpu_device == nullptr)
     {
         printf("Error: SDL_CreateGPUDevice(): %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
 
     // 将窗口交由 GPU 设备使用
-    if (!SDL_ClaimWindowForGPUDevice(gpu_device, window))
+    if (!SDL_ClaimWindowForGPUDevice(state->gpu_device, state->window))
     {
         printf("Error: SDL_ClaimWindowForGPUDevice(): %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-    SDL_SetGPUSwapchainParameters(gpu_device, window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, SDL_GPU_PRESENTMODE_VSYNC);
+    SDL_SetGPUSwapchainParameters(state->gpu_device, state->window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, SDL_GPU_PRESENTMODE_VSYNC);
 
     // 设置 Dear ImGui 上下文
     IMGUI_CHECKVERSION();
@@ -82,10 +92,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     // 设置平台/渲染器后端
-    ImGui_ImplSDL3_InitForSDLGPU(window);
+    ImGui_ImplSDL3_InitForSDLGPU(state->window);
     ImGui_ImplSDLGPU3_InitInfo init_info = {};
-    init_info.Device = gpu_device;
-    init_info.ColorTargetFormat = SDL_GetGPUSwapchainTextureFormat(gpu_device, window);
+    init_info.Device = state->gpu_device;
+    init_info.ColorTargetFormat = SDL_GetGPUSwapchainTextureFormat(state->gpu_device, state->window);
     init_info.MSAASamples = SDL_GPU_SAMPLECOUNT_1;                      // 仅在多视口模式下使用
     init_info.SwapchainComposition = SDL_GPU_SWAPCHAINCOMPOSITION_SDR;  // 仅在多视口模式下使用
     init_info.PresentMode = SDL_GPU_PRESENTMODE_VSYNC;
@@ -107,12 +117,21 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf");
     //IM_ASSERT(font != nullptr);
 
+    const char* font_path_chinese = nullptr;
+    font_path_chinese = "./assets/ttf/HarmonyOS_Sans_SC/HarmonyOS_Sans_SC_Bold.ttf";
+
+    if (font_path_chinese) {
+        io.Fonts->AddFontFromFileTTF(font_path_chinese, 16.0f, nullptr, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+    }
+
+    *appstate = state;
+
     return SDL_APP_CONTINUE;
 }
 
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
-SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
-{
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
+    auto *state = static_cast<AppState *>(appstate);
 
     // 轮询并处理事件（输入、窗口缩放等）
     // 可通过 io.WantCaptureMouse、io.WantCaptureKeyboard 判断 dear imgui 是否要接管输入。
@@ -122,7 +141,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     ImGui_ImplSDL3_ProcessEvent(event);
     if (event->type == SDL_EVENT_QUIT)
         return SDL_APP_SUCCESS;
-    if (event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event->window.windowID == SDL_GetWindowID(window))
+    if (event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event->window.windowID == SDL_GetWindowID(state->window))
         return SDL_APP_SUCCESS;
 
     return SDL_APP_CONTINUE;
@@ -131,10 +150,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
 /* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void *appstate) {
+    auto *state = static_cast<AppState *>(appstate);
 
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-    if (SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED)
+    if (SDL_GetWindowFlags(state->window) & SDL_WINDOW_MINIMIZED)
     {
         SDL_Delay(10);
         return SDL_APP_CONTINUE;;
@@ -144,6 +164,61 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     ImGui_ImplSDLGPU3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
+
+    // 0. 创建主停靠窗口
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->WorkPos);
+    ImGui::SetNextWindowSize(viewport->WorkSize);
+    ImGui::SetNextWindowViewport(viewport->ID);
+
+    ImGuiWindowFlags host_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse
+        | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking
+        | ImGuiWindowFlags_MenuBar;   // 需要菜单栏就加 MenuBar
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+    ImGui::Begin("MainDockHost", nullptr, host_flags);
+    ImGui::PopStyleVar(3);
+
+    // 1. 最上方固定菜单栏
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("文件"))
+        {
+            if (ImGui::MenuItem("新建")) { /* ... */ }
+            if (ImGui::MenuItem("打开")) { /* ... */ }
+            ImGui::Separator();
+            if (ImGui::MenuItem("退出")) { /* ... */ }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("编辑"))
+        {
+            if (ImGui::MenuItem("撤销")) { /* ... */ }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+    }
+
+    // 2. 下方是 DockSpace，其它窗口停靠到这里
+    ImGui::DockSpace(ImGui::GetID("MainDockSpace"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+
+    ImGui::End();
+
+    // 引擎部分
+    {
+        Uint64 current_time_ns = SDL_GetTicksNS();
+        Uint64 delta_time_ns = current_time_ns - state->current_time_ns;
+        state->current_time_ns = current_time_ns;
+        double current_time = current_time_ns / 1000000000.0;
+        double delta_time = delta_time_ns / 1000000000.0;
+
+        if ((long)(current_time/0.2) != window_title_update_time) {
+            std::string new_title = "Dear Engine.  FPS:" + std::to_string(io.Framerate);
+            SDL_SetWindowTitle(state->window, new_title.c_str());
+            window_title_update_time = (long)(current_time/0.2);
+        }
+    }
 
     // 1. 显示大型演示窗口（大部分示例代码在 ImGui::ShowDemoWindow() 中，可浏览其代码以进一步了解 Dear ImGui）。
     if (show_demo_window)
@@ -182,15 +257,24 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         ImGui::End();
     }
 
+    if (show_another_window2)
+    {
+        ImGui::Begin("Another Window2", &show_another_window);   // 传入布尔变量指针，窗口有关闭按钮，点击会将该布尔置为 false
+        ImGui::Text("Hello from another window!");
+        if (ImGui::Button("Close Me"))
+            show_another_window = false;
+        ImGui::End();
+    }
+
     // 渲染
     ImGui::Render();
     ImDrawData* draw_data = ImGui::GetDrawData();
     const bool is_minimized = (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f);
 
-    SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(gpu_device); // 获取 GPU 命令缓冲
+    SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(state->gpu_device); // 获取 GPU 命令缓冲
 
     SDL_GPUTexture* swapchain_texture;
-    SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, window, &swapchain_texture, nullptr, nullptr); // 获取交换链纹理
+    SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, state->window, &swapchain_texture, nullptr, nullptr); // 获取交换链纹理
 
     if (swapchain_texture != nullptr && !is_minimized)
     {
@@ -230,14 +314,15 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 /* This function runs once at shutdown. */
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
+    auto *state = static_cast<AppState *>(appstate);
     // 清理
-    SDL_WaitForGPUIdle(gpu_device);
+    SDL_WaitForGPUIdle(state->gpu_device);
     ImGui_ImplSDL3_Shutdown();
     ImGui_ImplSDLGPU3_Shutdown();
     ImGui::DestroyContext();
 
-    SDL_ReleaseWindowFromGPUDevice(gpu_device, window);
-    SDL_DestroyGPUDevice(gpu_device);
-    SDL_DestroyWindow(window);
+    SDL_ReleaseWindowFromGPUDevice(state->gpu_device, state->window);
+    SDL_DestroyGPUDevice(state->gpu_device);
+    SDL_DestroyWindow(state->window);
     SDL_Quit();
 }
