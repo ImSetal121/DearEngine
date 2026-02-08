@@ -1,5 +1,6 @@
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 #include <cstdlib>
+#include <fstream>
 #include <vector>
 #include <string>
 #include <SDL3/SDL.h>
@@ -76,6 +77,18 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+    // ImGui 布局：若用户尚未有 imgui.ini，则从默认模板复制
+    const char* user_ini = "imgui.ini";
+    const char* default_ini = "./assets/config/imgui_default.ini";
+    io.IniFilename = user_ini;
+
+    std::ifstream check(user_ini);
+    if (!check.good()) {
+        std::ifstream src(default_ini, std::ios::binary);
+        std::ofstream dst(user_ini, std::ios::binary);
+        if (src && dst)
+            dst << src.rdbuf();
+    }
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // 启用键盘控制
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // 启用手柄控制
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // 启用停靠
