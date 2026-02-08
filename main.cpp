@@ -31,24 +31,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     *appstate = state;
 
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplSDL3_InitForSDLGPU(window);
-    ImGui_ImplSDLGPU3_InitInfo init_info = {};
-    init_info.Device = gpu_device;
-    init_info.ColorTargetFormat = SDL_GetGPUSwapchainTextureFormat(gpu_device, window);
-    init_info.MSAASamples = SDL_GPU_SAMPLECOUNT_1;                      // Only used in multi-viewports mode.
-    init_info.SwapchainComposition = SDL_GPU_SWAPCHAINCOMPOSITION_SDR;  // Only used in multi-viewports mode.
-    init_info.PresentMode = SDL_GPU_PRESENTMODE_VSYNC;
-    ImGui_ImplSDLGPU3_Init(&init_info);
-
     return SDL_APP_CONTINUE;
 }
 
@@ -98,9 +80,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         SDL_RenderDebugText(renderer, 0, SDL_DEBUG_TEXT_FONT_CHARACTER_SIZE * i, state->debug_messages[i].c_str());
     }
     SDL_RenderPresent(renderer);
-
-    ImGui::Text("Hello, world %d", 123);
-    if (ImGui::Button("Save")) {}
 
     /* 帧结束 */
     state->debug_messages.clear();
