@@ -256,7 +256,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
             state->console_window->Draw();  // 控制台
             state->scene_tree_window->Draw();   // 场景树
             state->gameobject_component_window->Draw();   // GameObject组件
-            state->scene_viewport_window->Draw();   // 场景编辑视口
+            state->scene_viewport_window->Draw();   // 场景视口
 
         }
     }
