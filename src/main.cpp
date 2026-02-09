@@ -8,16 +8,13 @@
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlgpu3.h"
-#include "window/ConsoleWindow.h"
-#include "window/GameobjectComponentWindow.h"
-#include "window/SceneTreeWindow.h"
-#include "window/SceneViewportWindow.h"
+#include "engine/window/ConsoleWindow.h"
+#include "engine/window/GameobjectComponentWindow.h"
+#include "engine/window/SceneTreeWindow.h"
+#include "engine/window/SceneViewportWindow.h"
 
 // 本示例状态
-bool show_example_window = false;
 bool show_demo_window = false;
-bool show_another_window = false;
-bool show_another_window2 = false;
 
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 long window_title_update_time = 0;
@@ -34,6 +31,14 @@ struct AppState {
     GameobjectComponentWindow *gameobject_component_window = nullptr;
     SceneViewportWindow *scene_viewport_window = nullptr;
 };
+
+void CheckCurrentPath() {
+    printf("Current working directory: %s\n", std::filesystem::current_path().c_str());
+}
+
+std::string GetEngineAssetsPath() {
+    return "./src/engine/assets/";
+}
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -82,7 +87,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     // ImGui 布局：若用户尚未有 imgui.ini，则从默认模板复制
     const char* user_ini = "imgui.ini";
-    const char* default_ini = "./assets/config/imgui_default.ini";
+    std::string ini_path = GetEngineAssetsPath() + "config/imgui_default.ini";
+    const char* default_ini = ini_path.c_str();
     io.IniFilename = user_ini;
 
     std::ifstream check(user_ini);
@@ -125,36 +131,23 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     init_info.PresentMode = SDL_GPU_PRESENTMODE_VSYNC;
     ImGui_ImplSDLGPU3_Init(&init_info);
 
-    // 加载字体
-    // - 若不加载字体，dear imgui 将使用默认字体。也可加载多种字体并用 ImGui::PushFont()/PopFont() 切换。
-    // - AddFontFromFileTTF() 返回 ImFont*，可在多种字体间选择时保存使用。
-    // - 若文件加载失败，函数返回 nullptr，请在应用中处理（如断言或显示错误并退出）。
-    // - 在 imconfig 中 #define IMGUI_ENABLE_FREETYPE 可使用 Freetype 提高字体渲染质量。
-    // - 更多说明见 docs/FONTS.md。若喜欢默认字体但希望缩放更好，可考虑同作者的 'ProggyVector'。
-    // - C/C++ 中字符串字面量里要包含反斜杠 \ 需写成双反斜杠 \\ 。
-    //style.FontSizeBase = 20.0f;
-    //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf");
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf");
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf");
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf");
-    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf");
-    //IM_ASSERT(font != nullptr);
-
-    const char* font_path_chinese = nullptr;
-    font_path_chinese = "./assets/ttf/HarmonyOS_Sans_SC/HarmonyOS_Sans_SC_Bold.ttf";
-
-    if (font_path_chinese) {
-        io.Fonts->AddFontFromFileTTF(font_path_chinese, 16.0f, nullptr, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+    // 引擎部分
+    {
+        // 检查工作目录
+        CheckCurrentPath();
+        // 加载字体
+        std::string font_path_str = GetEngineAssetsPath() + "ttf/HarmonyOS_Sans_SC/HarmonyOS_Sans_SC_Bold.ttf";
+        const char* font_path_chinese = font_path_str.c_str();
+        if (font_path_chinese)
+            io.Fonts->AddFontFromFileTTF(font_path_chinese, 16.0f, nullptr, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+        // 初始化state窗口
+        state->console_window = new ConsoleWindow();
+        state->scene_tree_window = new SceneTreeWindow();
+        state->gameobject_component_window = new GameobjectComponentWindow();
+        state->scene_viewport_window = new SceneViewportWindow();
+        // 返回AppState指针
+        *appstate = state;
     }
-
-    *appstate = state;
-
-    // 初始化state
-    state->console_window = new ConsoleWindow();
-    state->scene_tree_window = new SceneTreeWindow();
-    state->gameobject_component_window = new GameobjectComponentWindow();
-    state->scene_viewport_window = new SceneViewportWindow();
 
     return SDL_APP_CONTINUE;
 }
@@ -227,6 +220,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
             ImGui::Checkbox(state->scene_tree_window->Title(), &state->scene_tree_window->open);
             ImGui::Checkbox(state->gameobject_component_window->Title(), &state->gameobject_component_window->open);
             ImGui::Checkbox(state->scene_viewport_window->Title(), &state->scene_viewport_window->open);
+            ImGui::Separator();
+            ImGui::Checkbox("ImGui演示窗口", &show_demo_window);
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("帮助"))
@@ -269,49 +264,6 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     // 可选. 显示大型演示窗口（大部分示例代码在 ImGui::ShowDemoWindow() 中，可浏览其代码以进一步了解 Dear ImGui）。
     if (show_demo_window)
         ImGui::ShowDemoWindow(&show_demo_window);
-
-    // 2. 显示我们自定义的简单窗口，使用 Begin/End 对创建命名窗口。
-    if (show_example_window)
-    {
-        static float f = 0.0f;
-        static int counter = 0;
-
-        ImGui::Begin("Hello, world!");                          // 创建名为 "Hello, world!" 的窗口并向其中追加内容
-
-        ImGui::Text("This is some useful text.");               // 显示一段文字（也可使用格式化字符串）
-        ImGui::Checkbox("Demo Window", &show_demo_window);      // 用布尔值控制窗口开关状态
-        ImGui::Checkbox("Another Window", &show_another_window);
-
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // 用 0.0f～1.0f 的滑块编辑一个 float
-        ImGui::ColorEdit3("clear color", (float*)&clear_color); // 编辑表示颜色的 3 个 float
-
-        if (ImGui::Button("Button"))                            // 按钮被点击时返回 true（多数控件在编辑/激活时返回 true）
-            counter++;
-        ImGui::SameLine();
-        ImGui::Text("counter = %d", counter);
-
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-        ImGui::End();
-    }
-
-    // 3. 显示另一个简单窗口
-    if (show_another_window)
-    {
-        ImGui::Begin("Another Window", &show_another_window);   // 传入布尔变量指针，窗口有关闭按钮，点击会将该布尔置为 false
-        ImGui::Text("Hello from another window!");
-        if (ImGui::Button("Close Me"))
-            show_another_window = false;
-        ImGui::End();
-    }
-
-    if (show_another_window2)
-    {
-        ImGui::Begin("Another Window2", &show_another_window);   // 传入布尔变量指针，窗口有关闭按钮，点击会将该布尔置为 false
-        ImGui::Text("Hello from another window!");
-        if (ImGui::Button("Close Me"))
-            show_another_window = false;
-        ImGui::End();
-    }
 
     // 渲染
     ImGui::Render();
