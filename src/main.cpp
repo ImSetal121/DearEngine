@@ -171,22 +171,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         SDL_Storage* storage = SDL_OpenFileStorage(GetEngineAssetsPath().c_str());
         if (storage) {
             while (!SDL_StorageReady(storage)) SDL_Delay(1);
-            const char* backend = SDL_GetGPUDeviceDriver(state->gpu_device);
-            bool use_metal = backend && SDL_strcasecmp(backend, "Metal") == 0;
-            if (use_metal) {
-                std::string vert_shader_path = "shader/default_vert.msl";
-                std::string frag_shader_path = "shader/default_frag.msl";
-                state->scene_vertex_shader   = LoadSceneShader(state->gpu_device, vert_shader_path.c_str(), storage, SDL_GPU_SHADERSTAGE_VERTEX,   SDL_GPU_SHADERFORMAT_MSL);
-                state->scene_fragment_shader = LoadSceneShader(state->gpu_device, frag_shader_path.c_str(), storage, SDL_GPU_SHADERSTAGE_FRAGMENT, SDL_GPU_SHADERFORMAT_MSL);
-            } else {
-                std::string vert_shader_path = "shader/default_vert.spv";
-                std::string frag_shader_path = "shader/default_frag.spv";
-                state->scene_vertex_shader   = LoadSceneShader(state->gpu_device, vert_shader_path.c_str(), storage, SDL_GPU_SHADERSTAGE_VERTEX,   SDL_GPU_SHADERFORMAT_SPIRV);
-                state->scene_fragment_shader = LoadSceneShader(state->gpu_device, frag_shader_path.c_str(), storage, SDL_GPU_SHADERSTAGE_FRAGMENT, SDL_GPU_SHADERFORMAT_SPIRV);
-            }
+            state->scene_vertex_shader   = LoadShader(state->gpu_device, "shader/default_vert", storage, SDL_GPU_SHADERSTAGE_VERTEX);
+            state->scene_fragment_shader = LoadShader(state->gpu_device, "shader/default_frag", storage, SDL_GPU_SHADERSTAGE_FRAGMENT);
             SDL_CloseStorage(storage);
             if (state->scene_vertex_shader && state->scene_fragment_shader) {
-                state->scene_triangle_pipeline = CreateSceneTrianglePipeline(state->gpu_device, state->scene_vertex_shader, state->scene_fragment_shader);
+                state->scene_triangle_pipeline = CreatePipeline(state->gpu_device, state->scene_vertex_shader, state->scene_fragment_shader);
             }
         }
 

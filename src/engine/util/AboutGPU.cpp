@@ -6,21 +6,34 @@
 
 #include <vector>
 
-SDL_GPUShader* LoadSceneShader(SDL_GPUDevice* device, const char* filename, SDL_Storage* storage, SDL_GPUShaderStage stage, SDL_GPUShaderFormat format) {
+SDL_GPUShader* LoadShader(SDL_GPUDevice* device, std::string filename, SDL_Storage* storage, SDL_GPUShaderStage stage) {
+    const char* backend = SDL_GetGPUDeviceDriver(device);
+    bool use_metal = backend && SDL_strcasecmp(backend, "Metal") == 0;
+    char* entrypoint;
+    SDL_GPUShaderFormat format;
+    if (use_metal) {
+        filename+=".msl";
+        entrypoint = "main0";
+        format = SDL_GPU_SHADERFORMAT_MSL;
+    }else {
+        filename+=".spv";
+        entrypoint = "main";
+        format = SDL_GPU_SHADERFORMAT_SPIRV;
+    }
     Uint64 file_size;
-    if (!SDL_GetStorageFileSize(storage, filename, &file_size)) {
-        printf("无法获取文件大小。FileName: %s\n", filename);
+    if (!SDL_GetStorageFileSize(storage, filename.c_str(), &file_size)) {
+        printf("无法获取文件大小。FileName: %s\n", filename.c_str());
         return nullptr;
     }
     std::vector<Uint8> data(file_size);
-    if (!SDL_ReadStorageFile(storage, filename, data.data(), file_size)) {
-        printf("无法读取文件。FileName: %s\n", filename);
+    if (!SDL_ReadStorageFile(storage, filename.c_str(), data.data(), file_size)) {
+        printf("无法读取文件。FileName: %s\n", filename.c_str());
         return nullptr;
     }
     SDL_GPUShaderCreateInfo ci = {};
     ci.code = data.data();
     ci.code_size = data.size();
-    ci.entrypoint = "main0";
+    ci.entrypoint = entrypoint;
     ci.format = format;
     ci.num_samplers = 0;
     ci.num_storage_buffers = 0;
@@ -31,7 +44,7 @@ SDL_GPUShader* LoadSceneShader(SDL_GPUDevice* device, const char* filename, SDL_
     return SDL_CreateGPUShader(device, &ci);
 }
 
-SDL_GPUGraphicsPipeline* CreateSceneTrianglePipeline(SDL_GPUDevice* device, SDL_GPUShader* vs, SDL_GPUShader* fs) {
+SDL_GPUGraphicsPipeline* CreatePipeline(SDL_GPUDevice* device, SDL_GPUShader* vs, SDL_GPUShader* fs) {
     SDL_GPUGraphicsPipelineCreateInfo ci = {};
     ci.vertex_input_state.num_vertex_attributes = 0;
     ci.vertex_input_state.num_vertex_buffers = 0;
