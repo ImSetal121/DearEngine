@@ -8,6 +8,7 @@
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlgpu3.h"
+#include "engine/core/Log.h"
 #include "engine/util/AboutGPU.h"
 #include "engine/window/ConsoleWindow.h"
 #include "engine/window/GameobjectComponentWindow.h"
@@ -141,6 +142,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     // 引擎部分
     {
+        // 欢迎语
+        DE::Log::Info("Welcome to Dear Engine.");
         // 检查工作目录
         CheckCurrentPath();
         // 加载字体

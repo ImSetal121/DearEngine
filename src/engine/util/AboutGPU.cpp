@@ -12,22 +12,22 @@ SDL_GPUShader* LoadShader(SDL_GPUDevice* device, std::string filename, SDL_Stora
     char* entrypoint;
     SDL_GPUShaderFormat format;
     if (use_metal) {
-        filename+=".msl";
+        filename += ".msl";
         entrypoint = "main0";
         format = SDL_GPU_SHADERFORMAT_MSL;
     }else {
-        filename+=".spv";
+        filename += ".spv";
         entrypoint = "main";
         format = SDL_GPU_SHADERFORMAT_SPIRV;
     }
     Uint64 file_size;
     if (!SDL_GetStorageFileSize(storage, filename.c_str(), &file_size)) {
-        printf("无法获取文件大小。FileName: %s\n", filename.c_str());
+        printf("无法获取文件大小.   FileName: %s\n", filename.c_str());
         return nullptr;
     }
     std::vector<Uint8> data(file_size);
     if (!SDL_ReadStorageFile(storage, filename.c_str(), data.data(), file_size)) {
-        printf("无法读取文件。FileName: %s\n", filename.c_str());
+        printf("无法读取文件.   FileName: %s\n", filename.c_str());
         return nullptr;
     }
     SDL_GPUShaderCreateInfo ci = {};
