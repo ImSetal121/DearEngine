@@ -8,6 +8,7 @@
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlgpu3.h"
+#include "engine/util/AboutGPU.h"
 #include "engine/window/ConsoleWindow.h"
 #include "engine/window/GameobjectComponentWindow.h"
 #include "engine/window/SceneTreeWindow.h"
@@ -25,6 +26,13 @@ struct AppState {
     SDL_GPUDevice *gpu_device = nullptr;
     // 引擎相关
     Uint64 current_time_ns = 0;
+    // 引擎场景视口绘制
+    SDL_GPUTexture* scene_viewport_texture = nullptr;
+    SDL_GPUShader* scene_vertex_shader = nullptr;
+    SDL_GPUShader* scene_fragment_shader = nullptr;
+    SDL_GPUGraphicsPipeline* scene_triangle_pipeline = nullptr;
+    int scene_viewport_texture_width = 256;
+    int scene_viewport_texture_height = 256;
     // 引擎窗口
     ConsoleWindow *console_window = nullptr;
     SceneTreeWindow *scene_tree_window = nullptr;
@@ -136,7 +144,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         // 检查工作目录
         CheckCurrentPath();
         // 加载字体
-        std::string font_path_str = GetEngineAssetsPath() + "ttf/HarmonyOS_Sans_SC/HarmonyOS_Sans_SC_Bold.ttf";
+        std::string font_path_str = GetEngineAssetsPath() + "ttf/HarmonyOS_Sans_SC/HarmonyOS_Sans_SC_Regular.ttf";
         const char* font_path_chinese = font_path_str.c_str();
         if (font_path_chinese)
             io.Fonts->AddFontFromFileTTF(font_path_chinese, 16.0f, nullptr, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
@@ -145,6 +153,43 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         state->scene_tree_window = new SceneTreeWindow();
         state->gameobject_component_window = new GameobjectComponentWindow();
         state->scene_viewport_window = new SceneViewportWindow();
+        // 为场景视口创建绘制纹理
+        SDL_GPUTextureCreateInfo texture_info = {};
+        texture_info.type = SDL_GPU_TEXTURETYPE_2D;              // 二维纹理
+        texture_info.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;  // 每像素 RGBA 8 位，归一化 [0,1]
+        texture_info.usage = SDL_GPU_TEXTUREUSAGE_COLOR_TARGET | SDL_GPU_TEXTUREUSAGE_SAMPLER;  // 可作渲染目标且可被采样（如 ImGui 显示）
+        texture_info.width = (Uint32)state->scene_viewport_texture_width;   // 纹理宽度（像素）
+        texture_info.height = (Uint32)state->scene_viewport_texture_height;  // 纹理高度（像素）
+        texture_info.layer_count_or_depth = 1;   // 2D 纹理层数/3D 深度，此处为 1
+        texture_info.num_levels = 1;             //  mip 级数，1 表示不生成 mip
+        texture_info.sample_count = SDL_GPU_SAMPLECOUNT_1;  // 每像素 1 采样（无多重采样）
+        texture_info.props = 0;                 // 扩展属性，0 表示无
+        state->scene_viewport_texture = SDL_CreateGPUTexture(state->gpu_device, &texture_info);
+        if (state->scene_viewport_texture)
+            state->scene_viewport_window->SetViewportTexture(state->scene_viewport_texture, &state->scene_viewport_texture_width, &state->scene_viewport_texture_height);
+
+        SDL_Storage* storage = SDL_OpenFileStorage(GetEngineAssetsPath().c_str());
+        if (storage) {
+            while (!SDL_StorageReady(storage)) SDL_Delay(1);
+            const char* backend = SDL_GetGPUDeviceDriver(state->gpu_device);
+            bool use_metal = backend && SDL_strcasecmp(backend, "Metal") == 0;
+            if (use_metal) {
+                std::string vert_shader_path = "shader/default_vert.msl";
+                std::string frag_shader_path = "shader/default_frag.msl";
+                state->scene_vertex_shader   = LoadSceneShader(state->gpu_device, vert_shader_path.c_str(), storage, SDL_GPU_SHADERSTAGE_VERTEX,   SDL_GPU_SHADERFORMAT_MSL);
+                state->scene_fragment_shader = LoadSceneShader(state->gpu_device, frag_shader_path.c_str(), storage, SDL_GPU_SHADERSTAGE_FRAGMENT, SDL_GPU_SHADERFORMAT_MSL);
+            } else {
+                std::string vert_shader_path = "shader/default_vert.spv";
+                std::string frag_shader_path = "shader/default_frag.spv";
+                state->scene_vertex_shader   = LoadSceneShader(state->gpu_device, vert_shader_path.c_str(), storage, SDL_GPU_SHADERSTAGE_VERTEX,   SDL_GPU_SHADERFORMAT_SPIRV);
+                state->scene_fragment_shader = LoadSceneShader(state->gpu_device, frag_shader_path.c_str(), storage, SDL_GPU_SHADERSTAGE_FRAGMENT, SDL_GPU_SHADERFORMAT_SPIRV);
+            }
+            SDL_CloseStorage(storage);
+            if (state->scene_vertex_shader && state->scene_fragment_shader) {
+                state->scene_triangle_pipeline = CreateSceneTrianglePipeline(state->gpu_device, state->scene_vertex_shader, state->scene_fragment_shader);
+            }
+        }
+
         // 返回AppState指针
         *appstate = state;
     }
@@ -272,6 +317,32 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
     SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(state->gpu_device); // 获取 GPU 命令缓冲
 
+    {
+        // 引擎绘制
+        if (state->scene_viewport_texture && state->scene_triangle_pipeline && state->scene_viewport_texture_width > 0 && state->scene_viewport_texture_height > 0) {
+            SDL_GPUColorTargetInfo viewport_target = {};
+            viewport_target.texture = state->scene_viewport_texture;
+            viewport_target.clear_color = SDL_FColor{ 0.1f, 0.1f, 0.1f, 1.0f };
+            viewport_target.load_op = SDL_GPU_LOADOP_CLEAR;
+            viewport_target.store_op = SDL_GPU_STOREOP_STORE;
+            viewport_target.mip_level = 0;
+            viewport_target.layer_or_depth_plane = 0;
+            viewport_target.cycle = false;
+            SDL_GPURenderPass* rp = SDL_BeginGPURenderPass(command_buffer, &viewport_target, 1, nullptr);
+            SDL_BindGPUGraphicsPipeline(rp, state->scene_triangle_pipeline);
+            SDL_GPUViewport vp = {};
+            vp.x = 0;
+            vp.y = 0;
+            vp.w = state->scene_viewport_texture_width;
+            vp.h = state->scene_viewport_texture_height;
+            vp.min_depth = 0.0f;
+            vp.max_depth = 1.0f;
+            SDL_SetGPUViewport(rp, &vp);
+            SDL_DrawGPUPrimitives(rp, 3, 1, 0, 0);
+            SDL_EndGPURenderPass(rp);
+        }
+    }
+
     SDL_GPUTexture* swapchain_texture;
     SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, state->window, &swapchain_texture, nullptr, nullptr); // 获取交换链纹理
 
@@ -319,6 +390,25 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     ImGui_ImplSDL3_Shutdown();
     ImGui_ImplSDLGPU3_Shutdown();
     ImGui::DestroyContext();
+
+    {
+        if (state->scene_viewport_texture) {
+            SDL_ReleaseGPUTexture(state->gpu_device, state->scene_viewport_texture);
+            state->scene_viewport_texture = nullptr;
+        }
+        if (state->scene_triangle_pipeline) {
+            SDL_ReleaseGPUGraphicsPipeline(state->gpu_device, state->scene_triangle_pipeline);
+            state->scene_triangle_pipeline = nullptr;
+        }
+        if (state->scene_vertex_shader) {
+            SDL_ReleaseGPUShader(state->gpu_device, state->scene_vertex_shader);
+            state->scene_vertex_shader = nullptr;
+        }
+        if (state->scene_fragment_shader) {
+            SDL_ReleaseGPUShader(state->gpu_device, state->scene_fragment_shader);
+            state->scene_fragment_shader = nullptr;
+        }
+    }
 
     SDL_ReleaseWindowFromGPUDevice(state->gpu_device, state->window);
     SDL_DestroyGPUDevice(state->gpu_device);
