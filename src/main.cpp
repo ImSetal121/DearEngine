@@ -14,7 +14,7 @@
 #include "engine/window/SceneTreeWindow.h"
 #include "engine/window/SceneViewportWindow.h"
 
-// 本示例状态
+// 示例状态
 bool show_demo_window = false;
 
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -31,8 +31,8 @@ struct AppState {
     SDL_GPUShader* scene_vertex_shader = nullptr;
     SDL_GPUShader* scene_fragment_shader = nullptr;
     SDL_GPUGraphicsPipeline* scene_triangle_pipeline = nullptr;
-    int scene_viewport_texture_width = 256;
-    int scene_viewport_texture_height = 256;
+    int scene_viewport_texture_width = 1280;
+    int scene_viewport_texture_height = 720;
     // 引擎窗口
     ConsoleWindow *console_window = nullptr;
     SceneTreeWindow *scene_tree_window = nullptr;
@@ -166,7 +166,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         texture_info.props = 0;                 // 扩展属性，0 表示无
         state->scene_viewport_texture = SDL_CreateGPUTexture(state->gpu_device, &texture_info);
         if (state->scene_viewport_texture)
-            state->scene_viewport_window->SetViewportTexture(state->scene_viewport_texture, &state->scene_viewport_texture_width, &state->scene_viewport_texture_height);
+            state->scene_viewport_window->SetViewportTexture(state->scene_viewport_texture, state->scene_viewport_texture_width, state->scene_viewport_texture_height);
 
         SDL_Storage* storage = SDL_OpenFileStorage(GetEngineAssetsPath().c_str());
         if (storage) {
