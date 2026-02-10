@@ -26,14 +26,14 @@ foreach(glsl_file ${GLSL_FILES})
 endforeach()
 add_custom_target(compile_all_shaders DEPENDS ${SHADER_OUTPUTS})
 
-# LearnCPP 可执行文件（源、链接、include）
+# DearEngine 可执行文件（源、链接、include）
 
 file(GLOB_RECURSE SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB_RECURSE HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 
 set(ALL_FILES ${SRC_FILES} ${HEADER_FILES})
 
-add_executable(LearnCPP
+add_executable(DearEngine
         ${ALL_FILES}
         # ImGui 核心
         ${IMGUI_DIR}/imgui.cpp
@@ -46,15 +46,15 @@ add_executable(LearnCPP
         ${IMGUI_DIR}/backends/imgui_impl_sdlgpu3.cpp
 )
 
-add_dependencies(LearnCPP compile_all_shaders)
+add_dependencies(DearEngine compile_all_shaders)
 
 # Link to the library.
-target_link_libraries(LearnCPP PRIVATE
+target_link_libraries(DearEngine PRIVATE
         SDL3::SDL3
 )
 
 # Add include directories.
-target_include_directories(LearnCPP PRIVATE
+target_include_directories(DearEngine PRIVATE
         ${IMGUI_DIR}
         ${IMGUI_DIR}/backends
 )

@@ -1,7 +1,7 @@
 # 项目设置、子模块、add_subdirectory(src)
 
 cmake_minimum_required(VERSION 4.0)
-project(LearnCPP)
+project(DearEngine)
 
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
