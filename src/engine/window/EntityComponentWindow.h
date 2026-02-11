@@ -2,14 +2,14 @@
 // Created by ImSetal on 2026/2/8.
 //
 
-#ifndef LEARNCPP_GAMEOBJECTCOMPONENTWINDOW_H
-#define LEARNCPP_GAMEOBJECTCOMPONENTWINDOW_H
+#ifndef DEARENGINE_ENTITYCOMPONENTWINDOW_H
+#define DEARENGINE_ENTITYCOMPONENTWINDOW_H
 #include "IEngineWindow.h"
 
 
-class GameobjectComponentWindow : public IEngineWindow {
+class EntityComponentWindow : public IEngineWindow {
 public:
-    GameobjectComponentWindow();
+    EntityComponentWindow();
     /** 窗口标题，用于 ImGui::Begin(title, ...) */
     const char* Title() const override;
     /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
@@ -17,4 +17,4 @@ public:
 };
 
 
-#endif //LEARNCPP_GAMEOBJECTCOMPONENTWINDOW_H
+#endif //DEARENGINE_ENTITYCOMPONENTWINDOW_H

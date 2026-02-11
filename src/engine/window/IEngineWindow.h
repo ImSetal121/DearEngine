@@ -2,8 +2,8 @@
 // Created by ImSetal on 2026/2/8.
 //
 
-#ifndef LEARNCPP_IENGINEWINDOW_H
-#define LEARNCPP_IENGINEWINDOW_H
+#ifndef DEARENGINE_IENGINEWINDOW_H
+#define DEARENGINE_IENGINEWINDOW_H
 
 /**
  * 引擎窗口抽象基类。
@@ -21,4 +21,4 @@ public:
     bool open = true;
 };
 
-#endif //LEARNCPP_IENGINEWINDOW_H
+#endif //DEARENGINE_IENGINEWINDOW_H

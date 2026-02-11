@@ -2,8 +2,8 @@
 // Created by ImSetal on 2026/2/10.
 //
 
-#ifndef LEARNCPP_ABOUTGPU_H
-#define LEARNCPP_ABOUTGPU_H
+#ifndef DEARENGINE_ABOUTGPU_H
+#define DEARENGINE_ABOUTGPU_H
 
 #include <string>
 
@@ -14,4 +14,4 @@ SDL_GPUShader* LoadShader(SDL_GPUDevice* device, std::string filename, SDL_Stora
 
 SDL_GPUGraphicsPipeline* CreatePipeline(SDL_GPUDevice* device, SDL_GPUShader* vs, SDL_GPUShader* fs);
 
-#endif //LEARNCPP_ABOUTGPU_H
+#endif //DEARENGINE_ABOUTGPU_H

@@ -2,8 +2,8 @@
 // Created by ImSetal on 2026/2/8.
 //
 
-#ifndef LEARNCPP_SCENETREEWINDOW_H
-#define LEARNCPP_SCENETREEWINDOW_H
+#ifndef DEARENGINE_SCENETREEWINDOW_H
+#define DEARENGINE_SCENETREEWINDOW_H
 #include "IEngineWindow.h"
 
 
@@ -17,4 +17,4 @@ public:
 };
 
 
-#endif //LEARNCPP_SCENETREEWINDOW_H
+#endif //DEARENGINE_SCENETREEWINDOW_H

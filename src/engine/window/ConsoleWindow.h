@@ -2,8 +2,8 @@
 // Created by ImSetal on 2026/2/8.
 //
 
-#ifndef LEARNCPP_CONSOLEWINDOW_H
-#define LEARNCPP_CONSOLEWINDOW_H
+#ifndef DEARENGINE_CONSOLEWINDOW_H
+#define DEARENGINE_CONSOLEWINDOW_H
 
 #include "IEngineWindow.h"
 
@@ -17,4 +17,4 @@ class ConsoleWindow : public IEngineWindow {
 };
 
 
-#endif //LEARNCPP_CONSOLEWINDOW_H
+#endif //DEARENGINE_CONSOLEWINDOW_H

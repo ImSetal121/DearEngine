@@ -11,7 +11,7 @@
 #include "engine/core/Log.h"
 #include "engine/util/AboutGPU.h"
 #include "engine/window/ConsoleWindow.h"
-#include "engine/window/GameobjectComponentWindow.h"
+#include "engine/window/EntityComponentWindow.h"
 #include "engine/window/SceneTreeWindow.h"
 #include "engine/window/SceneViewportWindow.h"
 
@@ -37,7 +37,7 @@ struct AppState {
     // 引擎窗口
     ConsoleWindow *console_window = nullptr;
     SceneTreeWindow *scene_tree_window = nullptr;
-    GameobjectComponentWindow *gameobject_component_window = nullptr;
+    EntityComponentWindow *gameobject_component_window = nullptr;
     SceneViewportWindow *scene_viewport_window = nullptr;
 };
 
@@ -154,7 +154,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         // 初始化state窗口
         state->console_window = new ConsoleWindow();
         state->scene_tree_window = new SceneTreeWindow();
-        state->gameobject_component_window = new GameobjectComponentWindow();
+        state->gameobject_component_window = new EntityComponentWindow();
         state->scene_viewport_window = new SceneViewportWindow();
         // 为场景视口创建绘制纹理
         SDL_GPUTextureCreateInfo texture_info = {};
@@ -282,10 +282,10 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         double current_time = current_time_ns / 1000000000.0;
         double delta_time = delta_time_ns / 1000000000.0;
 
-        if ((long)(current_time/0.2) != window_title_update_time) {
+        if ((long)(current_time/1.0) != window_title_update_time) {
             std::string new_title = "Dear Engine.  FPS:" + std::to_string(io.Framerate);
             SDL_SetWindowTitle(state->window, new_title.c_str());
-            window_title_update_time = (long)(current_time/0.2);
+            window_title_update_time = (long)(current_time/1.0);
         }
 
         {   // 引擎窗口绘制

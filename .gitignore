@@ -5,3 +5,5 @@ build
 .cursor
 
 imgui.ini
+
+.DS_Store

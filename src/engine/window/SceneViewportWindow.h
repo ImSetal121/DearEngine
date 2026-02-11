@@ -2,8 +2,8 @@
 // Created by ImSetal on 2026/2/8.
 //
 
-#ifndef LEARNCPP_SCENEVIEWPORTWINDOW_H
-#define LEARNCPP_SCENEVIEWPORTWINDOW_H
+#ifndef DEARENGINE_SCENEVIEWPORTWINDOW_H
+#define DEARENGINE_SCENEVIEWPORTWINDOW_H
 #include "IEngineWindow.h"
 
 
@@ -24,4 +24,4 @@ class SceneViewportWindow : public IEngineWindow {
 };
 
 
-#endif //LEARNCPP_SCENEVIEWPORTWINDOW_H
+#endif //DEARENGINE_SCENEVIEWPORTWINDOW_H
