@@ -2,7 +2,7 @@
 # 引入 shader 编译宏（glslc → spv，spirv-cross → msl）
 include(${CMAKE_SOURCE_DIR}/cmake/compile_shader.cmake)
 
-# 递归收集 src 下所有 glsl 文件，生成同名 .spv 和 .msl
+# 递归收集 src 下所有 glsl 文件，编译生成同名 .spv 和 .msl
 file(GLOB_RECURSE GLSL_FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/*.vert"
     "${CMAKE_CURRENT_SOURCE_DIR}/*.frag"
