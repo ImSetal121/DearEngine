@@ -28,6 +28,8 @@ namespace DE {
 
         static Scene* GetEditingScene();
         static void SetEditingScene(Scene* scene);
+        static Entity* GetSelectedEntity();
+        static void SetSelectedEntity(Entity* entity);
 
     };
 }

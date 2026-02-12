@@ -22,7 +22,9 @@
 
 namespace DE {
     //正在编辑的场景
-    Scene* editing_scene = nullptr;
+    std::unique_ptr<Scene> editing_scene = nullptr;
+    //当前选中的实体
+    Entity* selected_entity = nullptr;
 
     // 示例状态
     bool show_demo_window = false;
@@ -74,14 +76,23 @@ namespace DE {
             }
         }
 
-        // 测试场景
-        auto test_scene = std::make_unique<Scene>();
-        auto test_entity = std::make_unique<Entity>();
+        {
+            // 测试场景
+            auto test_scene = std::make_unique<Scene>();
+            auto test_entity = std::make_unique<Entity>();
+            test_entity->name = "entity";
+            auto test_children = std::make_unique<Entity>();
+            test_children->name = "children";
+            auto test_entity_1 = std::make_unique<Entity>();
+            test_entity_1->name = "entity_1";
 
-        test_entity->AddComponent<TestComponent>();
-        test_scene->root_.push_back(std::move(test_entity));
+            test_entity->children_.push_back(std::move(test_children));
+            test_entity->AddComponent<TestComponent>();
+            test_scene->root_.push_back(std::move(test_entity));
+            test_scene->root_.push_back(std::move(test_entity_1));
 
-        editing_scene = test_scene.get();
+            editing_scene = std::move(test_scene);
+        }
 
         return true;
     }
@@ -229,10 +240,14 @@ namespace DE {
     }
 
     Scene* Engine::GetEditingScene() {
-        return editing_scene;
+        return editing_scene ? editing_scene.get() : nullptr;
     }
 
-    void Engine::SetEditingScene(Scene* scene) {
-        editing_scene = scene;
+    Entity * Engine::GetSelectedEntity() {
+        return selected_entity;
+    }
+
+    void Engine::SetSelectedEntity(Entity *entity) {
+        selected_entity = entity;
     }
 }

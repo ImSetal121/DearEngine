@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <SDL3/SDL.h>
@@ -26,6 +27,10 @@ std::string GetEngineAssetsPath() {
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
+    for (int i = 0; i < SDL_GetNumGPUDrivers(); i++) {
+        std::cout << SDL_GetGPUDriver(i) << std::endl;
+    }
+
     // 初始化AppState
     auto *state = new AppState();
 

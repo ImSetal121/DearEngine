@@ -5,6 +5,7 @@
 #ifndef DEARENGINE_SCENETREEWINDOW_H
 #define DEARENGINE_SCENETREEWINDOW_H
 #include "IEngineWindow.h"
+#include "../core/Entity.h"
 
 
 class SceneTreeWindow : public IEngineWindow {
@@ -14,6 +15,8 @@ public:
     const char* Title() const override;
     /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
     void Draw() override;
+    /** 绘制单个实体 */
+    static void DrawEntityNode(DE::Entity* entity);
 };
 
 
