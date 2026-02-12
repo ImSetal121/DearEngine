@@ -5,6 +5,7 @@
 #include "Engine.h"
 
 #include <filesystem>
+#include <memory>
 
 #include "imgui.h"
 #include "core/Log.h"
@@ -17,14 +18,18 @@
 #include "window/SceneTreeWindow.h"
 #include "window/SceneViewportWindow.h"
 #include "../Appstate.h"
+#include "core/component/TestComponent.h"
 
 namespace DE {
+    //正在编辑的场景
+    Scene* editing_scene = nullptr;
+
     // 示例状态
     bool show_demo_window = false;
     long window_title_update_time = 0;
 
     void CheckCurrentPath() {
-        printf("Current working directory: %s\n", std::filesystem::current_path().c_str());
+        Log::Info(std::string("当前工作路径: ") + std::filesystem::current_path().string()+"\n");
     }
 
     std::string GetEngineAssetsPath() {
@@ -68,6 +73,15 @@ namespace DE {
                 state->scene_triangle_pipeline = CreatePipeline(state->gpu_device, state->scene_vertex_shader, state->scene_fragment_shader);
             }
         }
+
+        // 测试场景
+        auto test_scene = std::make_unique<Scene>();
+        auto test_entity = std::make_unique<Entity>();
+
+        test_entity->AddComponent<TestComponent>();
+        test_scene->root_.push_back(std::move(test_entity));
+
+        editing_scene = test_scene.get();
 
         return true;
     }
@@ -215,12 +229,10 @@ namespace DE {
     }
 
     Scene* Engine::GetEditingScene() {
-        static Scene* editing_scene = nullptr;
         return editing_scene;
     }
 
     void Engine::SetEditingScene(Scene* scene) {
-        static Scene* editing_scene = nullptr;
         editing_scene = scene;
     }
 }

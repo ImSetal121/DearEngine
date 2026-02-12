@@ -14,6 +14,8 @@ namespace DE {
     public:
         std::string name;
 
+        std::vector<std::unique_ptr<Entity>> GetRootList;
+
         ~Scene() = default;
     public:
         std::vector<std::unique_ptr<Entity>> root_;

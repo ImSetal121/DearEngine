@@ -26,12 +26,4 @@ namespace DE {
         return result;
     }
 
-    const std::vector<std::unique_ptr<Entity>> &Entity::GetChildren() const {
-        return children_;
-    }
-
-    const std::unordered_map<std::type_index, std::unique_ptr<IComponent>> &Entity::GetComponentList() const {
-        return components_;
-    }
-
 }

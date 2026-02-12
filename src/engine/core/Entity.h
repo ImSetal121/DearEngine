@@ -18,6 +18,9 @@ namespace DE {
     class Entity {
     public:
         std::string name;
+        Entity* parent_ = nullptr;
+        std::vector<std::unique_ptr<Entity>> children_;
+        std::unordered_map<std::type_index, std::unique_ptr<IComponent>> components_;
 
         ~Entity() = default;
 
@@ -58,14 +61,6 @@ namespace DE {
         bool HasComponent() const {
             return components_.find(std::type_index(typeid(T))) != components_.end();
         }
-
-        const std::vector<std::unique_ptr<Entity>> &GetChildren() const;
-        const std::unordered_map<std::type_index, std::unique_ptr<IComponent>> &GetComponentList() const;
-
-    private:
-        Entity* parent_ = nullptr;
-        std::vector<std::unique_ptr<Entity>> children_;
-        std::unordered_map<std::type_index, std::unique_ptr<IComponent>> components_;
     };
 
 }
