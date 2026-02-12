@@ -7,7 +7,13 @@
 
 namespace DE {
 
-    class IComponent;
+    class IComponent {
+        public:
+        virtual ~IComponent() = default;
+
+        virtual void Start() = 0;
+        virtual void Iterate() = 0;
+    };
 
 }
 

@@ -19,6 +19,8 @@
 #include "../Appstate.h"
 
 namespace DE {
+    // 示例状态
+    bool show_demo_window = false;
     long window_title_update_time = 0;
 
     void CheckCurrentPath() {
@@ -92,11 +94,69 @@ namespace DE {
 
         {   // 引擎窗口绘制
 
+            // 0. 创建主停靠窗口
+            ImGuiViewport* viewport = ImGui::GetMainViewport();
+            ImGui::SetNextWindowPos(viewport->WorkPos);
+            ImGui::SetNextWindowSize(viewport->WorkSize);
+            ImGui::SetNextWindowViewport(viewport->ID);
+            ImGuiWindowFlags host_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse
+                | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking
+                | ImGuiWindowFlags_MenuBar;   // 需要菜单栏就加 MenuBar
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+            ImGui::Begin("MainDockHost", nullptr, host_flags);
+            ImGui::PopStyleVar(3);
+            // 1. 最上方固定菜单栏
+            if (ImGui::BeginMenuBar())
+            {
+                if (ImGui::BeginMenu("文件"))
+                {
+                    if (ImGui::MenuItem("保存")) { /* ... */ }
+                    ImGui::Separator();
+                    if (ImGui::MenuItem("关闭")) { return SDL_APP_SUCCESS; }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::BeginMenu("窗口"))
+                {
+                    ImGui::Checkbox(state->console_window->Title(), &state->console_window->open);
+                    ImGui::Checkbox(state->scene_tree_window->Title(), &state->scene_tree_window->open);
+                    ImGui::Checkbox(state->entity_component_window->Title(), &state->entity_component_window->open);
+                    ImGui::Checkbox(state->scene_viewport_window->Title(), &state->scene_viewport_window->open);
+                    ImGui::Separator();
+                    ImGui::Checkbox("ImGui演示窗口", &show_demo_window);
+                    ImGui::EndMenu();
+                }
+                if (ImGui::BeginMenu("帮助"))
+                {
+                    if (ImGui::MenuItem("关于Dear Engine")) { /* ... */ }
+                    ImGui::EndMenu();
+                }
+                // 将运行按钮放在中间（约窗口宽度的中央）
+                ImGui::SameLine((ImGui::GetWindowWidth() - 80.0f) * 0.5f);  // 80 为按钮大致宽度
+                if (ImGui::MenuItem("运行")) {
+                    DE::Log::Debug("开始运行.");
+                }
+                ImGui::SameLine();
+                ImGui::EndMenuBar();
+            }
+            // 2. 下方是 DockSpace，其它窗口停靠到这里
+            ImGui::DockSpace(ImGui::GetID("MainDockSpace"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+            ImGui::End();
+
             state->console_window->Draw();  // 控制台
             state->scene_tree_window->Draw();   // 场景树
-            state->entity_component_window->Draw();   // GameObject组件
+            state->entity_component_window->Draw();   // 实体组件
             state->scene_viewport_window->Draw();   // 场景视口
 
+            // 可选. 显示大型演示窗口（大部分示例代码在 ImGui::ShowDemoWindow() 中，可浏览其代码以进一步了解 Dear ImGui）。
+            if (show_demo_window)
+                ImGui::ShowDemoWindow(&show_demo_window);
+
+        }
+
+        if (GetEditingScene() == nullptr) {
+            DE::Log::Warning("没有正在编辑的场景.");
         }
 
         return true;
@@ -152,5 +212,15 @@ namespace DE {
             state->scene_fragment_shader = nullptr;
         }
         return true;
+    }
+
+    Scene* Engine::GetEditingScene() {
+        static Scene* editing_scene = nullptr;
+        return editing_scene;
+    }
+
+    void Engine::SetEditingScene(Scene* scene) {
+        static Scene* editing_scene = nullptr;
+        editing_scene = scene;
     }
 }

@@ -5,6 +5,7 @@
 #ifndef DEARENGINE_ENGINE_H
 #define DEARENGINE_ENGINE_H
 
+#include "core/Scene.h"
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_gpu.h"
 #include "SDL3/SDL_init.h"
@@ -25,7 +26,8 @@ namespace DE {
         /** 引擎生命周期:结束 */
         static bool Quit(void *appstate, SDL_AppResult result);
 
-        ~Engine() = default;
+        static Scene* GetEditingScene();
+        static void SetEditingScene(Scene* scene);
 
     };
 }

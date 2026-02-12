@@ -5,44 +5,28 @@
 #ifndef DEARENGINE_IENTITY_H
 #define DEARENGINE_IENTITY_H
 #include <functional>
+#include <memory>
 #include <string>
 #include <typeindex>
 #include <unordered_map>
+#include <vector>
 
-#include "IComponent.h"
+#include "component/IComponent.h"
 
 namespace DE {
 
-    class IEntity {
+    class Entity {
     public:
-        virtual ~IEntity() = default;
+        std::string name;
+
+        ~Entity() = default;
 
         // 子实体操作
         // 添加子实体
-        IEntity* AddChild(std::unique_ptr<IEntity> child) {
-            child->parent_ = this;
-            IEntity* raw = child.get();
-            children_.push_back(std::move(child));
-            return raw;
-        }
+        Entity* AddChild(std::unique_ptr<Entity> child);
 
         // 从父节点移除（通常返回 unique_ptr 给调用方）
-        std::unique_ptr<IEntity> DetachChild(IEntity* child) {
-            auto it = std::find_if(children_.begin(), children_.end(),
-                [child](const auto& p) { return p.get() == child; });
-            if (it == children_.end()) return nullptr;
-            std::unique_ptr<IEntity> result = std::move(*it);
-            children_.erase(it);
-            result->parent_ = nullptr;
-            return result;
-        }
-
-        // 递归遍历
-        void ForEachEntity(std::function<void(IEntity*)> func) {
-            func(this);
-            for (auto& child : children_)
-                child->ForEachEntity(func);
-        }
+        std::unique_ptr<Entity> DetachChild(Entity* child);
 
         // 组件操作
         // 添加组件
@@ -75,15 +59,12 @@ namespace DE {
             return components_.find(std::type_index(typeid(T))) != components_.end();
         }
 
-        // 属性Getter/Setter
-        virtual std::string GetName();
-        virtual void SetName(std::string name);
-        std::vector<std::unique_ptr<IEntity>> GetChildren(){ return children_; }
-        std::unordered_map<std::type_index, std::unique_ptr<IComponent>> GetComponentList(){ return components_; }
+        const std::vector<std::unique_ptr<Entity>> &GetChildren() const;
+        const std::unordered_map<std::type_index, std::unique_ptr<IComponent>> &GetComponentList() const;
 
     private:
-        IEntity* parent_ = nullptr;
-        std::vector<std::unique_ptr<IEntity>> children_;
+        Entity* parent_ = nullptr;
+        std::vector<std::unique_ptr<Entity>> children_;
         std::unordered_map<std::type_index, std::unique_ptr<IComponent>> components_;
     };
 
