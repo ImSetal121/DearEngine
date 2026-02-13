@@ -11,11 +11,10 @@
 namespace DA {
     class Application {
     public:
-        Application() = default;
-        ~Application() = default;
+        DE::Scene* current_playing_scene = nullptr;
 
         /** 引擎生命周期:启动 */
-        bool Strat(void *appstate, int argc, char *argv[]);
+        bool Strat(void *appstate, DE::Scene *scene);
         /** 引擎生命周期:事件 */
         bool Event(void *appstate, SDL_Event *event);
         /** 引擎生命周期:每帧逻辑 */
@@ -25,8 +24,10 @@ namespace DA {
         /** 引擎生命周期:结束 */
         bool Quit(void *appstate, SDL_AppResult result);
 
-    private:
-        DE::Scene* first_scene = nullptr;
+        void SetCurrentPlayingScene(DE::Scene* scene);
+
+        Application() = default;
+        ~Application() = default;
     };
 } // DA
 

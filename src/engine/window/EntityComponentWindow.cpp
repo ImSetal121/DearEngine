@@ -35,13 +35,13 @@ void EntityComponentWindow::Draw() {
     ImGui::Text("实体: %s", entity->name.c_str());
     ImGui::Separator();
 
-    if (entity->components_.empty()) {
+    if (entity->components.empty()) {
         ImGui::TextDisabled("(无组件)");
     } else {
-        for (auto& kv : entity->components_) {
+        for (auto& kv : entity->components) {
             const std::type_index& typeId = kv.first;
             // typeid.name() 可能返回修饰名，例如 "class DE::TestComponent"
-            ImGui::BulletText("%s", typeId.name());
+            ImGui::BulletText("%s", kv.second->GetComponentName());
         }
     }
 

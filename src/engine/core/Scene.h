@@ -18,7 +18,7 @@ namespace DE {
 
         ~Scene() = default;
     public:
-        std::vector<std::unique_ptr<Entity>> root_;
+        std::vector<std::unique_ptr<Entity>> root;
     };
 }
 

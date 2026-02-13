@@ -27,8 +27,16 @@ std::string GetEngineAssetsPath() {
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
+    std::print("指令个数: {}\n", argc);
+    for (int i = 0; i < argc; ++i) {
+        std::print("  [{}] {}\n", i, argv[i]);
+    }
+
+    std::print("本设备支持的图形驱动:");
     for (int i = 0; i < SDL_GetNumGPUDrivers(); i++) {
-        std::cout << SDL_GetGPUDriver(i) << std::endl;
+        std::print(" {}", SDL_GetGPUDriver(i));
+        if (i == SDL_GetNumGPUDrivers() - 1) std::print(".\n");
+        else std::print(",");
     }
 
     // 初始化AppState

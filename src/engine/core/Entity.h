@@ -18,9 +18,9 @@ namespace DE {
     class Entity {
     public:
         std::string name;
-        Entity* parent_ = nullptr;
-        std::vector<std::unique_ptr<Entity>> children_;
-        std::unordered_map<std::type_index, std::unique_ptr<IComponent>> components_;
+        Entity* parent = nullptr;
+        std::vector<std::unique_ptr<Entity>> children;
+        std::unordered_map<std::type_index, std::unique_ptr<IComponent>> components;
 
         ~Entity() = default;
 
@@ -38,28 +38,28 @@ namespace DE {
             auto typeId = std::type_index(typeid(T));
             auto ptr = std::make_unique<T>(std::forward<Args>(args)...);
             T* raw = ptr.get();
-            components_[typeId] = std::move(ptr);
+            components[typeId] = std::move(ptr);
             return raw;
         }
         
         // 获取组件（返回 nullptr 表示不存在）
         template<typename T>
         T* GetComponent() {
-            auto it = components_.find(std::type_index(typeid(T)));
-            if (it == components_.end()) return nullptr;
+            auto it = components.find(std::type_index(typeid(T)));
+            if (it == components.end()) return nullptr;
             return static_cast<T*>(it->second.get());
         }
         
         // 移除组件
         template<typename T>
         void RemoveComponent() {
-            components_.erase(std::type_index(typeid(T)));
+            components.erase(std::type_index(typeid(T)));
         }
         
         // 检查是否有某类型组件
         template<typename T>
         bool HasComponent() const {
-            return components_.find(std::type_index(typeid(T))) != components_.end();
+            return components.find(std::type_index(typeid(T))) != components.end();
         }
     };
 

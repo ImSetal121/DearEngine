@@ -24,7 +24,7 @@ void SceneTreeWindow::Draw() {
 
     DE::Scene* scene = DE::Engine::GetEditingScene();
     if (scene) {
-        for (auto& entity : scene->root_) {
+        for (auto& entity : scene->root) {
             DrawEntityNode(entity.get());
         }
     } else {
@@ -39,7 +39,7 @@ void SceneTreeWindow::DrawEntityNode(DE::Entity *entity) {
 
     // 叶子节点用 ImGuiTreeNodeFlags_Leaf，有子节点则用默认
     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
-    if (entity->children_.empty()) {
+    if (entity->children.empty()) {
         flags |= ImGuiTreeNodeFlags_Leaf;
     }else {
         flags |= ImGuiTreeNodeFlags_OpenOnArrow;
@@ -51,7 +51,7 @@ void SceneTreeWindow::DrawEntityNode(DE::Entity *entity) {
     }
 
     flags |= ImGuiTreeNodeFlags_FramePadding;
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 3.2));    // 行高
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 2));    // 行高
     bool opened = ImGui::TreeNodeEx(entity->name.c_str(), flags);
 
     ImGui::PopStyleVar();
@@ -61,7 +61,7 @@ void SceneTreeWindow::DrawEntityNode(DE::Entity *entity) {
     }
 
     if (opened) {
-        for (auto& child : entity->children_) {
+        for (auto& child : entity->children) {
             DrawEntityNode(child.get());
         }
         ImGui::TreePop();

@@ -5,6 +5,7 @@
 #include "Engine.h"
 
 #include <filesystem>
+#include <format>
 #include <memory>
 
 #include "imgui.h"
@@ -18,6 +19,7 @@
 #include "window/SceneTreeWindow.h"
 #include "window/SceneViewportWindow.h"
 #include "../Appstate.h"
+#include "../application/Application.h"
 #include "core/component/TestComponent.h"
 
 namespace DE {
@@ -25,6 +27,8 @@ namespace DE {
     std::unique_ptr<Scene> editing_scene = nullptr;
     //当前选中的实体
     Entity* selected_entity = nullptr;
+    //预览应用程序
+    std::unique_ptr<DA::Application> preview_application = nullptr;
 
     // 示例状态
     bool show_demo_window = false;
@@ -86,10 +90,10 @@ namespace DE {
             auto test_entity_1 = std::make_unique<Entity>();
             test_entity_1->name = "entity_1";
 
-            test_entity->children_.push_back(std::move(test_children));
+            test_entity->children.push_back(std::move(test_children));
             test_entity->AddComponent<TestComponent>();
-            test_scene->root_.push_back(std::move(test_entity));
-            test_scene->root_.push_back(std::move(test_entity_1));
+            test_scene->root.push_back(std::move(test_entity));
+            test_scene->root.push_back(std::move(test_entity_1));
 
             editing_scene = std::move(test_scene);
         }
@@ -106,15 +110,15 @@ namespace DE {
         ImGuiIO& io = ImGui::GetIO(); (void)io;
 
         Uint64 current_time_ns = SDL_GetTicksNS();
-        Uint64 delta_time_ns = current_time_ns - state->current_time_ns;
+        state->delta_time_ns = current_time_ns - state->current_time_ns;
         state->current_time_ns = current_time_ns;
-        double current_time = current_time_ns / 1000000000.0;
-        double delta_time = delta_time_ns / 1000000000.0;
+        state->current_time = current_time_ns / 1000000000.0;
+        state->delta_time = state->delta_time_ns / 1000000000.0;
 
-        if ((long)(current_time/1.0) != window_title_update_time) {
-            std::string new_title = "Dear Engine  [FPS:" + std::to_string(io.Framerate)+"]";
+        if ((long)(state->current_time/1.0) != window_title_update_time) {
+            std::string new_title = "Dear Engine  [FPS:" + std::format("{:.2f}", io.Framerate)+"]";
             SDL_SetWindowTitle(state->engine_window, new_title.c_str());
-            window_title_update_time = (long)(current_time/1.0);
+            window_title_update_time = (long)(state->current_time/1.0);
         }
 
         {   // 引擎窗口绘制
@@ -159,8 +163,15 @@ namespace DE {
                 }
                 // 将运行按钮放在中间（约窗口宽度的中央）
                 ImGui::SameLine((ImGui::GetWindowWidth() - 80.0f) * 0.5f);  // 80 为按钮大致宽度
-                if (ImGui::MenuItem("运行")) {
-                    DE::Log::Debug("开始运行.");
+                if (ImGui::MenuItem(state->application_is_running ? "停止" : "运行")) {
+                    if (state->application_is_running) {
+                        state->application_is_running = false;
+                    } else {
+                        preview_application = std::make_unique<DA::Application>();
+                        preview_application->Strat(state, editing_scene.get());
+
+                        state->application_is_running = true;
+                    }
                 }
                 ImGui::SameLine();
                 ImGui::EndMenuBar();
@@ -182,6 +193,10 @@ namespace DE {
 
         if (GetEditingScene() == nullptr) {
             DE::Log::Warning("没有正在编辑的场景.");
+        }
+
+        if (state->application_is_running && preview_application) {
+            preview_application->LogicIterate(state);
         }
 
         return true;

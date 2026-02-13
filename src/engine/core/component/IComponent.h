@@ -5,14 +5,20 @@
 #ifndef DEARENGINE_ICOMPONENT_H
 #define DEARENGINE_ICOMPONENT_H
 
+#include <typeinfo>
+
 namespace DE {
 
     class IComponent {
         public:
-        virtual ~IComponent() = default;
+        virtual const char* GetComponentName() const {
+            return typeid(*this).name();
+        };
 
-        virtual void Start() = 0;
-        virtual void Iterate() = 0;
+        virtual void Start(void *appstate) = 0;
+        virtual void Iterate(void *appstate) = 0;
+
+        virtual ~IComponent() = default;
     };
 
 }

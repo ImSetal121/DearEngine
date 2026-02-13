@@ -17,7 +17,11 @@ struct AppState {
     SDL_Window *engine_window = nullptr;
     SDL_GPUDevice *gpu_device = nullptr;
     // 引擎相关
+    bool application_is_running = false;
     Uint64 current_time_ns = 0;
+    Uint64 delta_time_ns = 0;
+    double current_time = 0;
+    double delta_time = 0;
     // 引擎场景视口绘制
     SDL_GPUTexture* scene_viewport_texture = nullptr;
     SDL_GPUShader* scene_vertex_shader = nullptr;

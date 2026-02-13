@@ -9,11 +9,15 @@
 namespace DE {
     class TestComponent : public DE::IComponent {
     public:
+        int time = 0;
+
+        const char* GetComponentName() const override;
+
+        void Start(void *appstate) override;
+        void Iterate(void *appstate) override;
+
         TestComponent() = default;
         ~TestComponent() = default;
-
-        void Start() override;
-        void Iterate() override;
     };
 }
 
