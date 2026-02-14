@@ -43,6 +43,7 @@ namespace DA {
                 IterateEntity(entity.get(), appstate);
             }
         }
+        return true;
     }
 
     void Application::SetCurrentPlayingScene(DE::Scene* scene) {
