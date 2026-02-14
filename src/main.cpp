@@ -8,17 +8,13 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
-#include "Appstate.h"
+#include "State.h"
 #include "imgui.h"
+#include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl3.h"
-#include "imgui_impl_sdlgpu3.h"
 #include "engine/Engine.h"
-#include "engine/core/Log.h"
-#include "engine/util/AboutGPU.h"
-#include "engine/window/ConsoleWindow.h"
-#include "engine/window/EntityComponentWindow.h"
-#include "engine/window/SceneTreeWindow.h"
-#include "engine/window/SceneViewportWindow.h"
+#include "glad/glad.h"
+#include "SDL3/SDL_opengl.h"
 
 std::string GetEngineAssetsPath() {
     return "./src/engine/assets/";
@@ -33,6 +29,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     std::print("本设备支持的图形驱动:");
+    std::vector<char*> devices;
     for (int i = 0; i < SDL_GetNumGPUDrivers(); i++) {
         std::print(" {}", SDL_GetGPUDriver(i));
         if (i == SDL_GetNumGPUDrivers() - 1) std::print(".\n");
@@ -49,33 +46,66 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
 
+    // 选择 GL 与 GLSL 版本
+#if defined(IMGUI_IMPL_OPENGL_ES2)
+    // GL ES 2.0 + GLSL 100（WebGL 1.0）
+    const char* glsl_version = "#version 100";
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#elif defined(IMGUI_IMPL_OPENGL_ES3)
+    // GL ES 3.0 + GLSL 300 es（WebGL 2.0）
+    const char* glsl_version = "#version 300 es";
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#elif defined(__APPLE__)
+    // GL 3.2 Core + GLSL 150
+    const char* glsl_version = "#version 410";
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Mac 上必须设置
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+#else
+    // GL 3.0 + GLSL 130（桌面 OpenGL）
+    const char* glsl_version = "#version 130";
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#endif
+
     // 创建 SDL 窗口与图形上下文
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
-    SDL_WindowFlags window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
-    state->engine_window = SDL_CreateWindow("Dear Engine", (int)(1280 * main_scale), (int)(800 * main_scale), window_flags);
+    SDL_WindowFlags window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+    state->engine_window = SDL_CreateWindow("Dear ImGui SDL3+OpenGL3 example", (int)(1280 * main_scale), (int)(800 * main_scale), window_flags);
     if (state->engine_window == nullptr)
     {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
+    state->gl_context = SDL_GL_CreateContext(state->engine_window);
+    if (state->gl_context == nullptr)
+    {
+        printf("Error: SDL_GL_CreateContext(): %s\n", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+
+    SDL_GL_MakeCurrent(state->engine_window, state->gl_context);
+    SDL_GL_SetSwapInterval(1); // 开启垂直同步
     SDL_SetWindowPosition(state->engine_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     SDL_ShowWindow(state->engine_window);
 
-    // 创建 GPU 设备
-    state->gpu_device = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_METALLIB,true,nullptr);
-    if (state->gpu_device == nullptr)
-    {
-        printf("Error: SDL_CreateGPUDevice(): %s\n", SDL_GetError());
+    // 加载GLAD
+    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
+        printf("Error: gladLoadGLLoader failed.\n");
         return SDL_APP_FAILURE;
     }
-
-    // 将窗口交由 GPU 设备使用
-    if (!SDL_ClaimWindowForGPUDevice(state->gpu_device, state->engine_window))
-    {
-        printf("Error: SDL_ClaimWindowForGPUDevice(): %s\n", SDL_GetError());
-        return SDL_APP_FAILURE;
-    }
-    SDL_SetGPUSwapchainParameters(state->gpu_device, state->engine_window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, SDL_GPU_PRESENTMODE_VSYNC);
 
     // 设置 Dear ImGui 上下文
     IMGUI_CHECKVERSION();
@@ -118,14 +148,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     // 设置平台/渲染器后端
-    ImGui_ImplSDL3_InitForSDLGPU(state->engine_window);
-    ImGui_ImplSDLGPU3_InitInfo init_info = {};
-    init_info.Device = state->gpu_device;
-    init_info.ColorTargetFormat = SDL_GetGPUSwapchainTextureFormat(state->gpu_device, state->engine_window);
-    init_info.MSAASamples = SDL_GPU_SAMPLECOUNT_1;                      // 仅在多视口模式下使用
-    init_info.SwapchainComposition = SDL_GPU_SWAPCHAINCOMPOSITION_SDR;  // 仅在多视口模式下使用
-    init_info.PresentMode = SDL_GPU_PRESENTMODE_VSYNC;
-    ImGui_ImplSDLGPU3_Init(&init_info);
+    ImGui_ImplSDL3_InitForOpenGL(state->engine_window, state->gl_context);
+    ImGui_ImplOpenGL3_Init(glsl_version);
 
     // 加载字体
     std::string font_path_str = GetEngineAssetsPath() + "ttf/HarmonyOS_Sans_SC/HarmonyOS_Sans_SC_Regular.ttf";
@@ -134,7 +158,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         io.Fonts->AddFontFromFileTTF(font_path_chinese, 16.0f, nullptr, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
 
     // 引擎Init
-    DE::Engine::Init(state, argc, argv);
+    if (!DE::Engine::Init(state, argc, argv)) {
+        return SDL_APP_FAILURE;
+    }
 
     // 返回AppState指针
     *appstate = state;
@@ -177,7 +203,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     }
 
     // 开始 Dear ImGui 本帧
-    ImGui_ImplSDLGPU3_NewFrame();
+    ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
 
@@ -187,50 +213,30 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 
     // 渲染
     ImGui::Render();
-    ImDrawData* draw_data = ImGui::GetDrawData();
-    const bool is_minimized = (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f);
-
-    SDL_GPUCommandBuffer* command_buffer = SDL_AcquireGPUCommandBuffer(state->gpu_device); // 获取 GPU 命令缓冲
-
-    // 引擎渲染Tick
-    if (!DE::Engine::RenderIterate(appstate, command_buffer))
+    // 1) 将主窗口的 framebuffer 设为当前，并清屏
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+    glClear(GL_COLOR_BUFFER_BIT);
+    // 2) 引擎渲染
+    if (!DE::Engine::RenderIterate(appstate))
         return SDL_APP_FAILURE;
-
-    SDL_GPUTexture* swapchain_texture;
-    SDL_WaitAndAcquireGPUSwapchainTexture(command_buffer, state->engine_window, &swapchain_texture, nullptr, nullptr); // 获取交换链纹理
-
-    if (swapchain_texture != nullptr && !is_minimized)
-    {
-        // 必须调用：ImGui_ImplSDLGPU3_PrepareDrawData() 用于上传顶点/索引缓冲
-        ImGui_ImplSDLGPU3_PrepareDrawData(draw_data, command_buffer);
-
-        // 配置并开始一次渲染通道
-        ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-        SDL_GPUColorTargetInfo target_info = {};
-        target_info.texture = swapchain_texture;
-        target_info.clear_color = SDL_FColor { clear_color.x, clear_color.y, clear_color.z, clear_color.w };
-        target_info.load_op = SDL_GPU_LOADOP_CLEAR;
-        target_info.store_op = SDL_GPU_STOREOP_STORE;
-        target_info.mip_level = 0;
-        target_info.layer_or_depth_plane = 0;
-        target_info.cycle = false;
-        SDL_GPURenderPass* render_pass = SDL_BeginGPURenderPass(command_buffer, &target_info, 1, nullptr);
-
-        // 渲染 ImGui
-        ImGui_ImplSDLGPU3_RenderDrawData(draw_data, command_buffer, render_pass);
-
-        SDL_EndGPURenderPass(render_pass);
-    }
+    // 3) 把 ImGui 画到当前默认 framebuffer
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     // 更新并渲染额外的平台窗口
+    // （平台函数可能改变当前 OpenGL 上下文，故保存/恢复以便代码可复用到别处；
+    //  本示例也可直接调用 SDL_GL_MakeCurrent(window, gl_context)。）
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
+        SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
+        SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
+        SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
     }
 
-    // 提交命令缓冲
-    SDL_SubmitGPUCommandBuffer(command_buffer);
+    SDL_GL_SwapWindow(state->engine_window);
 
     return SDL_APP_CONTINUE;
 }
@@ -240,15 +246,13 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
     auto *state = static_cast<AppState *>(appstate);
     // 清理
-    SDL_WaitForGPUIdle(state->gpu_device);
+    ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
-    ImGui_ImplSDLGPU3_Shutdown();
     ImGui::DestroyContext();
 
     DE::Engine::Quit(appstate, result);
 
-    SDL_ReleaseWindowFromGPUDevice(state->gpu_device, state->engine_window);
-    SDL_DestroyGPUDevice(state->gpu_device);
+    SDL_GL_DestroyContext(state->gl_context);
     SDL_DestroyWindow(state->engine_window);
     SDL_Quit();
 }

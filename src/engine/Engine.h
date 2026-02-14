@@ -7,7 +7,6 @@
 
 #include "core/Scene.h"
 #include "SDL3/SDL_events.h"
-#include "SDL3/SDL_gpu.h"
 #include "SDL3/SDL_init.h"
 
 namespace DE {
@@ -22,7 +21,7 @@ namespace DE {
         /** 引擎生命周期:每帧逻辑 */
         static bool LogicIterate(void *appstate);
         /** 引擎生命周期:每帧渲染 */
-        static bool RenderIterate(void *appstate, SDL_GPUCommandBuffer* command_buffer);
+        static bool RenderIterate(void *appstate);
         /** 引擎生命周期:结束 */
         static bool Quit(void *appstate, SDL_AppResult result);
 

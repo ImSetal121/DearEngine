@@ -4,20 +4,22 @@
 
 #include "TestComponent.h"
 
+#include <format>
+
 #include "../Log.h"
-#include "../../../Appstate.h"
+#include "../../../State.h"
 
 const char * DE::TestComponent::GetComponentName() const {
-    return "Test";
+    return "测试组件";
 }
 
 void DE::TestComponent::Start(void *appstate) {
-    DE::Log::Debug("组件初始化.");
+    Log::Debug("组件初始化.");
 }
 
 void DE::TestComponent::Iterate(void *appstate) {
     auto *state = static_cast<AppState *>(appstate);
 
-    DE::Log::Debug(std::string("组件调用:") + std::to_string(state->current_time));
+    Log::Debug(std::string("组件调用:") + std::format("{:.2f}", state->current_time));
     time++;
 }
