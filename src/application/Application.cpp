@@ -4,8 +4,6 @@
 
 #include "Application.h"
 
-#include <print>
-
 namespace DA {
     // 递归：对单个实体及其所有子实体的组件调用 Start
     static void StartEntity(DE::Entity* entity, void* appstate) {
@@ -27,7 +25,7 @@ namespace DA {
 
     bool Application::Strat(void *appstate, DE::Scene *scene) {
         SetCurrentPlayingScene(scene);
-        std::print("应用程序开始运行.\n");
+        std::printf("应用程序开始运行.\n");
 
         //遍历场景组件,调用组件Start方法.
         if (current_playing_scene) {

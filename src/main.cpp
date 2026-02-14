@@ -23,15 +23,15 @@ std::string GetEngineAssetsPath() {
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-    std::print("指令个数: {}\n", argc);
+    std::printf("指令个数: %i\n", argc);
     for (int i = 0; i < argc; ++i) {
-        std::print("  [{}] {}\n", i, argv[i]);
+        std::printf("  [%i] %s\n", i, argv[i]);
     }
 
-    std::print("本设备支持的图形驱动:");
+    std::printf("本设备支持的图形驱动:");
     std::vector<char*> devices;
     for (int i = 0; i < SDL_GetNumGPUDrivers(); i++) {
-        std::print(" {}", SDL_GetGPUDriver(i));
+        std::printf(" %s", SDL_GetGPUDriver(i));
         if (i == SDL_GetNumGPUDrivers() - 1) std::print(".\n");
         else std::print(",");
     }
