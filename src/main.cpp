@@ -14,7 +14,10 @@
 #include "imgui_impl_sdl3.h"
 #include "engine/Engine.h"
 #include "glad/glad.h"
-#include "SDL3/SDL_opengl.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 std::string GetEngineAssetsPath() {
     return "./src/engine/assets/";
@@ -23,6 +26,11 @@ std::string GetEngineAssetsPath() {
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
+#ifdef _WIN32
+    SetConsoleOutputCP(65001);  // 控制台输出使用 UTF-8
+    SetConsoleCP(65001);       // 控制台输入也用 UTF-8（若需要从控制台读入）
+#endif
+
     std::printf("指令个数: %i\n", argc);
     for (int i = 0; i < argc; ++i) {
         std::printf("  [%i] %s\n", i, argv[i]);
