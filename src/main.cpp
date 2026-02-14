@@ -32,8 +32,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     std::vector<char*> devices;
     for (int i = 0; i < SDL_GetNumGPUDrivers(); i++) {
         std::printf(" %s", SDL_GetGPUDriver(i));
-        if (i == SDL_GetNumGPUDrivers() - 1) std::print(".\n");
-        else std::print(",");
+        if (i == SDL_GetNumGPUDrivers() - 1) std::printf(".\n");
+        else std::printf(",");
     }
 
     // 初始化AppState
