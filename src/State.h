@@ -21,13 +21,7 @@ struct AppState {
     Uint64 delta_time_ns = 0;
     double current_time = 0;
     double delta_time = 0;
-    // 引擎场景视口绘制
-    unsigned int scene_viewport_fbo = 0;        // GL FBO
-    unsigned int scene_viewport_texture = 0;    // GL 纹理 id，供 ImGui::Image 使用
-    unsigned int scene_program = 0;             // 场景用着色器程序（如画三角形）
-    unsigned int scene_vao = 0;                 // 场景用 VAO（Core 下 glDrawArrays 必须绑定 VAO）
-    int scene_viewport_texture_width = 1280;
-    int scene_viewport_texture_height = 720;
+
     // 引擎窗口
     ConsoleWindow *console_window = nullptr;
     SceneTreeWindow *scene_tree_window = nullptr;

@@ -20,16 +20,24 @@ const char* EntityComponentWindow::Title() const {
     return "实体组件";
 }
 
+bool EntityComponentWindow::Init() {
+    return IEngineWindow::Init();
+}
+
+bool EntityComponentWindow::Event() {
+    return IEngineWindow::Event();
+}
+
 /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-void EntityComponentWindow::Draw() {
-    if (!open) return;
+bool EntityComponentWindow::LogicIterate() {
+    if (!open) return false;
     ImGui::Begin(Title());
 
     DE::Entity* entity = DE::Engine::GetSelectedEntity();
     if (!entity) {
         ImGui::TextDisabled("(未选中实体 — 在场景树中点击实体)");
         ImGui::End();
-        return;
+        return false;
     }
 
     ImGui::Text("实体: %s", entity->name.c_str());
@@ -46,4 +54,14 @@ void EntityComponentWindow::Draw() {
     }
 
     ImGui::End();
+
+    return true;
+}
+
+bool EntityComponentWindow::RenderIterate() {
+    return IEngineWindow::RenderIterate();
+}
+
+bool EntityComponentWindow::Quit() {
+    return IEngineWindow::Quit();
 }

@@ -14,9 +14,17 @@ const char* ConsoleWindow::Title() const {
     return "控制台";
 }
 
+bool ConsoleWindow::Init() {
+    return IEngineWindow::Init();
+}
+
+bool ConsoleWindow::Event() {
+    return IEngineWindow::Event();
+}
+
 /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-void ConsoleWindow::Draw() {
-    if (!open) return;
+bool ConsoleWindow::LogicIterate() {
+    if (!open) return false;
     ImGui::Begin(Title());
 
     if (ImGui::Button("清空"))
@@ -46,4 +54,14 @@ void ConsoleWindow::Draw() {
     ImGui::EndChild();
 
     ImGui::End();
+
+    return true;
+}
+
+bool ConsoleWindow::RenderIterate() {
+    return IEngineWindow::RenderIterate();
+}
+
+bool ConsoleWindow::Quit() {
+    return IEngineWindow::Quit();
 }

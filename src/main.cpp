@@ -13,15 +13,12 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl3.h"
 #include "engine/Engine.h"
+#include "engine/util/Path.h"
 #include "glad/glad.h"
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
-
-std::string GetEngineAssetsPath() {
-    return "./src/engine/assets/";
-}
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -121,7 +118,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     // ImGui 布局：若用户尚未有 imgui.ini，则从默认模板复制
     const char* user_ini = "imgui.ini";
-    std::string ini_path = GetEngineAssetsPath() + "config/imgui_default.ini";
+    std::string ini_path = DE::GetEngineAssetsPath() + "config/imgui_default.ini";
     const char* default_ini = ini_path.c_str();
     io.IniFilename = user_ini;
 
@@ -160,7 +157,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     // 加载字体
-    std::string font_path_str = GetEngineAssetsPath() + "ttf/HarmonyOS_Sans_SC/HarmonyOS_Sans_SC_Regular.ttf";
+    std::string font_path_str = DE::GetEngineAssetsPath() + "ttf/HarmonyOS_Sans_SC/HarmonyOS_Sans_SC_Regular.ttf";
     const char* font_path_chinese = font_path_str.c_str();
     if (font_path_chinese)
         io.Fonts->AddFontFromFileTTF(font_path_chinese, 16.0f, nullptr, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());

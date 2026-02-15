@@ -4,6 +4,7 @@
 
 #ifndef DEARENGINE_IENGINEWINDOW_H
 #define DEARENGINE_IENGINEWINDOW_H
+#include "SDL3/SDL_init.h"
 
 /**
  * 引擎窗口抽象基类。
@@ -15,8 +16,16 @@ public:
     virtual ~IEngineWindow() = default;
     /** 窗口标题，用于 ImGui::Begin(title, ...) */
     virtual const char* Title() const = 0;
+    /** 启动 */
+    virtual bool Init() {return true;};
+    /** 事件 */
+    virtual bool Event() {return true;};
     /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-    virtual void Draw() = 0;
+    virtual bool LogicIterate() {return true;};
+    /** 每帧渲染，内部应包含处理视口纹理绘制等 */
+    virtual bool RenderIterate() {return true;};
+    /** 结束 */
+    virtual bool Quit() {return true;};
     /** 是否显示该窗口，可由菜单栏 Checkbox 等绑定 */
     bool open = true;
 };

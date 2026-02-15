@@ -17,9 +17,17 @@ const char* SceneTreeWindow::Title() const {
     return "场景树";
 }
 
+bool SceneTreeWindow::Init() {
+    return IEngineWindow::Init();
+}
+
+bool SceneTreeWindow::Event() {
+    return IEngineWindow::Event();
+}
+
 /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-void SceneTreeWindow::Draw() {
-    if (!open) return;
+bool SceneTreeWindow::LogicIterate() {
+    if (!open) return false;
     ImGui::Begin(Title());
 
     DE::Scene* scene = DE::Engine::GetEditingScene();
@@ -32,6 +40,16 @@ void SceneTreeWindow::Draw() {
     }
 
     ImGui::End();
+
+    return true;
+}
+
+bool SceneTreeWindow::RenderIterate() {
+    return IEngineWindow::RenderIterate();
+}
+
+bool SceneTreeWindow::Quit() {
+    return IEngineWindow::Quit();
 }
 
 void SceneTreeWindow::DrawEntityNode(DE::Entity *entity) {
