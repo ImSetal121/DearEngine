@@ -42,11 +42,14 @@ namespace DE {
         // 检查工作目录
         CheckCurrentPath();
         // 初始化state窗口
-        state->console_window = new ConsoleWindow();
-        state->scene_tree_window = new SceneTreeWindow();
-        state->entity_component_window = new EntityComponentWindow();
-        state->scene_viewport_window = new SceneViewportWindow();
-        state->scene_viewport_window->Init();
+        state->engine_windows = {
+            new ConsoleWindow(),
+            new SceneTreeWindow(),
+            new EntityComponentWindow(),
+            new SceneViewportWindow()
+        };
+        for (IEngineWindow* window : state->engine_windows)
+            window->Init();
 
         {
             // 测试场景
@@ -116,10 +119,8 @@ namespace DE {
                 }
                 if (ImGui::BeginMenu("窗口"))
                 {
-                    ImGui::Checkbox(state->console_window->Title(), &state->console_window->open);
-                    ImGui::Checkbox(state->scene_tree_window->Title(), &state->scene_tree_window->open);
-                    ImGui::Checkbox(state->entity_component_window->Title(), &state->entity_component_window->open);
-                    ImGui::Checkbox(state->scene_viewport_window->Title(), &state->scene_viewport_window->open);
+                    for (IEngineWindow* window : state->engine_windows)
+                        ImGui::Checkbox(window->Title(), &window->open);
                     ImGui::Separator();
                     ImGui::Checkbox("ImGui演示窗口", &show_demo_window);
                     ImGui::EndMenu();
@@ -148,10 +149,8 @@ namespace DE {
             ImGui::DockSpace(ImGui::GetID("MainDockSpace"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
             ImGui::End();
 
-            state->console_window->LogicIterate();  // 控制台
-            state->scene_tree_window->LogicIterate();   // 场景树
-            state->entity_component_window->LogicIterate();   // 实体组件
-            state->scene_viewport_window->LogicIterate();   // 场景视口
+            for (IEngineWindow* window : state->engine_windows)
+                window->LogicIterate();
 
             // 可选. 显示大型演示窗口（大部分示例代码在 ImGui::ShowDemoWindow() 中，可浏览其代码以进一步了解 Dear ImGui）。
             if (show_demo_window)
@@ -174,7 +173,8 @@ namespace DE {
         auto *state = static_cast<AppState *>(appstate);
 
         // 引擎绘制
-        state->scene_viewport_window->RenderIterate();
+        for (IEngineWindow* window : state->engine_windows)
+            window->RenderIterate();
 
         return true;
     }
@@ -184,7 +184,8 @@ namespace DE {
 
         selected_entity = nullptr;
 
-        state->scene_viewport_window->Quit();
+        for (IEngineWindow* window : state->engine_windows)
+            window->Quit();
 
         return true;
     }

@@ -21,12 +21,8 @@ struct AppState {
     Uint64 delta_time_ns = 0;
     double current_time = 0;
     double delta_time = 0;
-
     // 引擎窗口
-    ConsoleWindow *console_window = nullptr;
-    SceneTreeWindow *scene_tree_window = nullptr;
-    EntityComponentWindow *entity_component_window = nullptr;
-    SceneViewportWindow *scene_viewport_window = nullptr;
+    std::vector<IEngineWindow*> engine_windows;
 };
 
 #endif //DEARENGINE_STATE_H
