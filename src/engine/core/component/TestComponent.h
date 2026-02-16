@@ -13,8 +13,11 @@ namespace DE {
 
         const char* GetComponentName() const override;
 
-        bool Start(void *appstate) override;
-        bool Iterate(void *appstate) override;
+        bool Init(void *appstate) override;
+        bool Event() override;
+        bool LogicIterate(void *appstate) override;
+        bool RenderIterate(void *appstate, RenderContext* render_context) override;
+        bool Quit() override;
 
         TestComponent() = default;
         ~TestComponent() = default;

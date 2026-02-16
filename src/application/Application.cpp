@@ -6,21 +6,30 @@
 
 namespace DA {
     // 递归：对单个实体及其所有子实体的组件调用 Start
-    static void StartEntity(DE::Entity* entity, void* appstate) {
+    static void InitEntity(DE::Entity* entity, void* appstate) {
         if (!entity) return;
         for (auto& kv : entity->components)
-            kv.second->Start(appstate);
+            kv.second->Init(appstate);
         for (auto& child : entity->children)
-            StartEntity(child.get(), appstate);
+            InitEntity(child.get(), appstate);
     }
 
-    // 递归：对单个实体及其所有子实体的组件调用 Start
-    static void IterateEntity(DE::Entity* entity, void* appstate) {
+    // 递归：对单个实体及其所有子实体的组件调用 LogicIterate
+    static void LogicIterateEntity(DE::Entity* entity, void* appstate) {
         if (!entity) return;
         for (auto& kv : entity->components)
-            kv.second->Iterate(appstate);
+            kv.second->LogicIterate(appstate);
         for (auto& child : entity->children)
-            StartEntity(child.get(), appstate);
+            LogicIterateEntity(child.get(), appstate);
+    }
+
+    // 递归：对单个实体及其所有子实体的组件调用 RenderIterate
+    static void RenderIterateEntity(DE::Entity* entity, void* appstate, DE::RenderContext* render_context) {
+        if (!entity) return;
+        for (auto& kv : entity->components)
+            kv.second->RenderIterate(appstate, render_context);
+        for (auto& child : entity->children)
+            RenderIterateEntity(child.get(), appstate, render_context);
     }
 
     bool Application::Strat(void *appstate, DE::Scene *scene) {
@@ -30,7 +39,7 @@ namespace DA {
         //遍历场景组件,调用组件Start方法.
         if (current_playing_scene) {
             for (auto& entity : current_playing_scene->root) {
-                StartEntity(entity.get(), appstate);
+                InitEntity(entity.get(), appstate);
             }
         }
 
@@ -40,7 +49,16 @@ namespace DA {
     bool Application::LogicIterate(void *appstate) {
         if (current_playing_scene) {
             for (auto& entity : current_playing_scene->root) {
-                IterateEntity(entity.get(), appstate);
+                LogicIterateEntity(entity.get(), appstate);
+            }
+        }
+        return true;
+    }
+
+    bool Application::RenderIterate(void *appstate) {
+        if (current_playing_scene) {
+            for (auto& entity : current_playing_scene->root) {
+                RenderIterateEntity(entity.get(), appstate, nullptr);
             }
         }
         return true;

@@ -20,7 +20,7 @@ namespace DA {
         /** 引擎生命周期:每帧逻辑 */
         bool LogicIterate(void *appstate);
         /** 引擎生命周期:每帧渲染 */
-        bool RenderIterate(void *appstate, SDL_GPUCommandBuffer* command_buffer);
+        bool RenderIterate(void *appstate);
         /** 引擎生命周期:结束 */
         bool Quit(void *appstate, SDL_AppResult result);
 

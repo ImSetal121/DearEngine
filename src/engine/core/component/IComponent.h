@@ -7,6 +7,8 @@
 
 #include <typeinfo>
 
+#include "../render_context/RenderContext.h"
+
 namespace DE {
 
     class IComponent {
@@ -15,12 +17,14 @@ namespace DE {
             return typeid(*this).name();
         };
 
-        virtual bool Start(void *appstate) {return true;};
-        virtual bool Iterate(void *appstate) {return true;};
+        virtual bool Init(void *appstate) {return true;};
+        virtual bool Event() {return true;};
+        virtual bool LogicIterate(void *appstate) {return true;};
+        virtual bool RenderIterate(void *appstate, RenderContext* render_context) {return true;};
+        virtual bool Quit() {return true;};
 
         virtual ~IComponent() = default;
     };
-
 }
 
 #endif //DEARENGINE_ICOMPONENT_H

@@ -22,9 +22,11 @@ struct AppState {
     double current_time = 0;
     double delta_time = 0;
     // 引擎窗口
-    std::vector<IEngineWindow*> engine_windows;
+    std::vector<DE::IEngineWindow*> engine_windows;
     /** 当前获得焦点的引擎窗口（每帧由各窗口在 LogicIterate 中根据 ImGui 焦点更新） */
-    IEngineWindow* focused_engine_window = nullptr;
+    DE::IEngineWindow* focused_engine_window = nullptr;
+    // 场景视口
+    unsigned int* scene_program = nullptr;
 };
 
 #endif //DEARENGINE_STATE_H

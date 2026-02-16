@@ -9,12 +9,24 @@ namespace DE {
         return "变换";
     }
 
-    bool TransformComponent::Start(void *appstate) {
-        return IComponent::Start(appstate);
+    bool TransformComponent::Init(void *appstate) {
+        return IComponent::Init(appstate);
     }
 
-    bool TransformComponent::Iterate(void *appstate) {
-        return IComponent::Iterate(appstate);
+    bool TransformComponent::Event() {
+        return IComponent::Event();
+    }
+
+    bool TransformComponent::LogicIterate(void *appstate) {
+        return IComponent::LogicIterate(appstate);
+    }
+
+    bool TransformComponent::RenderIterate(void *appstate, RenderContext* render_context) {
+        return IComponent::RenderIterate(appstate, render_context);
+    }
+
+    bool TransformComponent::Quit() {
+        return IComponent::Quit();
     }
 
     TransformComponent::~TransformComponent() = default;

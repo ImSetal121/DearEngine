@@ -8,65 +8,67 @@
 #include "../../State.h"
 #include "../core/Log.h"
 
-ConsoleWindow::ConsoleWindow() = default;
+namespace DE {
+    ConsoleWindow::ConsoleWindow() = default;
 
-/** 窗口标题，用于 ImGui::Begin(title, ...) */
-const char* ConsoleWindow::Title() const {
-    return "控制台";
-}
-
-bool ConsoleWindow::Init() {
-    return IEngineWindow::Init();
-}
-
-bool ConsoleWindow::Event() {
-    return IEngineWindow::Event();
-}
-
-/** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-bool ConsoleWindow::LogicIterate(void *appstate) {
-    if (!open) return false;
-    ImGui::Begin(Title());
-    // 检查是否为焦点窗口
-    auto state = static_cast<AppState*>(appstate);
-    if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
-        state->focused_engine_window = this;
-
-    if (ImGui::Button("清空"))
-        DE::Log::Clear();
-
-    ImGui::SameLine();
-    ImGui::Separator();
-
-    if (ImGui::BeginChild("LogRegion", ImVec2(0, 0), ImGuiChildFlags_None, ImGuiWindowFlags_HorizontalScrollbar)) {
-        const auto& entries = DE::Log::GetEntries();
-        for (const auto& entry : entries) {
-            ImVec4 color;
-            switch (entry.level) {
-                case DE::LogLevel::DEBUG:   color = ImVec4(0.6f, 0.6f, 0.6f, 1.0f); break;
-                case DE::LogLevel::INFO:    color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); break;
-                case DE::LogLevel::WARNING: color = ImVec4(1.0f, 0.9f, 0.0f, 1.0f); break;
-                case DE::LogLevel::ERROR:   color = ImVec4(1.0f, 0.3f, 0.3f, 1.0f); break;
-                case DE::LogLevel::FATAL:   color = ImVec4(0.8f, 0.0f, 0.0f, 1.0f); break;
-            }
-            ImGui::PushStyleColor(ImGuiCol_Text, color);
-            ImGui::TextUnformatted(entry.message.c_str());
-            ImGui::PopStyleColor();
-        }
-        if (entries.size() > 0)
-            ImGui::SetScrollHereY(1.0f);
+    /** 窗口标题，用于 ImGui::Begin(title, ...) */
+    const char* ConsoleWindow::Title() const {
+        return "控制台";
     }
-    ImGui::EndChild();
 
-    ImGui::End();
+    bool ConsoleWindow::Init(void *appstate) {
+        return IEngineWindow::Init(appstate);
+    }
 
-    return true;
-}
+    bool ConsoleWindow::Event() {
+        return IEngineWindow::Event();
+    }
 
-bool ConsoleWindow::RenderIterate() {
-    return IEngineWindow::RenderIterate();
-}
+    /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
+    bool ConsoleWindow::LogicIterate(void *appstate) {
+        if (!open) return false;
+        ImGui::Begin(Title());
+        // 检查是否为焦点窗口
+        auto state = static_cast<AppState*>(appstate);
+        if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+            state->focused_engine_window = this;
 
-bool ConsoleWindow::Quit() {
-    return IEngineWindow::Quit();
+        if (ImGui::Button("清空"))
+            DE::Log::Clear();
+
+        ImGui::SameLine();
+        ImGui::Separator();
+
+        if (ImGui::BeginChild("LogRegion", ImVec2(0, 0), ImGuiChildFlags_None, ImGuiWindowFlags_HorizontalScrollbar)) {
+            const auto& entries = DE::Log::GetEntries();
+            for (const auto& entry : entries) {
+                ImVec4 color;
+                switch (entry.level) {
+                    case DE::LogLevel::DEBUG:   color = ImVec4(0.6f, 0.6f, 0.6f, 1.0f); break;
+                    case DE::LogLevel::INFO:    color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); break;
+                    case DE::LogLevel::WARNING: color = ImVec4(1.0f, 0.9f, 0.0f, 1.0f); break;
+                    case DE::LogLevel::ERROR:   color = ImVec4(1.0f, 0.3f, 0.3f, 1.0f); break;
+                    case DE::LogLevel::FATAL:   color = ImVec4(0.8f, 0.0f, 0.0f, 1.0f); break;
+                }
+                ImGui::PushStyleColor(ImGuiCol_Text, color);
+                ImGui::TextUnformatted(entry.message.c_str());
+                ImGui::PopStyleColor();
+            }
+            if (entries.size() > 0)
+                ImGui::SetScrollHereY(1.0f);
+        }
+        ImGui::EndChild();
+
+        ImGui::End();
+
+        return true;
+    }
+
+    bool ConsoleWindow::RenderIterate(void *appstate) {
+        return IEngineWindow::RenderIterate(appstate);
+    }
+
+    bool ConsoleWindow::Quit() {
+        return IEngineWindow::Quit();
+    }
 }

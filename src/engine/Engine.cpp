@@ -18,6 +18,7 @@
 #include "../State.h"
 #include "../application/Application.h"
 #include "core/component/TestComponent.h"
+#include "core/component/TestCubeComponent.h"
 #include "core/component/TransformComponent.h"
 #include "glad/glad.h"
 #include "SDL3/SDL_storage.h"
@@ -50,7 +51,7 @@ namespace DE {
             new SceneViewportWindow()
         };
         for (IEngineWindow* window : state->engine_windows)
-            window->Init();
+            window->Init(appstate);
 
         {
             // 测试场景
@@ -63,7 +64,7 @@ namespace DE {
             test_entity_1->name = "entity_1";
 
             test_entity->children.push_back(std::move(test_children));
-            test_entity->AddComponent<TestComponent>();
+            test_entity->AddComponent<TestCubeComponent>();
             test_entity->AddComponent<TransformComponent>();
             test_scene->root.push_back(std::move(test_entity));
             test_scene->root.push_back(std::move(test_entity_1));
@@ -176,7 +177,11 @@ namespace DE {
 
         // 引擎绘制
         for (IEngineWindow* window : state->engine_windows)
-            window->RenderIterate();
+            window->RenderIterate(appstate);
+
+        if (state->application_is_running && preview_application) {
+            preview_application->RenderIterate(state);
+        }
 
         return true;
     }

@@ -80,7 +80,7 @@ namespace DE {
         }
         state->scene_viewport_window->SetViewportTexture((void*)(intptr_t)state->scene_viewport_texture, state->scene_viewport_texture_width, state->scene_viewport_texture_height);
 
-        // 使用 SDL_Storage 读取 default_vert.vert / default_frag.frag 并创建 program（内联）
+        // 使用 SDL_Storage 读取 default_scene_vert.vert / default_scene_frag.frag 并创建 program（内联）
         {
             SDL_Storage* storage = SDL_OpenFileStorage(GetEngineAssetsPath().c_str());
             if (!storage) {
@@ -91,8 +91,8 @@ namespace DE {
                 SDL_Delay(1);
 
             Uint64 vs_size = 0, fs_size = 0;
-            if (!SDL_GetStorageFileSize(storage, "shader/default_vert.vert", &vs_size) || vs_size == 0 ||
-                !SDL_GetStorageFileSize(storage, "shader/default_frag.frag", &fs_size) || fs_size == 0) {
+            if (!SDL_GetStorageFileSize(storage, "shader/default_scene_vert.vert", &vs_size) || vs_size == 0 ||
+                !SDL_GetStorageFileSize(storage, "shader/default_scene_frag.frag", &fs_size) || fs_size == 0) {
                 Log::Error("SDL_GetStorageFileSize failed for shader files.");
                 SDL_CloseStorage(storage);
                 return false;
@@ -100,8 +100,8 @@ namespace DE {
 
             std::string vs_src(vs_size + 1, '\0');
             std::string fs_src(fs_size + 1, '\0');
-            if (!SDL_ReadStorageFile(storage, "shader/default_vert.vert", &vs_src[0], vs_size) ||
-                !SDL_ReadStorageFile(storage, "shader/default_frag.frag", &fs_src[0], fs_size)) {
+            if (!SDL_ReadStorageFile(storage, "shader/default_scene_vert.vert", &vs_src[0], vs_size) ||
+                !SDL_ReadStorageFile(storage, "shader/default_scene_frag.frag", &fs_src[0], fs_size)) {
                 Log::Error("SDL_ReadStorageFile failed for shader files.");
                 SDL_CloseStorage(storage);
                 return false;
