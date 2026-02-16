@@ -7,14 +7,14 @@
 #include "IComponent.h"
 
 namespace DE {
-    class TestComponent : public DE::IComponent {
+    class TestComponent : public IComponent {
     public:
         int time = 0;
 
         const char* GetComponentName() const override;
 
-        void Start(void *appstate) override;
-        void Iterate(void *appstate) override;
+        bool Start(void *appstate) override;
+        bool Iterate(void *appstate) override;
 
         TestComponent() = default;
         ~TestComponent() = default;

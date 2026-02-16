@@ -29,6 +29,7 @@ add_executable(DearEngine
 # Link to the library.
 target_link_libraries(DearEngine PRIVATE
         SDL3::SDL3
+        glm::glm
         ${OPENGL_LIBRARIES}
 )
 
@@ -38,3 +39,12 @@ target_include_directories(DearEngine PRIVATE
         ${OPENGL_INCLUDE_DIR}
         ${CMAKE_SOURCE_DIR}/include
 )
+
+# -----------------------------------------------------------------------------
+# 编译期注入项目内容根目录 CONTENT_ROOT（不依赖运行时的 cwd）
+# -----------------------------------------------------------------------------
+# 编译期注入项目内容根目录 CONTENT_ROOT（不依赖 cwd）
+set(CONTENT_ROOT_RAW "${CMAKE_SOURCE_DIR}")
+string(REPLACE "\\" "/" CONTENT_ROOT_RAW "${CONTENT_ROOT_RAW}")
+# 只传路径，不要包一层引号；C++ 里用字符串化宏得到字符串字面量
+target_compile_definitions(DearEngine PRIVATE CONTENT_ROOT="${CONTENT_ROOT_RAW}")

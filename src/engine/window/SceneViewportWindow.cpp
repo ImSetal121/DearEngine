@@ -4,7 +4,7 @@
 
 #include "SceneViewportWindow.h"
 #include "imgui.h"
-#include "../Engine.h"
+#include "../../State.h"
 #include "../core/Log.h"
 #include "../util/Path.h"
 #include "glad/glad.h"
@@ -131,9 +131,14 @@ bool SceneViewportWindow::Event() {
 }
 
 /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-bool SceneViewportWindow::LogicIterate() {
+bool SceneViewportWindow::LogicIterate(void *appstate) {
     if (!open) return false;
     ImGui::Begin(Title());
+    // 检查是否为焦点窗口
+    auto state = static_cast<AppState*>(appstate);
+    if (ImGui::IsWindowFocused())
+        state->focused_engine_window = this;
+
     if (viewport_texture_ && viewport_width_ && viewport_height_) {
         ImVec2 avail = ImGui::GetContentRegionAvail();
         if (avail.x > 1) viewport_width_ = avail.x;

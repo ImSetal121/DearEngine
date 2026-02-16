@@ -23,6 +23,8 @@ struct AppState {
     double delta_time = 0;
     // 引擎窗口
     std::vector<IEngineWindow*> engine_windows;
+    /** 当前获得焦点的引擎窗口（每帧由各窗口在 LogicIterate 中根据 ImGui 焦点更新） */
+    IEngineWindow* focused_engine_window = nullptr;
 };
 
 #endif //DEARENGINE_STATE_H

@@ -18,6 +18,7 @@
 #include "../State.h"
 #include "../application/Application.h"
 #include "core/component/TestComponent.h"
+#include "core/component/TransformComponent.h"
 #include "glad/glad.h"
 #include "SDL3/SDL_storage.h"
 #include "util/Path.h"
@@ -63,6 +64,7 @@ namespace DE {
 
             test_entity->children.push_back(std::move(test_children));
             test_entity->AddComponent<TestComponent>();
+            test_entity->AddComponent<TransformComponent>();
             test_scene->root.push_back(std::move(test_entity));
             test_scene->root.push_back(std::move(test_entity_1));
 
@@ -150,7 +152,7 @@ namespace DE {
             ImGui::End();
 
             for (IEngineWindow* window : state->engine_windows)
-                window->LogicIterate();
+                window->LogicIterate(state);
 
             // 可选. 显示大型演示窗口（大部分示例代码在 ImGui::ShowDemoWindow() 中，可浏览其代码以进一步了解 Dear ImGui）。
             if (show_demo_window)

@@ -5,6 +5,7 @@
 #include "ConsoleWindow.h"
 
 #include "imgui.h"
+#include "../../State.h"
 #include "../core/Log.h"
 
 ConsoleWindow::ConsoleWindow() = default;
@@ -23,9 +24,13 @@ bool ConsoleWindow::Event() {
 }
 
 /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-bool ConsoleWindow::LogicIterate() {
+bool ConsoleWindow::LogicIterate(void *appstate) {
     if (!open) return false;
     ImGui::Begin(Title());
+    // 检查是否为焦点窗口
+    auto state = static_cast<AppState*>(appstate);
+    if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
+        state->focused_engine_window = this;
 
     if (ImGui::Button("清空"))
         DE::Log::Clear();

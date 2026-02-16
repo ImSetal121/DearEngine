@@ -8,6 +8,7 @@
 
 #include "imgui.h"
 #include "../Engine.h"
+#include "../../State.h"
 
 namespace DE {
     class Entity;
@@ -29,9 +30,13 @@ bool EntityComponentWindow::Event() {
 }
 
 /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-bool EntityComponentWindow::LogicIterate() {
+bool EntityComponentWindow::LogicIterate(void *appstate) {
     if (!open) return false;
     ImGui::Begin(Title());
+    // 检查是否为焦点窗口
+    auto state = static_cast<AppState*>(appstate);
+    if (ImGui::IsWindowFocused())
+        state->focused_engine_window = this;
 
     DE::Entity* entity = DE::Engine::GetSelectedEntity();
     if (!entity) {

@@ -25,7 +25,7 @@ class SceneViewportWindow : public IEngineWindow {
     /** 事件 */
     bool Event() override;
     /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-    bool LogicIterate() override;
+    bool LogicIterate(void *appstate) override;
     /** 每帧渲染，内部应包含处理视口纹理绘制等 */
     bool RenderIterate() override;
     /** 结束 */

@@ -15,8 +15,8 @@ namespace DE {
             return typeid(*this).name();
         };
 
-        virtual void Start(void *appstate) = 0;
-        virtual void Iterate(void *appstate) = 0;
+        virtual bool Start(void *appstate) {return true;};
+        virtual bool Iterate(void *appstate) {return true;};
 
         virtual ~IComponent() = default;
     };

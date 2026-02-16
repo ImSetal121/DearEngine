@@ -7,7 +7,6 @@
 #include <string>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
-
 #include "State.h"
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
@@ -15,6 +14,7 @@
 #include "engine/Engine.h"
 #include "engine/util/Path.h"
 #include "glad/glad.h"
+#include <glm/glm.hpp>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -67,15 +67,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 #elif defined(__APPLE__)
-    // GL 3.2 Core + GLSL 150
     const char* glsl_version = "#version 410";
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Mac 上必须设置
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 #else
-    // GL 3.0 + GLSL 130（桌面 OpenGL）
-    const char* glsl_version = "#version 130";
+    const char* glsl_version = "#version 410";
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -136,7 +134,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     // 设置 Dear ImGui 样式
     ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
+    // ImGui::StyleColorsLight();
 
     // 设置缩放
     ImGuiStyle& style = ImGui::GetStyle();
