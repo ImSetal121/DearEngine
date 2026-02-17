@@ -4,11 +4,13 @@
 
 #include "TestCubeComponent.h"
 
+#include <format>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "TransformComponent.h"
 #include "../Entity.h"
 #include "../Log.h"
+#include "../../../State.h"
 #include "glad/glad.h"
 #include "glm/glm.hpp"
 
@@ -30,6 +32,8 @@ namespace DE {
     }
 
     bool TestCubeComponent::RenderIterate(void *appstate, RenderContext* render_context) {
+        if (!GetOwner()) return IComponent::RenderIterate(appstate, render_context);
+        auto* state = static_cast<AppState*>(appstate);
         auto* transform_component = GetOwner()->GetComponent<TransformComponent>();
 
         if (cubeVAO == 0) {
@@ -49,10 +53,13 @@ namespace DE {
         }
 
         if (render_context) {
-            glm::mat4 projection = glm::perspective(glm::radians(render_context->camera->Fov), (float)*render_context->screenWidth / (float)*render_context->screenHeight, 0.1f, 100.0f); //创建fov为相机fov，长宽比与窗口长宽比一致的透视投影矩阵
+            glm::mat4 projection = glm::perspective(glm::radians(render_context->camera->Fov),
+                (float)*render_context->screenWidth / (float)*render_context->screenHeight, 0.1f, 100.0f);
             glm::mat4 view = render_context->camera->GetViewMatrix();
-            glm::mat4 model = glm::mat4();
+            glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, transform_component->position);
+            model = glm::rotate(model, glm::radians((float)state->current_time * 20), glm::vec3(1.0f, 0.3f, 0.5f));
+
 
             glUniformMatrix4fv(glGetUniformLocation(*render_context->program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
             glUniformMatrix4fv(glGetUniformLocation(*render_context->program, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -60,8 +67,6 @@ namespace DE {
 
             glBindVertexArray(cubeVAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);
-
-            Log::Debug("完成本帧绘制.");
         }
         return IComponent::RenderIterate(appstate, render_context);
     }

@@ -44,21 +44,20 @@ namespace DE {
             glBindTexture(GL_TEXTURE_2D, 0);
             glBindFramebuffer(GL_FRAMEBUFFER, fbo);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+            GLuint rbo = 0;
+            glGenRenderbuffers(1, &rbo);
+            glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
+                scene_viewport_texture_width, scene_viewport_texture_height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+            glBindRenderbuffer(GL_RENDERBUFFER, 0);
+            scene_viewport_rbo = rbo;
             if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                glDeleteRenderbuffers(1, &rbo);
                 glDeleteTextures(1, &tex);
                 glDeleteFramebuffers(1, &fbo);
                 DE::Log::Error("CreateSceneViewportFBO failed.");
-            }
-            {
-                GLuint rbo = 0;
-                glGenRenderbuffers(1, &rbo);
-                glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
-                    scene_viewport_texture_width, scene_viewport_texture_height);
-                glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
-                glBindRenderbuffer(GL_RENDERBUFFER, 0);
-                // 若类里有 scene_viewport_rbo，这里保存: scene_viewport_rbo = rbo;
             }
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             scene_viewport_fbo = fbo;
@@ -208,6 +207,11 @@ namespace DE {
         if (scene_viewport_texture) {
             glDeleteTextures(1, &scene_viewport_texture);
             scene_viewport_texture = 0;
+        }
+        if (scene_viewport_rbo) {
+            GLuint rbo = scene_viewport_rbo;
+            glDeleteRenderbuffers(1, &rbo);
+            scene_viewport_rbo = 0;
         }
         if (scene_viewport_fbo) {
             GLuint fbo = scene_viewport_fbo;
