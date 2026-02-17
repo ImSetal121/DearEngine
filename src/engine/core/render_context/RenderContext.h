@@ -8,6 +8,11 @@
 
 namespace DE {
     struct RenderContext {
+        unsigned int* program = nullptr;
+
+        int* screenWidth = nullptr;
+        int* screenHeight = nullptr;
+
         ICamera* camera = nullptr;
     };
 }

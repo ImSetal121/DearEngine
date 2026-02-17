@@ -39,6 +39,7 @@ namespace DE {
             auto ptr = std::make_unique<T>(std::forward<Args>(args)...);
             T* raw = ptr.get();
             components[typeId] = std::move(ptr);
+            raw->SetOwner(this);
             return raw;
         }
         

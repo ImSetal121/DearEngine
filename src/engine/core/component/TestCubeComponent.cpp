@@ -4,8 +4,13 @@
 
 #include "TestCubeComponent.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
+#include "TransformComponent.h"
+#include "../Entity.h"
+#include "../Log.h"
 #include "glad/glad.h"
-#include "glm/ext/matrix_clip_space.inl"
+#include "glm/glm.hpp"
 
 namespace DE {
     const char * TestCubeComponent::GetComponentName() const {
@@ -13,20 +18,6 @@ namespace DE {
     }
 
     bool TestCubeComponent::Init(void *appstate) {
-        //创建VBO对象
-        glGenBuffers(1, &VBO);
-        //绑定VBO对象
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        ////把顶点数据复制到缓冲中供OpenGL使用
-        glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
-        //创建cubeVAO对象
-        glGenVertexArrays(1, &cubeVAO);
-        //绑定cubeVAO对象
-        glBindVertexArray(cubeVAO);
-        //设置顶点位置属性指针
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-
         return IComponent::Init(appstate);
     }
 
@@ -39,10 +30,38 @@ namespace DE {
     }
 
     bool TestCubeComponent::RenderIterate(void *appstate, RenderContext* render_context) {
+        auto* transform_component = GetOwner()->GetComponent<TransformComponent>();
+
+        if (cubeVAO == 0) {
+            //创建VBO对象
+            glGenBuffers(1, &VBO);
+            //绑定VBO对象
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            ////把顶点数据复制到缓冲中供OpenGL使用
+            glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+            //创建cubeVAO对象
+            glGenVertexArrays(1, &cubeVAO);
+            //绑定cubeVAO对象
+            glBindVertexArray(cubeVAO);
+            //设置顶点位置属性指针
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+            glEnableVertexAttribArray(0);
+        }
+
         if (render_context) {
-            // glm::mat4 projection = glm::perspective(glm::radians(render_context->camera->Fov), (float)screenWidth / screenHeight, 0.1f, 100.0f); //创建fov为相机fov，长宽比与窗口长宽比一致的透视投影矩阵
-            // glm::mat4 view = camera.GetViewMatrix();
-            // glm::mat4 model;
+            glm::mat4 projection = glm::perspective(glm::radians(render_context->camera->Fov), (float)*render_context->screenWidth / (float)*render_context->screenHeight, 0.1f, 100.0f); //创建fov为相机fov，长宽比与窗口长宽比一致的透视投影矩阵
+            glm::mat4 view = render_context->camera->GetViewMatrix();
+            glm::mat4 model = glm::mat4();
+            model = glm::translate(model, transform_component->position);
+
+            glUniformMatrix4fv(glGetUniformLocation(*render_context->program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+            glUniformMatrix4fv(glGetUniformLocation(*render_context->program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+            glUniformMatrix4fv(glGetUniformLocation(*render_context->program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+            glBindVertexArray(cubeVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+
+            Log::Debug("完成本帧绘制.");
         }
         return IComponent::RenderIterate(appstate, render_context);
     }

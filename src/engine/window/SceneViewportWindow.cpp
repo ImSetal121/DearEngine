@@ -50,6 +50,16 @@ namespace DE {
                 glDeleteFramebuffers(1, &fbo);
                 DE::Log::Error("CreateSceneViewportFBO failed.");
             }
+            {
+                GLuint rbo = 0;
+                glGenRenderbuffers(1, &rbo);
+                glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
+                    scene_viewport_texture_width, scene_viewport_texture_height);
+                glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+                glBindRenderbuffer(GL_RENDERBUFFER, 0);
+                // 若类里有 scene_viewport_rbo，这里保存: scene_viewport_rbo = rbo;
+            }
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             scene_viewport_fbo = fbo;
             scene_viewport_texture = tex;
@@ -140,6 +150,11 @@ namespace DE {
         render_context = new RenderContext();
         camera = new ICamera();
         render_context->camera = camera;
+        camera->Position = glm::vec3(0.0f, 0.0f, 5.0f);   // 放在场景前方
+        printf("Viewport camera position: %.1f %.1f %.1f\n", camera->Position.x, camera->Position.y, camera->Position.z);
+        render_context->program = &scene_program;
+        render_context->screenWidth = &scene_viewport_texture_width;
+        render_context->screenHeight = &scene_viewport_texture_height;
 
         return IEngineWindow::Init(appstate);
     }
@@ -172,8 +187,9 @@ namespace DE {
             glBindFramebuffer(GL_FRAMEBUFFER, scene_viewport_fbo);
             glViewport(0, 0, scene_viewport_texture_width, scene_viewport_texture_height);
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glUseProgram(scene_program);
+            glEnable(GL_DEPTH_TEST);
 
             Scene* current_editing_scene = Engine::GetEditingScene();
             if (current_editing_scene) {
