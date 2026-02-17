@@ -32,38 +32,20 @@ namespace DE {
 
     bool SceneViewportWindow::Init(void *appstate) {
         auto state = static_cast<AppState*>(appstate);
-        // 场景视口 FBO + 纹理（内联）
+        // 场景视口 FBO + 附件（封装到 EnsureFboAttachments）
         {
-            GLuint fbo = 0, tex = 0;
+            GLuint fbo = 0;
             glGenFramebuffers(1, &fbo);
-            glGenTextures(1, &tex);
-            glBindTexture(GL_TEXTURE_2D, tex);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, scene_viewport_texture_width, scene_viewport_texture_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glBindTexture(GL_TEXTURE_2D, 0);
             glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
-            GLuint rbo = 0;
-            glGenRenderbuffers(1, &rbo);
-            glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
-                scene_viewport_texture_width, scene_viewport_texture_height);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
-            glBindRenderbuffer(GL_RENDERBUFFER, 0);
-            scene_viewport_rbo = rbo;
-            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            if (!EnsureFboAttachments(scene_viewport_texture_width, scene_viewport_texture_height)) {
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
-                glDeleteRenderbuffers(1, &rbo);
-                glDeleteTextures(1, &tex);
                 glDeleteFramebuffers(1, &fbo);
                 DE::Log::Error("CreateSceneViewportFBO failed.");
+                return false;
             }
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             scene_viewport_fbo = fbo;
-            scene_viewport_texture = tex;
         }
-        SetViewportTexture((void*)(intptr_t)scene_viewport_texture, scene_viewport_texture_width, scene_viewport_texture_height);
 
         // 使用 SDL_Storage 读取 default_scene_vert.vert / default_scene_frag.frag 并创建 program（内联）
         {
@@ -171,18 +153,37 @@ namespace DE {
         if (ImGui::IsWindowFocused())
             state->focused_engine_window = this;
 
-        if (viewport_texture_ && viewport_width_ && viewport_height_) {
+        if (viewport_texture_) {
             ImVec2 avail = ImGui::GetContentRegionAvail();
-            if (avail.x > 1) viewport_width_ = avail.x;
-            if (avail.y > 1) viewport_height_ = avail.y;
-            ImGui::Image(viewport_texture_, ImVec2(viewport_width_, viewport_height_));
+            int w = (avail.x > 1) ? (int)avail.x : viewport_width_;
+            int h = (avail.y > 1) ? (int)avail.y : viewport_height_;
+            if (w < 1) w = 1;
+            if (h < 1) h = 1;
+            viewport_width_ = w;
+            viewport_height_ = h;
+            ImGui::Image(viewport_texture_, ImVec2((float)viewport_width_, (float)viewport_height_));
         }
         ImGui::End();
         return true;
     }
 
     bool SceneViewportWindow::RenderIterate(void *appstate) {
-        if (scene_viewport_fbo && scene_program && scene_viewport_texture_width > 0 && scene_viewport_texture_height > 0) {
+        if (!scene_viewport_fbo || !scene_program) return true;
+
+        int target_w = viewport_width_ > 0 ? viewport_width_ : scene_viewport_texture_width;
+        int target_h = viewport_height_ > 0 ? viewport_height_ : scene_viewport_texture_height;
+        if (target_w < 1) target_w = 1;
+        if (target_h < 1) target_h = 1;
+
+        if (target_w != scene_viewport_texture_width || target_h != scene_viewport_texture_height) {
+            glBindFramebuffer(GL_FRAMEBUFFER, scene_viewport_fbo);
+            if (!EnsureFboAttachments(target_w, target_h)) {
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                return true;
+            }
+        }
+
+        if (scene_viewport_texture_width > 0 && scene_viewport_texture_height > 0) {
             glBindFramebuffer(GL_FRAMEBUFFER, scene_viewport_fbo);
             glViewport(0, 0, scene_viewport_texture_width, scene_viewport_texture_height);
             glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -234,5 +235,42 @@ namespace DE {
         viewport_texture_ = texture;
         viewport_width_ = width;
         viewport_height_ = height;
+    }
+
+    bool SceneViewportWindow::EnsureFboAttachments(int width, int height) {
+        if (width < 1 || height < 1) return false;
+
+        if (scene_viewport_texture) {
+            glDeleteTextures(1, &scene_viewport_texture);
+            scene_viewport_texture = 0;
+        }
+        if (scene_viewport_rbo) {
+            glDeleteRenderbuffers(1, &scene_viewport_rbo);
+            scene_viewport_rbo = 0;
+        }
+
+        GLuint tex = 0;
+        glGenTextures(1, &tex);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+
+        GLuint rbo = 0;
+        glGenRenderbuffers(1, &rbo);
+        glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+        scene_viewport_texture = tex;
+        scene_viewport_rbo = rbo;
+        scene_viewport_texture_width = width;
+        scene_viewport_texture_height = height;
+        SetViewportTexture((void*)(intptr_t)scene_viewport_texture, scene_viewport_texture_width, scene_viewport_texture_height);
+
+        return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
     }
 }

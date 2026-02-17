@@ -46,6 +46,9 @@ namespace DE {
         void* viewport_texture_ = nullptr;
         int viewport_width_ = 0;
         int viewport_height_ = 0;
+
+        /** 在已绑定 scene_viewport_fbo 的前提下，创建或更新颜色纹理与深度 RBO 为指定尺寸；会先删旧再建新。更新 scene_viewport_texture/rbo/width/height 并 SetViewportTexture。返回 FBO 是否完整。 */
+        bool EnsureFboAttachments(int width, int height);
     };
 }
 
