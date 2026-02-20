@@ -90,7 +90,7 @@ namespace DE {
         state->delta_time = state->delta_time_ns / 1000000000.0;
 
         if ((long)(state->current_time/1.0) != window_title_update_time) {
-            std::string new_title = "Dear Engine  [FPS:" + std::format("{:.2f}", io.Framerate)+"]";
+            std::string new_title = "Dear Engine <OpenGL> [FPS:" + std::format("{:.2f}", io.Framerate)+"]";
             SDL_SetWindowTitle(state->engine_window, new_title.c_str());
             window_title_update_time = (long)(state->current_time/1.0);
         }
