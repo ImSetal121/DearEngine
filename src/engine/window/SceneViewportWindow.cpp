@@ -162,7 +162,7 @@ namespace DE {
             // 鼠标旋转
             if (io.MouseDelta.x != 0.0f || io.MouseDelta.y != 0.0f) {
                 camera_rotation.y += io.MouseDelta.x * camera_sensitivity;  // yaw
-                camera_rotation.x += io.MouseDelta.y * camera_sensitivity;  // pitch
+                camera_rotation.x -= io.MouseDelta.y * camera_sensitivity;  // pitch
                 camera_rotation.x = glm::clamp(camera_rotation.x, -89.0f, 89.0f);
             }
 
@@ -172,8 +172,8 @@ namespace DE {
             if (ImGui::IsKeyDown(ImGuiKey_S)) camera_position -= camera->GetFront() * speed;
             if (ImGui::IsKeyDown(ImGuiKey_A)) camera_position -= camera->GetRight() * speed;
             if (ImGui::IsKeyDown(ImGuiKey_D)) camera_position += camera->GetRight() * speed;
-            if (ImGui::IsKeyDown(ImGuiKey_E)) camera_position.y -= speed;
-            if (ImGui::IsKeyDown(ImGuiKey_Q)) camera_position.y += speed;
+            if (ImGui::IsKeyDown(ImGuiKey_E)) camera_position.y += speed;
+            if (ImGui::IsKeyDown(ImGuiKey_Q)) camera_position.y -= speed;
         }
 
         if (viewport_texture_) {
@@ -184,7 +184,10 @@ namespace DE {
             if (h < 1) h = 1;
             viewport_width_ = w;
             viewport_height_ = h;
-            ImGui::Image(viewport_texture_, ImVec2((float)viewport_width_, (float)viewport_height_));
+            ImGui::Image(viewport_texture_,
+                         ImVec2((float)viewport_width_, (float)viewport_height_),
+                         ImVec2(0, 1),  // uv0: 左上角取纹理的 (0, 1)
+                         ImVec2(1, 0)); // uv1: 右下角取纹理的 (1, 0)
         }
         ImGui::End();
         if (state->application_is_running)

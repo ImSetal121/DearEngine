@@ -23,11 +23,13 @@ namespace DE {
         unsigned int scene_vao = 0;                 // 场景用 VAO（Core 下 glDrawArrays 必须绑定 VAO）
         int scene_viewport_texture_width = 1280;
         int scene_viewport_texture_height = 720;
+        // 视口相机
         ICamera* camera = nullptr;
-        glm::vec3 camera_position = glm::vec3(0.0f, 0.0f, 5.0f);
+        glm::vec3 camera_position = glm::vec3(-5.0f, 0.0f, 0.0f);
         glm::vec3 camera_rotation = glm::vec3(0.0f, 0.0f, 0.0f);
         float camera_sensitivity = 1.0f;
         float camera_move_speed = 10.0f;
+        // 渲染上下文
         RenderContext* render_context = nullptr;
 
         SceneViewportWindow();
