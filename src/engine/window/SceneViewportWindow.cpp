@@ -129,10 +129,8 @@ namespace DE {
         glGenVertexArrays(1, &scene_vao);
 
         render_context = new RenderContext();
-        camera = new ICamera();
+        camera = new ICamera(&camera_position, &camera_rotation);
         render_context->camera = camera;
-        camera->Position = glm::vec3(0.0f, 0.0f, 5.0f);   // 放在场景前方
-        printf("Viewport camera position: %.1f %.1f %.1f\n", camera->Position.x, camera->Position.y, camera->Position.z);
         render_context->program = &scene_program;
         render_context->screenWidth = &scene_viewport_texture_width;
         render_context->screenHeight = &scene_viewport_texture_height;
@@ -161,30 +159,21 @@ namespace DE {
 
         if (camera && is_hovered && ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
             ImGuiIO& io = ImGui::GetIO();
-            // —— 鼠标视角旋转 ——
+            // 鼠标旋转
             if (io.MouseDelta.x != 0.0f || io.MouseDelta.y != 0.0f) {
-                camera->Yaw   += io.MouseDelta.x * camera_sensitivity;
-                camera->Pitch += io.MouseDelta.y * camera_sensitivity;  // 注意 Y 轴反转
-
-                // 限制俯仰角
-                if (camera->Pitch > 89.0f)  camera->Pitch = 89.0f;
-                if (camera->Pitch < -89.0f) camera->Pitch = -89.0f;
-
-                camera->UpdateVectors();
+                camera_rotation.y += io.MouseDelta.x * camera_sensitivity;  // yaw
+                camera_rotation.x += io.MouseDelta.y * camera_sensitivity;  // pitch
+                camera_rotation.x = glm::clamp(camera_rotation.x, -89.0f, 89.0f);
             }
-            // —— WASD + QE 移动 ——
-            if (ImGui::IsKeyDown(ImGuiKey_W))
-                camera->Position += camera->Front * camera_movement_speed;
-            if (ImGui::IsKeyDown(ImGuiKey_S))
-                camera->Position -= camera->Front * camera_movement_speed;
-            if (ImGui::IsKeyDown(ImGuiKey_A))
-                camera->Position -= camera->Right * camera_movement_speed;
-            if (ImGui::IsKeyDown(ImGuiKey_D))
-                camera->Position += camera->Right * camera_movement_speed;
-            if (ImGui::IsKeyDown(ImGuiKey_E))
-                camera->Position -= camera->WorldUp * camera_movement_speed;
-            if (ImGui::IsKeyDown(ImGuiKey_Q))
-                camera->Position += camera->WorldUp * camera_movement_speed;
+
+            // WASD 移动
+            float speed = camera_move_speed * state->delta_time;
+            if (ImGui::IsKeyDown(ImGuiKey_W)) camera_position += camera->GetFront() * speed;
+            if (ImGui::IsKeyDown(ImGuiKey_S)) camera_position -= camera->GetFront() * speed;
+            if (ImGui::IsKeyDown(ImGuiKey_A)) camera_position -= camera->GetRight() * speed;
+            if (ImGui::IsKeyDown(ImGuiKey_D)) camera_position += camera->GetRight() * speed;
+            if (ImGui::IsKeyDown(ImGuiKey_E)) camera_position.y -= speed;
+            if (ImGui::IsKeyDown(ImGuiKey_Q)) camera_position.y += speed;
         }
 
         if (viewport_texture_) {
