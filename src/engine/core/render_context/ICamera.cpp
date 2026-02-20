@@ -8,7 +8,7 @@
 
 namespace DE {
 
-    void ICamera::updateCameraVectors() {
+    void ICamera::UpdateVectors() {
         glm::vec3 front;
         front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
         front.y = sin(glm::radians(Pitch));
@@ -20,15 +20,13 @@ namespace DE {
 
     ICamera::ICamera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
         : Front(glm::vec3(0.0f, 0.0f, -1.0f))
-        , MovementSpeed(SPEED)
-        , MouseSensitivity(SENSITIVITY)
         , Fov(FOV)
     {
         Position = position;
         WorldUp = up;
         Yaw = yaw;
         Pitch = pitch;
-        updateCameraVectors();
+        UpdateVectors();
     }
 
     glm::mat4 ICamera::GetViewMatrix() {

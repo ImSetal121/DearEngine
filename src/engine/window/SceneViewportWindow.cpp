@@ -147,11 +147,45 @@ namespace DE {
     /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
     bool SceneViewportWindow::LogicIterate(void *appstate) {
         if (!open) return false;
+        auto state = static_cast<AppState*>(appstate);
+        if (state->application_is_running)
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+
         ImGui::Begin(Title());
         // 检查是否为焦点窗口
-        auto state = static_cast<AppState*>(appstate);
         if (ImGui::IsWindowFocused())
             state->focused_engine_window = this;
+
+        // 场景视口相机控制
+        bool is_hovered = ImGui::IsWindowHovered();
+
+        if (camera && is_hovered && ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
+            ImGuiIO& io = ImGui::GetIO();
+            // —— 鼠标视角旋转 ——
+            if (io.MouseDelta.x != 0.0f || io.MouseDelta.y != 0.0f) {
+                camera->Yaw   += io.MouseDelta.x * camera_sensitivity;
+                camera->Pitch += io.MouseDelta.y * camera_sensitivity;  // 注意 Y 轴反转
+
+                // 限制俯仰角
+                if (camera->Pitch > 89.0f)  camera->Pitch = 89.0f;
+                if (camera->Pitch < -89.0f) camera->Pitch = -89.0f;
+
+                camera->UpdateVectors();
+            }
+            // —— WASD + QE 移动 ——
+            if (ImGui::IsKeyDown(ImGuiKey_W))
+                camera->Position += camera->Front * camera_movement_speed;
+            if (ImGui::IsKeyDown(ImGuiKey_S))
+                camera->Position -= camera->Front * camera_movement_speed;
+            if (ImGui::IsKeyDown(ImGuiKey_A))
+                camera->Position -= camera->Right * camera_movement_speed;
+            if (ImGui::IsKeyDown(ImGuiKey_D))
+                camera->Position += camera->Right * camera_movement_speed;
+            if (ImGui::IsKeyDown(ImGuiKey_E))
+                camera->Position -= camera->WorldUp * camera_movement_speed;
+            if (ImGui::IsKeyDown(ImGuiKey_Q))
+                camera->Position += camera->WorldUp * camera_movement_speed;
+        }
 
         if (viewport_texture_) {
             ImVec2 avail = ImGui::GetContentRegionAvail();
@@ -164,6 +198,8 @@ namespace DE {
             ImGui::Image(viewport_texture_, ImVec2((float)viewport_width_, (float)viewport_height_));
         }
         ImGui::End();
+        if (state->application_is_running)
+            ImGui::PopStyleColor();
         return true;
     }
 

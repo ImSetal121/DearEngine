@@ -14,7 +14,7 @@ namespace DA {
         DE::Scene* current_playing_scene = nullptr;
 
         /** 引擎生命周期:启动 */
-        bool Strat(void *appstate, DE::Scene *scene);
+        bool Init(void *appstate, DE::Scene *scene);
         /** 引擎生命周期:事件 */
         bool Event(void *appstate, SDL_Event *event);
         /** 引擎生命周期:每帧逻辑 */

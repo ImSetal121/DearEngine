@@ -17,9 +17,11 @@ struct AppState {
     SDL_GLContext gl_context = nullptr; //opengl上下文
     // 引擎相关
     bool application_is_running = false;
+    // 计时
     Uint64 current_time_ns = 0;
-    Uint64 delta_time_ns = 0;
     double current_time = 0;
+    // 帧时间
+    Uint64 delta_time_ns = 0;
     double delta_time = 0;
     // 引擎窗口
     std::vector<DE::IEngineWindow*> engine_windows;

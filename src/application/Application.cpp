@@ -4,6 +4,8 @@
 
 #include "Application.h"
 
+#include "../State.h"
+
 namespace DA {
     // 递归：对单个实体及其所有子实体的组件调用 Start
     static void InitEntity(DE::Entity* entity, void* appstate) {
@@ -32,9 +34,12 @@ namespace DA {
             RenderIterateEntity(child.get(), appstate, render_context);
     }
 
-    bool Application::Strat(void *appstate, DE::Scene *scene) {
+    bool Application::Init(void *appstate, DE::Scene *scene) {
         SetCurrentPlayingScene(scene);
         std::printf("应用程序开始运行.\n");
+
+        auto state = static_cast<AppState*>(appstate);
+        state->current_time_ns = 0;
 
         //遍历场景组件,调用组件Start方法.
         if (current_playing_scene) {
@@ -44,6 +49,9 @@ namespace DA {
         }
 
         return true;
+    }
+
+    bool Application::Event(void *appstate, SDL_Event *event) {
     }
 
     bool Application::LogicIterate(void *appstate) {

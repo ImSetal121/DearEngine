@@ -13,7 +13,6 @@ namespace DE {
         const float YAW = -90.0f;
         const float PITCH = 0.0f;
         const float SPEED = 2.5f;
-        const float SENSITIVITY = 0.1f;
         const float FOV = 60.0f;
 
         //摄像机属性
@@ -26,17 +25,14 @@ namespace DE {
         float Yaw;//偏航角
         float Pitch;//俯仰角
         //摄像机设置
-        float MovementSpeed;//移动速度
-        float MouseSensitivity;//鼠标灵敏度
         float Fov;//视野
 
         /** 返回视图矩阵 */
         glm::mat4 GetViewMatrix();
+        /** 根据 Yaw/Pitch 更新 Front/Right/Up 向量 */
+        void UpdateVectors();
 
         ICamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = -90.0f, float pitch = 0.0f);
-
-    private:
-        void updateCameraVectors();
     };
 } // DE
 

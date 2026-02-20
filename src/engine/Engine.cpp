@@ -140,7 +140,7 @@ namespace DE {
                         state->application_is_running = false;
                     } else {
                         preview_application = std::make_unique<DA::Application>();
-                        preview_application->Strat(state, editing_scene.get());
+                        preview_application->Init(state, editing_scene.get());
 
                         state->application_is_running = true;
                     }

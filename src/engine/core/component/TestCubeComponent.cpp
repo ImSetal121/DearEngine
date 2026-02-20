@@ -28,6 +28,9 @@ namespace DE {
     }
 
     bool TestCubeComponent::LogicIterate(void *appstate) {
+        auto* state = static_cast<AppState*>(appstate);
+        auto* transform_component = GetOwner()->GetComponent<TransformComponent>();
+        transform_component->rotation = glm::vec3(state->current_time*40, state->current_time*30, 0.0f);
         return IComponent::LogicIterate(appstate);
     }
 
@@ -36,7 +39,7 @@ namespace DE {
         auto* state = static_cast<AppState*>(appstate);
         auto* transform_component = GetOwner()->GetComponent<TransformComponent>();
 
-        if (cubeVAO == 0) {
+        if (cubeVAO == 0) { // 准备渲染组件所需数据
             //创建VBO对象
             glGenBuffers(1, &VBO);
             //绑定VBO对象
@@ -58,7 +61,9 @@ namespace DE {
             glm::mat4 view = render_context->camera->GetViewMatrix();
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, transform_component->position);
-            model = glm::rotate(model, glm::radians((float)state->current_time * 20), glm::vec3(1.0f, 0.3f, 0.5f));
+            model = glm::rotate(model, glm::radians(transform_component->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(transform_component->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(transform_component->rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
 
             glUniformMatrix4fv(glGetUniformLocation(*render_context->program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));

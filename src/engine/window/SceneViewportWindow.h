@@ -24,6 +24,8 @@ namespace DE {
         int scene_viewport_texture_width = 1280;
         int scene_viewport_texture_height = 720;
         ICamera* camera = nullptr;
+        float camera_sensitivity = 1.0f;
+        float camera_movement_speed = 0.1f;
         RenderContext* render_context = nullptr;
 
         SceneViewportWindow();
