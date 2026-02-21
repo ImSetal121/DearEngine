@@ -20,9 +20,11 @@ namespace DE {
         };
 
         virtual bool Init(void *appstate) {return true;};
+        virtual bool Start(void *appstate) {return true;};
         virtual bool Event() {return true;};
         virtual bool LogicIterate(void *appstate) {return true;};
         virtual bool RenderIterate(void *appstate, RenderContext* render_context) {return true;};
+        virtual bool End() {return true;};
         virtual bool Quit() {return true;};
 
         /** 所属实体，未挂到实体时为 nullptr。获取同实体其他组件请用 GetOwner()->GetComponent<T>()，调用方需包含 Entity.h。 */

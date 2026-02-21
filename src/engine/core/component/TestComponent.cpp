@@ -18,6 +18,10 @@ bool DE::TestComponent::Init(void *appstate) {
     return true;
 }
 
+bool DE::TestComponent::Start(void *appstate) {
+    return IComponent::Start(appstate);
+}
+
 bool DE::TestComponent::Event() {
     return IComponent::Event();
 }
@@ -32,6 +36,10 @@ bool DE::TestComponent::LogicIterate(void *appstate) {
 
 bool DE::TestComponent::RenderIterate(void *appstate, RenderContext* render_context) {
     return IComponent::RenderIterate(appstate, render_context);
+}
+
+bool DE::TestComponent::End() {
+    return IComponent::End();
 }
 
 bool DE::TestComponent::Quit() {

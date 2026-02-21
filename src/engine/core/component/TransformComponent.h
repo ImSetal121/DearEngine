@@ -19,10 +19,13 @@ namespace DE {
         glm::vec3 scale = glm::vec3(1.0f);
 
         const char* GetComponentName() const override;
+
         bool Init(void *appstate) override;
+        bool Start(void *appstate) override;
         bool Event() override;
         bool LogicIterate(void *appstate) override;
         bool RenderIterate(void *appstate, RenderContext* render_context) override;
+        bool End() override;
         bool Quit() override;
 
         TransformComponent() = default;

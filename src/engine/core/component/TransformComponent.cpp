@@ -13,6 +13,10 @@ namespace DE {
         return IComponent::Init(appstate);
     }
 
+    bool TransformComponent::Start(void *appstate) {
+        return IComponent::Start(appstate);
+    }
+
     bool TransformComponent::Event() {
         return IComponent::Event();
     }
@@ -23,6 +27,10 @@ namespace DE {
 
     bool TransformComponent::RenderIterate(void *appstate, RenderContext* render_context) {
         return IComponent::RenderIterate(appstate, render_context);
+    }
+
+    bool TransformComponent::End() {
+        return IComponent::End();
     }
 
     bool TransformComponent::Quit() {

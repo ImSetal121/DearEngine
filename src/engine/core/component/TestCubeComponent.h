@@ -54,13 +54,16 @@ namespace DE {
             -0.5f,  0.5f,  0.5f,
             -0.5f,  0.5f, -0.5f
         };
+        double run_time = 0.0f;
 
         const char* GetComponentName() const override;
 
         bool Init(void *appstate) override;
+        bool Start(void *appstate) override;
         bool Event() override;
         bool LogicIterate(void *appstate) override;
         bool RenderIterate(void *appstate, RenderContext* render_context) override;
+        bool End() override;
         bool Quit() override;
     private:
         unsigned int VBO = 0;

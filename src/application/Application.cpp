@@ -8,12 +8,12 @@
 
 namespace DA {
     // 递归：对单个实体及其所有子实体的组件调用 Start
-    static void InitEntity(DE::Entity* entity, void* appstate) {
+    static void StartEntity(DE::Entity* entity, void* appstate) {
         if (!entity) return;
         for (auto& kv : entity->components)
-            kv.second->Init(appstate);
+            kv.second->Start(appstate);
         for (auto& child : entity->children)
-            InitEntity(child.get(), appstate);
+            StartEntity(child.get(), appstate);
     }
 
     // 递归：对单个实体及其所有子实体的组件调用 LogicIterate
@@ -34,7 +34,7 @@ namespace DA {
             RenderIterateEntity(child.get(), appstate, render_context);
     }
 
-    bool Application::Init(void *appstate, DE::Scene *scene) {
+    bool Application::Start(void *appstate, DE::Scene *scene) {
         SetCurrentPlayingScene(scene);
         std::printf("应用程序开始运行.\n");
 
@@ -44,7 +44,7 @@ namespace DA {
         //遍历场景组件,调用组件Start方法.
         if (current_playing_scene) {
             for (auto& entity : current_playing_scene->root) {
-                InitEntity(entity.get(), appstate);
+                StartEntity(entity.get(), appstate);
             }
         }
 
@@ -70,6 +70,9 @@ namespace DA {
             }
         }
         return true;
+    }
+
+    bool Application::End(void *appstate, SDL_AppResult result) {
     }
 
     void Application::SetCurrentPlayingScene(DE::Scene* scene) {

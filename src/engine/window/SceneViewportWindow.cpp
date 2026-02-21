@@ -168,6 +168,7 @@ namespace DE {
                 ImGui::Separator();
                 // ImGui::Checkbox("无光照模型", nullptr);
                 // ImGui::Checkbox("Blinn-Phong模型", nullptr);
+                // ImGui::Checkbox("PBR模型", nullptr);
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Camera"))
