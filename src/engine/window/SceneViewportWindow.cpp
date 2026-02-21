@@ -149,10 +149,37 @@ namespace DE {
         if (state->application_is_running)
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
 
-        ImGui::Begin(Title());
+        ImGui::Begin(Title(), &open, ImGuiWindowFlags_MenuBar);
         // 检查是否为焦点窗口
         if (ImGui::IsWindowFocused())
             state->focused_engine_window = this;
+
+        // 最上方固定菜单栏
+        if (ImGui::BeginMenuBar())
+        {
+            if (ImGui::BeginMenu("视图"))
+            {
+                if (ImGui::MenuItem("透视")) { /* ... */ }
+                if (ImGui::MenuItem("正交")) { /* ... */ }
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("渲染"))
+            {
+                ImGui::Separator();
+                // ImGui::Checkbox("无光照模型", nullptr);
+                // ImGui::Checkbox("Blinn-Phong模型", nullptr);
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Camera"))
+            {
+                ImGui::SetNextItemWidth(60);
+                ImGui::DragFloat("Sensitivity", &camera_sensitivity, 0.01, 0, 3, "%.2f");
+                ImGui::SetNextItemWidth(60);
+                ImGui::DragFloat("Move Speed", &camera_move_speed, 0.1, 0, 100, "%.2f");
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+        }
 
         // 场景视口相机控制
         bool is_hovered = ImGui::IsWindowHovered();
