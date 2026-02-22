@@ -16,6 +16,15 @@ namespace DA {
             StartEntity(child.get(), appstate);
     }
 
+    // 递归：对单个实体及其所有子实体的组件调用 Event
+    static void EventEntity(DE::Entity* entity, void* appstate, SDL_Event* event) {
+        if (!entity) return;
+        for (auto& kv : entity->components)
+            kv.second->Event();
+        for (auto& child : entity->children)
+            EventEntity(child.get(), appstate, event);
+    }
+
     // 递归：对单个实体及其所有子实体的组件调用 LogicIterate
     static void LogicIterateEntity(DE::Entity* entity, void* appstate) {
         if (!entity) return;
@@ -34,12 +43,20 @@ namespace DA {
             RenderIterateEntity(child.get(), appstate, render_context);
     }
 
+    // 递归：对单个实体及其所有子实体的组件调用 End
+    static void EndEntity(DE::Entity* entity, void* appstate, SDL_AppResult result) {
+        if (!entity) return;
+        for (auto& kv : entity->components)
+            kv.second->End();
+        for (auto& child : entity->children)
+            EndEntity(child.get(), appstate, result);
+    }
+
     bool Application::Start(void *appstate, DE::Scene *scene) {
         SetCurrentPlayingScene(scene);
         std::printf("应用程序开始运行.\n");
 
         auto state = static_cast<AppState*>(appstate);
-        state->current_time_ns = 0;
 
         //遍历场景组件,调用组件Start方法.
         if (current_playing_scene) {
@@ -52,6 +69,12 @@ namespace DA {
     }
 
     bool Application::Event(void *appstate, SDL_Event *event) {
+        if (current_playing_scene) {
+            for (auto& entity : current_playing_scene->root) {
+                EventEntity(entity.get(), appstate, event);
+            }
+        }
+        return true;
     }
 
     bool Application::LogicIterate(void *appstate) {
@@ -73,6 +96,12 @@ namespace DA {
     }
 
     bool Application::End(void *appstate, SDL_AppResult result) {
+        if (current_playing_scene) {
+            for (auto& entity : current_playing_scene->root) {
+                EndEntity(entity.get(), appstate, result);
+            }
+        }
+        return true;
     }
 
     void Application::SetCurrentPlayingScene(DE::Scene* scene) {

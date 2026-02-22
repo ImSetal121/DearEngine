@@ -23,6 +23,7 @@
 #include "glad/glad.h"
 #include "SDL3/SDL_storage.h"
 #include "util/Path.h"
+#include "window/AssetManagerWindow.h"
 
 namespace DE {
     //正在编辑的场景
@@ -48,7 +49,8 @@ namespace DE {
             new ConsoleWindow(),
             new SceneTreeWindow(),
             new EntityComponentWindow(),
-            new SceneViewportWindow()
+            new SceneViewportWindow(),
+            new AssetManagerWindow()
         };
         for (IEngineWindow* window : state->engine_windows)
             window->Init(appstate);

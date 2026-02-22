@@ -149,7 +149,7 @@ namespace DE {
         if (state->application_is_running)
             ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
 
-        ImGui::Begin(Title(), &open, ImGuiWindowFlags_MenuBar);
+        ImGui::Begin(Title(), nullptr, ImGuiWindowFlags_MenuBar);
         // 检查是否为焦点窗口
         if (ImGui::IsWindowFocused())
             state->focused_engine_window = this;
