@@ -30,8 +30,6 @@ namespace DE {
     std::unique_ptr<Scene> editing_scene = nullptr;
     //当前选中的实体
     Entity* selected_entity = nullptr;
-    //预览应用程序
-    std::unique_ptr<DA::Application> preview_application = nullptr;
 
     // 示例状态
     bool show_demo_window = false;
@@ -79,6 +77,16 @@ namespace DE {
 
     bool Engine::Event(void *appstate, SDL_Event *event) {
         return true;
+    }
+
+    void StartPreviewApplication(AppState * state) {
+        state->application = std::make_unique<DA::Application>();
+        state->application->Start(state, editing_scene.get());
+        state->application_is_running = true;
+    }
+
+    void StopPreviewApplication(AppState * state) {
+        state->application_is_running = false;
     }
 
     bool Engine::LogicIterate(void *appstate) {
@@ -138,14 +146,8 @@ namespace DE {
                 // 将运行按钮放在中间（约窗口宽度的中央）
                 ImGui::SameLine((ImGui::GetWindowWidth() - 80.0f) * 0.5f);  // 80 为按钮大致宽度
                 if (ImGui::MenuItem(state->application_is_running ? "停止" : "运行")) {
-                    if (state->application_is_running) {
-                        state->application_is_running = false;
-                    } else {
-                        preview_application = std::make_unique<DA::Application>();
-                        preview_application->Start(state, editing_scene.get());
-
-                        state->application_is_running = true;
-                    }
+                    if (state->application_is_running) StopPreviewApplication(state);
+                    else StartPreviewApplication(state);
                 }
                 ImGui::SameLine();
                 ImGui::EndMenuBar();
@@ -167,10 +169,6 @@ namespace DE {
             DE::Log::Warning("没有正在编辑的场景.");
         }
 
-        if (state->application_is_running && preview_application) {
-            preview_application->LogicIterate(state);
-        }
-
         return true;
     }
 
@@ -180,10 +178,6 @@ namespace DE {
         // 引擎绘制
         for (IEngineWindow* window : state->engine_windows)
             window->RenderIterate(appstate);
-
-        if (state->application_is_running && preview_application) {
-            preview_application->RenderIterate(state);
-        }
 
         return true;
     }

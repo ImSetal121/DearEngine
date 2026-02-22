@@ -186,6 +186,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
     if (event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event->window.windowID == SDL_GetWindowID(state->engine_window))
         return SDL_APP_SUCCESS;
 
+    if (state->application_is_running && state->application) {
+        state->application->Event(appstate, event);
+    }
+
     if (DE::Engine::Event(appstate, event))
         return SDL_APP_CONTINUE;
     else
@@ -210,7 +214,15 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
 
-    // 引擎逻辑tick
+    // 应用程序逻辑迭代
+    if (state->application_is_running == false && state->application) { //检查是否未关闭
+        state->application->End(state);
+        state->application.reset();
+    }
+    if (state->application_is_running && state->application) {
+        state->application->LogicIterate(state);
+    }
+    // 引擎逻辑迭代
     if (!DE::Engine::LogicIterate(appstate))
         return SDL_APP_FAILURE;
 
@@ -221,10 +233,14 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
     glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
     glClear(GL_COLOR_BUFFER_BIT);
-    // 2) 引擎渲染
+    // 2) 应用程序渲染迭代
+    if (state->application_is_running && state->application) {
+        state->application->RenderIterate(state);
+    }
+    // 3) 引擎渲染迭代
     if (!DE::Engine::RenderIterate(appstate))
         return SDL_APP_FAILURE;
-    // 3) 把 ImGui 画到当前默认 framebuffer
+    // 4) 把 ImGui 画到当前默认 framebuffer
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     // 更新并渲染额外的平台窗口

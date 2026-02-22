@@ -7,6 +7,7 @@
 #include "../State.h"
 
 namespace DA {
+
     // 递归：对单个实体及其所有子实体的组件调用 Start
     static void StartEntity(DE::Entity* entity, void* appstate) {
         if (!entity) return;
@@ -44,19 +45,31 @@ namespace DA {
     }
 
     // 递归：对单个实体及其所有子实体的组件调用 End
-    static void EndEntity(DE::Entity* entity, void* appstate, SDL_AppResult result) {
+    static void EndEntity(DE::Entity* entity, void* appstate) {
         if (!entity) return;
         for (auto& kv : entity->components)
             kv.second->End();
         for (auto& child : entity->children)
-            EndEntity(child.get(), appstate, result);
+            EndEntity(child.get(), appstate);
     }
 
     bool Application::Start(void *appstate, DE::Scene *scene) {
         SetCurrentPlayingScene(scene);
         std::printf("应用程序开始运行.\n");
-
         auto state = static_cast<AppState*>(appstate);
+
+        // 创建程序窗口
+        float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+        SDL_WindowFlags window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+        window_ = SDL_CreateWindow("Dear Application", (int)(854 * main_scale), (int)(480 * main_scale), window_flags);
+        if (window_ == nullptr)
+        {
+            printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
+            return SDL_APP_FAILURE;
+        }
+        SDL_GL_SetSwapInterval(1); // 开启垂直同步
+        SDL_SetWindowPosition(window_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+        SDL_ShowWindow(window_);
 
         //遍历场景组件,调用组件Start方法.
         if (current_playing_scene) {
@@ -69,6 +82,11 @@ namespace DA {
     }
 
     bool Application::Event(void *appstate, SDL_Event *event) {
+        auto state = static_cast<AppState*>(appstate);
+        if (window_ && event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event->window.windowID == SDL_GetWindowID(window_)) {
+            state->application_is_running = false;
+        }
+
         if (current_playing_scene) {
             for (auto& entity : current_playing_scene->root) {
                 EventEntity(entity.get(), appstate, event);
@@ -95,11 +113,15 @@ namespace DA {
         return true;
     }
 
-    bool Application::End(void *appstate, SDL_AppResult result) {
+    bool Application::End(void *appstate) {
         if (current_playing_scene) {
             for (auto& entity : current_playing_scene->root) {
-                EndEntity(entity.get(), appstate, result);
+                EndEntity(entity.get(), appstate);
             }
+        }
+        if (window_) {
+            SDL_DestroyWindow(window_);
+            window_ = nullptr;
         }
         return true;
     }

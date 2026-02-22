@@ -22,12 +22,15 @@ namespace DA {
         /** 应用程序生命周期:每帧渲染 */
         bool RenderIterate(void *appstate);
         /** 应用程序生命周期:结束 */
-        bool End(void *appstate, SDL_AppResult result);
+        bool End(void *appstate);
 
         void SetCurrentPlayingScene(DE::Scene* scene);
 
         Application() = default;
         ~Application() = default;
+
+        private:
+        SDL_Window* window_ = nullptr;
     };
 } // DA
 
