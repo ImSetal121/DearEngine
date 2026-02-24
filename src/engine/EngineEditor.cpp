@@ -17,7 +17,6 @@
 #include "window/SceneViewportWindow.h"
 #include "../State.h"
 #include "../application/Application.h"
-#include "core/component/TestComponent.h"
 #include "core/component/TestCubeComponent.h"
 #include "core/component/TransformComponent.h"
 #include "glad/glad.h"
