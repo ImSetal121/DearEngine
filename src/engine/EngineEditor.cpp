@@ -2,7 +2,7 @@
 // Created by ImSetal on 2026/2/11.
 //
 
-#include "Engine.h"
+#include "EngineEditor.h"
 
 #include <filesystem>
 #include <format>
@@ -34,7 +34,7 @@ namespace DE {
     bool show_demo_window = false;
     long window_title_update_time = 0;
 
-    bool Engine::Init(void *appstate, int argc, char *argv[]) {
+    bool EngineEditor::Init(void *appstate, int argc, char *argv[]) {
         auto *state = static_cast<AppState *>(appstate);
 
         // 欢迎语
@@ -74,7 +74,7 @@ namespace DE {
         return true;
     }
 
-    bool Engine::Event(void *appstate, SDL_Event *event) {
+    bool EngineEditor::Event(void *appstate, SDL_Event *event) {
         return true;
     }
 
@@ -88,7 +88,7 @@ namespace DE {
         state->application_is_running = false;
     }
 
-    bool Engine::LogicIterate(void *appstate) {
+    bool EngineEditor::LogicIterate(void *appstate) {
         auto *state = static_cast<AppState *>(appstate);
         ImGuiIO& io = ImGui::GetIO(); (void)io;
 
@@ -171,7 +171,7 @@ namespace DE {
         return true;
     }
 
-    bool Engine::RenderIterate(void *appstate) {
+    bool EngineEditor::RenderIterate(void *appstate) {
         auto *state = static_cast<AppState *>(appstate);
 
         // 引擎绘制
@@ -181,7 +181,7 @@ namespace DE {
         return true;
     }
 
-    bool Engine::Quit(void *appstate, SDL_AppResult result) {
+    bool EngineEditor::Quit(void *appstate, SDL_AppResult result) {
         auto *state = static_cast<AppState *>(appstate);
 
         selected_entity = nullptr;
@@ -192,15 +192,15 @@ namespace DE {
         return true;
     }
 
-    Scene* Engine::GetEditingScene() {
+    Scene* EngineEditor::GetEditingScene() {
         return editing_scene ? editing_scene.get() : nullptr;
     }
 
-    Entity * Engine::GetSelectedEntity() {
+    Entity * EngineEditor::GetSelectedEntity() {
         return selected_entity;
     }
 
-    void Engine::SetSelectedEntity(Entity *entity) {
+    void EngineEditor::SetSelectedEntity(Entity *entity) {
         selected_entity = entity;
     }
 }

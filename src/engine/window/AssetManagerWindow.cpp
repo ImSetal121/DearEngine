@@ -5,7 +5,7 @@
 #include "AssetManagerWindow.h"
 
 #include "imgui.h"
-#include "../Engine.h"
+#include "../EngineEditor.h"
 #include "../../State.h"
 
 namespace DE {

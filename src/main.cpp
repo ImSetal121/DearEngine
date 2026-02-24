@@ -11,7 +11,7 @@
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl3.h"
-#include "engine/Engine.h"
+#include "engine/EngineEditor.h"
 #include "engine/util/Path.h"
 #include "glad/glad.h"
 #include <glm/glm.hpp>
@@ -161,7 +161,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         io.Fonts->AddFontFromFileTTF(font_path_chinese, 16.0f, nullptr, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
 
     // 引擎Init
-    if (!DE::Engine::Init(state, argc, argv)) {
+    if (!DE::EngineEditor::Init(state, argc, argv)) {
         return SDL_APP_FAILURE;
     }
 
@@ -190,7 +190,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
         state->application->Event(appstate, event);
     }
 
-    if (DE::Engine::Event(appstate, event))
+    if (DE::EngineEditor::Event(appstate, event))
         return SDL_APP_CONTINUE;
     else
         return SDL_APP_FAILURE;
@@ -222,8 +222,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     if (state->application_is_running && state->application) {
         state->application->LogicIterate(state);
     }
-    // 引擎逻辑迭代
-    if (!DE::Engine::LogicIterate(appstate))
+    // 引擎编辑器逻辑迭代
+    if (!DE::EngineEditor::LogicIterate(appstate))
         return SDL_APP_FAILURE;
 
     // 渲染
@@ -237,8 +237,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     if (state->application_is_running && state->application) {
         state->application->RenderIterate(state);
     }
-    // 3) 引擎渲染迭代
-    if (!DE::Engine::RenderIterate(appstate))
+    // 3) 引擎编辑器渲染迭代
+    if (!DE::EngineEditor::RenderIterate(appstate))
         return SDL_APP_FAILURE;
     // 4) 把 ImGui 画到当前默认 framebuffer
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -269,7 +269,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
 
-    DE::Engine::Quit(appstate, result);
+    DE::EngineEditor::Quit(appstate, result);
 
     SDL_GL_DestroyContext(state->gl_context);
     SDL_DestroyWindow(state->engine_window);

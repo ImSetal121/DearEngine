@@ -10,9 +10,9 @@
 #include "SDL3/SDL_init.h"
 
 namespace DE {
-    class Engine {
+    class EngineEditor {
     public:
-        Engine() = default;
+        EngineEditor() = default;
 
         /** 引擎生命周期:启动 */
         static bool Init(void *appstate, int argc, char *argv[]);

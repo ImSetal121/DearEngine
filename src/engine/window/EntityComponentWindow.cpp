@@ -7,7 +7,7 @@
 #include <typeindex>
 
 #include "imgui.h"
-#include "../Engine.h"
+#include "../EngineEditor.h"
 #include "../../State.h"
 
 namespace DE {
@@ -35,7 +35,7 @@ namespace DE {
         if (ImGui::IsWindowFocused())
             state->focused_engine_window = this;
 
-        DE::Entity* entity = DE::Engine::GetSelectedEntity();
+        DE::Entity* entity = DE::EngineEditor::GetSelectedEntity();
         if (!entity) {
             ImGui::TextDisabled("(未选中实体 — 在场景树中点击实体)");
             ImGui::End();

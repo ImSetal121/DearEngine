@@ -4,7 +4,7 @@
 
 #include "SceneTreeWindow.h"
 #include "imgui.h"
-#include "../Engine.h"
+#include "../EngineEditor.h"
 #include "../../State.h"
 
 namespace DE {
@@ -32,7 +32,7 @@ namespace DE {
         if (ImGui::IsWindowFocused())
             state->focused_engine_window = this;
 
-        DE::Scene* scene = DE::Engine::GetEditingScene();
+        DE::Scene* scene = DE::EngineEditor::GetEditingScene();
         if (scene) {
             for (auto& entity : scene->root) {
                 DrawEntityNode(entity.get());
@@ -66,7 +66,7 @@ namespace DE {
         }
 
         // 处理选中项
-        if (entity == DE::Engine::GetSelectedEntity()) {
+        if (entity == DE::EngineEditor::GetSelectedEntity()) {
             flags |= ImGuiTreeNodeFlags_Selected;
         }
 
@@ -77,7 +77,7 @@ namespace DE {
         ImGui::PopStyleVar();
 
         if (ImGui::IsItemClicked()) {
-            DE::Engine::SetSelectedEntity(entity);
+            DE::EngineEditor::SetSelectedEntity(entity);
         }
 
         if (opened) {

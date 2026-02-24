@@ -4,7 +4,7 @@
 
 #include "SceneViewportWindow.h"
 #include "imgui.h"
-#include "../Engine.h"
+#include "../EngineEditor.h"
 #include "../../State.h"
 #include "../core/Log.h"
 #include "../core/Scene.h"
@@ -247,7 +247,7 @@ namespace DE {
             glUseProgram(scene_program);
             glEnable(GL_DEPTH_TEST);
 
-            Scene* current_editing_scene = Engine::GetEditingScene();
+            Scene* current_editing_scene = EngineEditor::GetEditingScene();
             if (current_editing_scene) {
                 for (auto& entity : current_editing_scene->root) {
                     RenderIterateEntity(entity.get(), appstate, render_context);
