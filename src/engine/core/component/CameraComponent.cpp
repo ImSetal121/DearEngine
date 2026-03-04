@@ -20,6 +20,6 @@ namespace DE {
         else {
             camera = new ICamera(&transform->position, &transform->rotation);
         }
-        return IComponent::EditorStart(appstate);
+        return IComponent::Start(appstate);
     }
 } // DE
