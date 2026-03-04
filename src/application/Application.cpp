@@ -6,6 +6,7 @@
 
 #include "../State.h"
 #include "../engine/core/Log.h"
+#include "../engine/util/GLUtil.h"
 #include "glad/glad.h"
 #include "SDL3/SDL_oldnames.h"
 
@@ -62,6 +63,7 @@ namespace DA {
         auto state = static_cast<AppState*>(appstate);
 
         // 创建程序窗口
+        const char *glsl_version = DE::SelectGLVersion();
         float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
         SDL_WindowFlags window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
         state->application_window = SDL_CreateWindow("Dear Application", (int)(854 * main_scale), (int)(480 * main_scale), window_flags);
