@@ -80,7 +80,6 @@ namespace DA {
         SDL_ShowWindow(state->application_window);
 
         // 创建OpenGL上下文
-        SDL_GL_MakeCurrent(state->editor_window, state->editor_gl_context);
         SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, true);
         state->application_gl_context = SDL_GL_CreateContext(state->application_window);
         if (state->application_gl_context == nullptr) {
@@ -128,18 +127,6 @@ namespace DA {
         auto state = static_cast<AppState*>(appstate);
 
         SDL_GL_MakeCurrent(state->application_window, state->application_gl_context);
-
-        // 检查着色器程序
-        GLint isLinked = 0;
-        glGetProgramiv(state->default_program, GL_LINK_STATUS, &isLinked);
-        printf("着色器链接状态: %s\n", isLinked ? "成功" : "失败");
-
-        if (!isLinked) {
-            char buf[512];
-            glGetProgramInfoLog(state->default_program, sizeof(buf), nullptr, buf);
-            printf("着色器错误: %s\n", buf);
-        }
-
 
         int w, h;
         SDL_GetWindowSizeInPixels(state->application_window, &w, &h);
