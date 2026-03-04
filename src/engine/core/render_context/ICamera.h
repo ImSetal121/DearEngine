@@ -16,9 +16,10 @@ namespace DE {
         glm::vec3* rotation = nullptr;   // 绑定外部 rotation (pitch, yaw, roll)
 
         // ========== 相机参数 ==========
-        float Fov = 60.0f;
-        float NearPlane = 0.1f;
-        float FarPlane = 1000.0f;
+        float fov = 60.0f;
+        float near_lane = 0.1f;
+        float far_plane = 1000.0f;
+        glm::vec4 clear_color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
         // ========== 方向向量计算 ==========
         // rotation 约定: x=pitch, y=yaw, z=roll

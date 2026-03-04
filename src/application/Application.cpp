@@ -132,21 +132,24 @@ namespace DA {
         SDL_GetWindowSizeInPixels(state->application_window, &w, &h);
 
         glViewport(0, 0, w, h);
-        glClearColor(0.0f, 0.0f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         glUseProgram(state->default_program);
 
         if (current_playing_scene && current_playing_scene->main_camera->camera) {
-            DE::RenderContext render_context;
-            render_context.camera = current_playing_scene->main_camera->camera;
-            render_context.program = &state->default_program;
-            render_context.screenWidth = &w;
-            render_context.screenHeight = &h;
+            DE::RenderContext* render_context = new DE::RenderContext;
+            render_context->camera = current_playing_scene->main_camera->camera;
+            render_context->program = &state->default_program;
+            render_context->screenWidth = &w;
+            render_context->screenHeight = &h;
+
+            glClearColor(render_context->camera->clear_color.x, render_context->camera->clear_color.y, render_context->camera->clear_color.z, render_context->camera->clear_color.w);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             for (auto& entity : current_playing_scene->root) {
-                RenderIterateEntity(entity.get(), appstate, &render_context);
+                RenderIterateEntity(entity.get(), appstate, render_context);
             }
+
+            delete render_context;
         }
 
         SDL_GL_SwapWindow(state->application_window);

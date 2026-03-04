@@ -61,7 +61,7 @@ namespace DE {
         }
 
         if (render_context) {
-            glm::mat4 projection = glm::perspective(glm::radians(render_context->camera->Fov),
+            glm::mat4 projection = glm::perspective(glm::radians(render_context->camera->fov),
                 (float)*render_context->screenWidth / (float)*render_context->screenHeight, 0.1f, 100.0f);
             glm::mat4 view = render_context->camera->GetViewMatrix();
             glm::mat4 model = glm::mat4(1.0f);

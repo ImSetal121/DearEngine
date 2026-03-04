@@ -164,7 +164,7 @@ namespace DE {
         if (scene_viewport_texture_width > 0 && scene_viewport_texture_height > 0) {
             glBindFramebuffer(GL_FRAMEBUFFER, scene_viewport_fbo);
             glViewport(0, 0, scene_viewport_texture_width, scene_viewport_texture_height);
-            glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+            glClearColor(render_context->camera->clear_color.x, render_context->camera->clear_color.y, render_context->camera->clear_color.z, render_context->camera->clear_color.w);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glUseProgram(state->default_program);
             glEnable(GL_DEPTH_TEST);
