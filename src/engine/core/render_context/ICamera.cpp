@@ -7,5 +7,4 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace DE {
-
 } // DE

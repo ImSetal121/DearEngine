@@ -19,7 +19,6 @@ namespace DE {
         unsigned int scene_viewport_fbo = 0;        // GL FBO
         unsigned int scene_viewport_texture = 0;    // GL 纹理 id，供 ImGui::Image 使用
         unsigned int scene_viewport_rbo = 0;        // 深度 Renderbuffer
-        unsigned int scene_program = 0;             // 场景用着色器程序（如画三角形）
         unsigned int scene_vao = 0;                 // 场景用 VAO（Core 下 glDrawArrays 必须绑定 VAO）
         int scene_viewport_texture_width = 1280;
         int scene_viewport_texture_height = 720;

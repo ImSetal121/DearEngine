@@ -17,6 +17,7 @@
 #include "window/SceneViewportWindow.h"
 #include "../State.h"
 #include "../application/Application.h"
+#include "core/component/CameraComponent.h"
 #include "core/component/TestCubeComponent.h"
 #include "core/component/TransformComponent.h"
 #include "glad/glad.h"
@@ -61,12 +62,19 @@ namespace DE {
             test_children->name = "children";
             auto test_entity_1 = std::make_unique<Entity>();
             test_entity_1->name = "entity_1";
+            auto camera_entity = std::make_unique<Entity>();
+            camera_entity->name = "camera";
 
-            test_entity->children.push_back(std::move(test_children));
             test_entity->AddComponent<TestCubeComponent>();
             test_entity->AddComponent<TransformComponent>();
+            camera_entity->AddComponent<CameraComponent>();
+            test_scene->main_camera = camera_entity->GetComponent<CameraComponent>();
+            camera_entity->AddComponent<TransformComponent>();
+            camera_entity->GetComponent<TransformComponent>()->position = glm::vec3(-5.0f, 0.0f, 0.0f);
+            test_entity->children.push_back(std::move(test_children));
             test_scene->root.push_back(std::move(test_entity));
             test_scene->root.push_back(std::move(test_entity_1));
+            test_scene->root.push_back(std::move(camera_entity));
 
             editing_scene = std::move(test_scene);
         }
@@ -100,7 +108,7 @@ namespace DE {
 
         if ((long)(state->current_time/1.0) != window_title_update_time) {
             std::string new_title = "Dear Engine <OpenGL> [FPS:" + std::format("{:.2f}", io.Framerate)+"]";
-            SDL_SetWindowTitle(state->engine_window, new_title.c_str());
+            SDL_SetWindowTitle(state->editor_window, new_title.c_str());
             window_title_update_time = (long)(state->current_time/1.0);
         }
 
@@ -173,6 +181,8 @@ namespace DE {
 
     bool EngineEditor::RenderIterate(void *appstate) {
         auto *state = static_cast<AppState *>(appstate);
+
+        SDL_GL_MakeCurrent(state->editor_window, state->editor_gl_context);
 
         // 引擎绘制
         for (IEngineWindow* window : state->engine_windows)

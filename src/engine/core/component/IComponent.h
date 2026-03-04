@@ -19,7 +19,7 @@ namespace DE {
             return typeid(*this).name();
         };
 
-        virtual bool Init(void *appstate) {return true;};
+        virtual bool EditorStart(void *appstate) {return true;};
         virtual bool Start(void *appstate) {return true;};
         virtual bool Event() {return true;};
         virtual bool LogicIterate(void *appstate) {return true;};

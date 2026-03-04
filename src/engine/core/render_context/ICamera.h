@@ -45,7 +45,6 @@ namespace DE {
             return glm::lookAt(*position, *position + GetFront(), GetUp());
         }
 
-        ICamera() = default;
         ICamera(glm::vec3* pos, glm::vec3* rot) : position(pos), rotation(rot) {}
     };
 } // DE

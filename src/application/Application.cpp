@@ -5,6 +5,9 @@
 #include "Application.h"
 
 #include "../State.h"
+#include "../engine/core/Log.h"
+#include "glad/glad.h"
+#include "SDL3/SDL_oldnames.h"
 
 namespace DA {
 
@@ -61,15 +64,26 @@ namespace DA {
         // 创建程序窗口
         float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
         SDL_WindowFlags window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
-        window_ = SDL_CreateWindow("Dear Application", (int)(854 * main_scale), (int)(480 * main_scale), window_flags);
-        if (window_ == nullptr)
+        state->application_window = SDL_CreateWindow("Dear Application", (int)(854 * main_scale), (int)(480 * main_scale), window_flags);
+        if (state->application_window == nullptr)
         {
             printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
             return SDL_APP_FAILURE;
         }
         SDL_GL_SetSwapInterval(1); // 开启垂直同步
-        SDL_SetWindowPosition(window_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-        SDL_ShowWindow(window_);
+        SDL_SetWindowPosition(state->application_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+        SDL_ShowWindow(state->application_window);
+
+        // 创建OpenGL上下文
+        SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, true);
+        state->application_gl_context = SDL_GL_CreateContext(state->application_window);
+        if (state->application_gl_context == nullptr) {
+            printf("Error: SDL_GL_CreateContext(): %s\n", SDL_GetError());
+            return false;
+        }
+
+        // 加载glad
+        gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
 
         //遍历场景组件,调用组件Start方法.
         if (current_playing_scene) {
@@ -83,7 +97,7 @@ namespace DA {
 
     bool Application::Event(void *appstate, SDL_Event *event) {
         auto state = static_cast<AppState*>(appstate);
-        if (window_ && event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event->window.windowID == SDL_GetWindowID(window_)) {
+        if (state->application_window && event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event->window.windowID == SDL_GetWindowID(state->application_window)) {
             state->application_is_running = false;
         }
 
@@ -105,23 +119,47 @@ namespace DA {
     }
 
     bool Application::RenderIterate(void *appstate) {
-        if (current_playing_scene) {
+        auto state = static_cast<AppState*>(appstate);
+
+        SDL_GL_MakeCurrent(state->application_window, state->application_gl_context);
+
+        int w, h;
+        SDL_GetWindowSizeInPixels(state->application_window, &w, &h);
+
+        glViewport(0, 0, w, h);
+        glClearColor(0.0f, 0.0f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        glUseProgram(state->default_program);
+
+        if (current_playing_scene && current_playing_scene->main_camera->camera) {
+            DE::RenderContext render_context;
+            render_context.camera = current_playing_scene->main_camera->camera;
+            render_context.program = &state->default_program;
+            render_context.screenWidth = &w;
+            render_context.screenHeight = &h;
+
             for (auto& entity : current_playing_scene->root) {
-                RenderIterateEntity(entity.get(), appstate, nullptr);
+                RenderIterateEntity(entity.get(), appstate, &render_context);
             }
         }
+
+        SDL_GL_SwapWindow(state->application_window);
+
         return true;
     }
 
     bool Application::End(void *appstate) {
+        auto state = static_cast<AppState*>(appstate);
+
         if (current_playing_scene) {
             for (auto& entity : current_playing_scene->root) {
                 EndEntity(entity.get(), appstate);
             }
         }
-        if (window_) {
-            SDL_DestroyWindow(window_);
-            window_ = nullptr;
+        if (state->application_window) {
+            SDL_DestroyWindow(state->application_window);
+            state->application_window = nullptr;
         }
         return true;
     }

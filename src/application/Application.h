@@ -28,9 +28,6 @@ namespace DA {
 
         Application() = default;
         ~Application() = default;
-
-        private:
-        SDL_Window* window_ = nullptr;
     };
 } // DA
 

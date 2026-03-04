@@ -8,17 +8,18 @@
 #include <vector>
 
 #include "Entity.h"
+#include "component/CameraComponent.h"
 
 namespace DE {
     class Scene {
     public:
         std::string name;
+        CameraComponent* main_camera;
 
+        std::vector<std::unique_ptr<Entity>> root;
         std::vector<std::unique_ptr<Entity>> GetRootList;
 
         ~Scene() = default;
-    public:
-        std::vector<std::unique_ptr<Entity>> root;
     };
 }
 

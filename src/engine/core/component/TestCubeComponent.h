@@ -58,7 +58,7 @@ namespace DE {
 
         const char* GetComponentName() const override;
 
-        bool Init(void *appstate) override;
+        bool EditorStart(void *appstate) override;
         bool Start(void *appstate) override;
         bool Event() override;
         bool LogicIterate(void *appstate) override;

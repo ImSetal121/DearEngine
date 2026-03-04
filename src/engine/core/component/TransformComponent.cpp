@@ -9,8 +9,8 @@ namespace DE {
         return "变换";
     }
 
-    bool TransformComponent::Init(void *appstate) {
-        return IComponent::Init(appstate);
+    bool TransformComponent::EditorStart(void *appstate) {
+        return IComponent::EditorStart(appstate);
     }
 
     bool TransformComponent::Start(void *appstate) {

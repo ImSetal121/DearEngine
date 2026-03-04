@@ -14,9 +14,13 @@
 #include "application/Application.h"
 
 struct AppState {
+    // 运行模式
+    bool edit_mode = false;
     // SDL相关
-    SDL_Window *engine_window = nullptr;
-    SDL_GLContext gl_context = nullptr; //opengl上下文
+    SDL_Window *editor_window = nullptr;
+    SDL_GLContext editor_gl_context = nullptr;
+    SDL_Window *application_window = nullptr;
+    SDL_GLContext application_gl_context = nullptr;
     //应用程序相关
     std::unique_ptr<DA::Application> application = nullptr;
     // 引擎相关
@@ -27,7 +31,7 @@ struct AppState {
     double delta_time = 0;
     std::vector<DE::IEngineWindow*> engine_windows;    // 引擎窗口
     DE::IEngineWindow *focused_engine_window = nullptr; // 当前获得焦点的引擎窗口（每帧由各窗口在 LogicIterate 中根据 ImGui 焦点更新）
-    unsigned int* scene_program = nullptr;    // 场景视口
+    unsigned int default_program = 0;    // 场景视口
 };
 
 #endif //DEARENGINE_STATE_H

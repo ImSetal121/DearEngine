@@ -19,8 +19,8 @@ namespace DE {
         return "测试正方体网格组件";
     }
 
-    bool TestCubeComponent::Init(void *appstate) {
-        return IComponent::Init(appstate);
+    bool TestCubeComponent::EditorStart(void *appstate) {
+        return IComponent::EditorStart(appstate);
     }
 
     bool TestCubeComponent::Start(void *appstate) {
