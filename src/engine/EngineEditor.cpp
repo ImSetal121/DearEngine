@@ -182,7 +182,7 @@ namespace DE {
     bool EngineEditor::RenderIterate(void *appstate) {
         auto *state = static_cast<AppState *>(appstate);
 
-        SDL_GL_MakeCurrent(state->editor_window, state->editor_gl_context);
+        SDL_GL_MakeCurrent(state->editor_window, state->gl_context);
 
         // 引擎绘制
         for (IEngineWindow* window : state->engine_windows)

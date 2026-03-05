@@ -18,9 +18,8 @@ struct AppState {
     bool edit_mode = false;
     // SDL相关
     SDL_Window *editor_window = nullptr;
-    SDL_GLContext editor_gl_context = nullptr;
     SDL_Window *application_window = nullptr;
-    SDL_GLContext application_gl_context = nullptr;
+    SDL_GLContext gl_context = nullptr;
     //应用程序相关
     std::unique_ptr<DA::Application> application = nullptr;
     // 引擎相关

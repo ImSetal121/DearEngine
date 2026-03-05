@@ -148,8 +148,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-    state->editor_gl_context = SDL_GL_CreateContext(state->editor_window);
-    if (state->editor_gl_context == nullptr)
+    state->gl_context = SDL_GL_CreateContext(state->editor_window);
+    if (state->gl_context == nullptr)
     {
         printf("Error: SDL_GL_CreateContext(): %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
@@ -206,7 +206,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     // 设置平台/渲染器后端
-    ImGui_ImplSDL3_InitForOpenGL(state->editor_window, state->editor_gl_context);
+    ImGui_ImplSDL3_InitForOpenGL(state->editor_window, state->gl_context);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     // 加载字体
@@ -329,7 +329,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
 
     DE::EngineEditor::Quit(appstate, result);
 
-    SDL_GL_DestroyContext(state->editor_gl_context);
+    SDL_GL_DestroyContext(state->gl_context);
     SDL_DestroyWindow(state->editor_window);
     SDL_Quit();
 }

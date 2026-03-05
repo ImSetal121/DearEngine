@@ -80,9 +80,9 @@ namespace DA {
         SDL_ShowWindow(state->application_window);
 
         // 创建OpenGL上下文
-        SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, true);
-        state->application_gl_context = SDL_GL_CreateContext(state->application_window);
-        if (state->application_gl_context == nullptr) {
+        // SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, true);
+        // state->gl_context = SDL_GL_CreateContext(state->application_window);
+        if (state->gl_context == nullptr) {
             printf("Error: SDL_GL_CreateContext(): %s\n", SDL_GetError());
             return false;
         }
@@ -126,7 +126,7 @@ namespace DA {
     bool Application::RenderIterate(void *appstate) {
         auto state = static_cast<AppState*>(appstate);
 
-        SDL_GL_MakeCurrent(state->application_window, state->application_gl_context);
+        SDL_GL_MakeCurrent(state->application_window, state->gl_context);
 
         int w, h;
         SDL_GetWindowSizeInPixels(state->application_window, &w, &h);
