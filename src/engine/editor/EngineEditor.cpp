@@ -88,7 +88,7 @@ namespace DE {
 
     void StartPreviewApplication(AppState * state) {
         state->application = std::make_unique<DA::Application>();
-        state->application->Start(state, editing_scene.get());
+        state->application->Start(state, editing_scene.get(), 0, {});
         state->application_is_running = true;
     }
 
