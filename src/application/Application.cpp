@@ -4,6 +4,8 @@
 
 #include "Application.h"
 
+#include <format>
+
 #include "../State.h"
 #include "../engine/core/Log.h"
 #include "../engine/util/GLUtil.h"
@@ -11,6 +13,8 @@
 #include "SDL3/SDL_oldnames.h"
 
 namespace DA {
+
+    long window_title_update_time = 0;
 
     // 递归：对单个实体及其所有子实体的组件调用 Start
     static void StartEntity(DE::Entity* entity, void* appstate) {
@@ -91,11 +95,20 @@ namespace DA {
     }
 
     bool Application::LogicIterate(void *appstate) {
+        auto state = static_cast<AppState*>(appstate);
+
         if (current_playing_scene) {
             for (auto& entity : current_playing_scene->root) {
                 LogicIterateEntity(entity.get(), appstate);
             }
         }
+
+        if ((long)(state->current_time/1.0) != window_title_update_time) {
+            std::string new_title = state->application_name + " <OpenGL> [FPS:" + std::format("{:.2f}", 1.0/state->delta_time)+"]";
+            SDL_SetWindowTitle(state->application_window, new_title.c_str());
+            window_title_update_time = (long)(state->current_time/1.0);
+        }
+
         return true;
     }
 

@@ -100,12 +100,6 @@ namespace DE {
         auto *state = static_cast<AppState *>(appstate);
         ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-        Uint64 current_time_ns = SDL_GetTicksNS();
-        state->delta_time_ns = current_time_ns - state->current_time_ns;
-        state->current_time_ns = current_time_ns;
-        state->current_time = current_time_ns / 1000000000.0;
-        state->delta_time = state->delta_time_ns / 1000000000.0;
-
         if ((long)(state->current_time/1.0) != window_title_update_time) {
             std::string new_title = "Dear Engine Editor <OpenGL> [FPS:" + std::format("{:.2f}", io.Framerate)+"]";
             SDL_SetWindowTitle(state->editor_window, new_title.c_str());

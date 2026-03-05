@@ -11,6 +11,7 @@
 #include "engine/editor/window/IEditorSubWindow.h"
 
 struct AppState {
+    std::string application_name = "Dear Application";
     // 运行模式
     bool edit_mode = false;
     // SDL相关

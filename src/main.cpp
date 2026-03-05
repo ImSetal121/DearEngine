@@ -145,7 +145,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
     SDL_SetWindowPosition(state->editor_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
-    state->application_window = SDL_CreateWindow("Dear Application", (int)(854 * main_scale), (int)(480 * main_scale), window_flags);
+    state->application_window = SDL_CreateWindow(state->application_name.c_str(), (int)(854 * main_scale), (int)(480 * main_scale), window_flags);
     if (state->application_window == nullptr)
     {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
@@ -285,6 +285,15 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     {
         SDL_Delay(10);
         return SDL_APP_CONTINUE;;
+    }
+
+    {
+        // 基础层
+        Uint64 current_time_ns = SDL_GetTicksNS();
+        state->delta_time_ns = current_time_ns - state->current_time_ns;
+        state->current_time_ns = current_time_ns;
+        state->current_time = current_time_ns / 1000000000.0;
+        state->delta_time = state->delta_time_ns / 1000000000.0;
     }
 
     // 应用程序逻辑迭代
