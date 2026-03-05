@@ -10,10 +10,10 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 include(cmake)
 
 # 子模块与 ImGui 路径
-set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/submodule/imgui)
-add_subdirectory(submodule/SDL EXCLUDE_FROM_ALL)
+set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/imgui-docking)
+add_subdirectory(include/SDL EXCLUDE_FROM_ALL)
 set(GLM_ENABLE_CXX_20 ON)
-add_subdirectory(submodule/glm EXCLUDE_FROM_ALL)
+add_subdirectory(include/glm EXCLUDE_FROM_ALL)
 
 # 应用在 src 里单独管理
 add_subdirectory(src)
