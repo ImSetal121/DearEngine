@@ -137,7 +137,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     SDL_WindowFlags window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
-    state->editor_window = SDL_CreateWindow("Dear Engine", (int)(1280 * main_scale), (int)(800 * main_scale), window_flags);
+    state->editor_window = SDL_CreateWindow("Dear Engine Editor", (int)(1280 * main_scale), (int)(800 * main_scale), window_flags);
     if (state->editor_window == nullptr)
     {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
@@ -153,13 +153,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
     SDL_SetWindowPosition(state->application_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
-    SDL_GL_SetSwapInterval(1); // 开启垂直同步
     state->gl_context = SDL_GL_CreateContext(state->application_window); // 创建gl上下文
     if (state->gl_context == nullptr)
     {
         printf("Error: SDL_GL_CreateContext(): %s\n", SDL_GetError());
         return SDL_APP_FAILURE;
     }
+
+    SDL_GL_SetSwapInterval(1); // 开启垂直同步
 
     // 加载GLAD
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
