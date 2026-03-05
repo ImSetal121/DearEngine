@@ -9,21 +9,21 @@
 #include <memory>
 
 #include "imgui.h"
-#include "core/Log.h"
+#include "../core/Log.h"
 #include "SDL3/SDL_timer.h"
-#include "window/ConsoleWindow.h"
-#include "window/EntityComponentWindow.h"
-#include "window/SceneTreeWindow.h"
-#include "window/SceneViewportWindow.h"
-#include "../State.h"
-#include "../application/Application.h"
-#include "core/component/CameraComponent.h"
-#include "core/component/TestCubeComponent.h"
-#include "core/component/TransformComponent.h"
+#include "window/ConsoleSubWindow.h"
+#include "window/EntityComponentSubWindow.h"
+#include "window/SceneTreeSubWindow.h"
+#include "window/SceneViewportSubWindow.h"
+#include "../../State.h"
+#include "../../application/Application.h"
+#include "../core/component/CameraComponent.h"
+#include "../core/component/TestCubeComponent.h"
+#include "../core/component/TransformComponent.h"
 #include "glad/glad.h"
 #include "SDL3/SDL_storage.h"
-#include "util/Path.h"
-#include "window/AssetManagerWindow.h"
+#include "../util/Path.h"
+#include "window/AssetManagerSubWindow.h"
 
 namespace DE {
     //正在编辑的场景
@@ -43,14 +43,14 @@ namespace DE {
         // 检查工作目录
         CheckCurrentPath();
         // 初始化state窗口
-        state->engine_windows = {
-            new ConsoleWindow(),
-            new SceneTreeWindow(),
-            new EntityComponentWindow(),
-            new SceneViewportWindow(),
-            new AssetManagerWindow()
+        state->editor_subwindows = {
+            new ConsoleSubWindow(),
+            new SceneTreeSubWindow(),
+            new EntityComponentSubWindow(),
+            new SceneViewportSubWindow(),
+            new AssetManagerSubWindow()
         };
-        for (IEngineWindow* window : state->engine_windows)
+        for (IEditorSubWindow* window : state->editor_subwindows)
             window->Init(appstate);
 
         {
@@ -139,7 +139,7 @@ namespace DE {
                 }
                 if (ImGui::BeginMenu("窗口"))
                 {
-                    for (IEngineWindow* window : state->engine_windows)
+                    for (IEditorSubWindow* window : state->editor_subwindows)
                         ImGui::Checkbox(window->Title(), &window->open);
                     ImGui::Separator();
                     ImGui::Checkbox("ImGui演示窗口", &show_demo_window);
@@ -163,7 +163,7 @@ namespace DE {
             ImGui::DockSpace(ImGui::GetID("MainDockSpace"), ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
             ImGui::End();
 
-            for (IEngineWindow* window : state->engine_windows)
+            for (IEditorSubWindow* window : state->editor_subwindows)
                 window->LogicIterate(state);
 
             // 可选. 显示大型演示窗口（大部分示例代码在 ImGui::ShowDemoWindow() 中，可浏览其代码以进一步了解 Dear ImGui）。
@@ -185,7 +185,7 @@ namespace DE {
         SDL_GL_MakeCurrent(state->editor_window, state->gl_context);
 
         // 引擎绘制
-        for (IEngineWindow* window : state->engine_windows)
+        for (IEditorSubWindow* window : state->editor_subwindows)
             window->RenderIterate(appstate);
 
         return true;
@@ -196,7 +196,7 @@ namespace DE {
 
         selected_entity = nullptr;
 
-        for (IEngineWindow* window : state->engine_windows)
+        for (IEditorSubWindow* window : state->editor_subwindows)
             window->Quit();
 
         return true;

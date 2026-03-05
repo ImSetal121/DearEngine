@@ -8,12 +8,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "IEngineWindow.h"
-#include "../core/render_context/ICamera.h"
-#include "../core/render_context/RenderContext.h"
+#include "IEditorSubWindow.h"
+#include "../../core/render_context/ICamera.h"
+#include "../../core/render_context/RenderContext.h"
 
 namespace DE {
-    class SceneViewportWindow : public IEngineWindow {
+    class SceneViewportSubWindow : public IEditorSubWindow {
     public:
         // 引擎场景视口绘制
         unsigned int scene_viewport_fbo = 0;        // GL FBO
@@ -31,7 +31,7 @@ namespace DE {
         // 渲染上下文
         RenderContext* render_context = nullptr;
 
-        SceneViewportWindow();
+        SceneViewportSubWindow();
         /** 窗口标题，用于 ImGui::Begin(title, ...) */
         const char* Title() const override;
         /** 启动 */

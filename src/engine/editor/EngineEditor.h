@@ -5,7 +5,7 @@
 #ifndef DEARENGINE_ENGINE_H
 #define DEARENGINE_ENGINE_H
 
-#include "core/Scene.h"
+#include "../core/Scene.h"
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_init.h"
 

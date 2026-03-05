@@ -5,12 +5,12 @@
 #ifndef DEARENGINE_CONSOLEWINDOW_H
 #define DEARENGINE_CONSOLEWINDOW_H
 
-#include "IEngineWindow.h"
+#include "IEditorSubWindow.h"
 
 namespace DE {
-    class ConsoleWindow : public IEngineWindow {
+    class ConsoleSubWindow : public IEditorSubWindow {
     public:
-        ConsoleWindow();
+        ConsoleSubWindow();
         /** 窗口标题，用于 ImGui::Begin(title, ...) */
         const char* Title() const override;
         /** 启动 */

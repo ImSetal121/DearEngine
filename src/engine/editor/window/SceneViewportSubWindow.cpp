@@ -2,19 +2,17 @@
 // Created by ImSetal on 2026/2/8.
 //
 
-#include "SceneViewportWindow.h"
+#include "SceneViewportSubWindow.h"
 #include "imgui.h"
 #include "../EngineEditor.h"
-#include "../../State.h"
-#include "../core/Log.h"
-#include "../core/Scene.h"
-#include "../util/Path.h"
+#include "../../../State.h"
+#include "../../core/Log.h"
 #include "glad/glad.h"
 #include "SDL3/SDL_storage.h"
 #include "SDL3/SDL_timer.h"
 
 namespace DE {
-    SceneViewportWindow::SceneViewportWindow() = default;
+    SceneViewportSubWindow::SceneViewportSubWindow() = default;
 
     // 递归：对单个实体及其所有子实体的组件调用 RenderIterate
     static void RenderIterateEntity(DE::Entity* entity, void* appstate, RenderContext *render_context) {
@@ -26,11 +24,11 @@ namespace DE {
     }
 
     /** 窗口标题，用于 ImGui::Begin(title, ...) */
-    const char* SceneViewportWindow::Title() const {
+    const char* SceneViewportSubWindow::Title() const {
         return "场景视口";
     }
 
-    bool SceneViewportWindow::Init(void *appstate) {
+    bool SceneViewportSubWindow::Init(void *appstate) {
         auto state = static_cast<AppState*>(appstate);
         // 场景视口 FBO + 附件（封装到 EnsureFboAttachments）
         {
@@ -56,15 +54,15 @@ namespace DE {
         render_context->screenWidth = &scene_viewport_texture_width;
         render_context->screenHeight = &scene_viewport_texture_height;
 
-        return IEngineWindow::Init(appstate);
+        return IEditorSubWindow::Init(appstate);
     }
 
-    bool SceneViewportWindow::Event() {
-        return IEngineWindow::Event();
+    bool SceneViewportSubWindow::Event() {
+        return IEditorSubWindow::Event();
     }
 
     /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-    bool SceneViewportWindow::LogicIterate(void *appstate) {
+    bool SceneViewportSubWindow::LogicIterate(void *appstate) {
         if (!open) return false;
         auto state = static_cast<AppState*>(appstate);
         if (state->application_is_running)
@@ -73,7 +71,7 @@ namespace DE {
         ImGui::Begin(Title(), nullptr, ImGuiWindowFlags_MenuBar);
         // 检查是否为焦点窗口
         if (ImGui::IsWindowFocused())
-            state->focused_engine_window = this;
+            state->focused_editor_subwindow = this;
 
         // 最上方固定菜单栏
         if (ImGui::BeginMenuBar())
@@ -144,7 +142,7 @@ namespace DE {
         return true;
     }
 
-    bool SceneViewportWindow::RenderIterate(void *appstate) {
+    bool SceneViewportSubWindow::RenderIterate(void *appstate) {
         auto state = static_cast<AppState*>(appstate);
         if (!scene_viewport_fbo || !state->default_program) return true;
 
@@ -182,7 +180,7 @@ namespace DE {
         return true;
     }
 
-    bool SceneViewportWindow::Quit() {
+    bool SceneViewportSubWindow::Quit() {
         if (scene_viewport_texture) {
             glDeleteTextures(1, &scene_viewport_texture);
             scene_viewport_texture = 0;
@@ -201,17 +199,17 @@ namespace DE {
             glDeleteVertexArrays(1, &scene_vao);
             scene_vao = 0;
         }
-        return IEngineWindow::Quit();
+        return IEditorSubWindow::Quit();
     }
 
     /** 设置视口绘制纹理指针 */
-    void SceneViewportWindow::SetViewportTexture(void *texture, int width, int height) {
+    void SceneViewportSubWindow::SetViewportTexture(void *texture, int width, int height) {
         viewport_texture_ = texture;
         viewport_width_ = width;
         viewport_height_ = height;
     }
 
-    bool SceneViewportWindow::EnsureFboAttachments(int width, int height) {
+    bool SceneViewportSubWindow::EnsureFboAttachments(int width, int height) {
         if (width < 1 || height < 1) return false;
 
         if (scene_viewport_texture) {

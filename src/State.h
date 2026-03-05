@@ -5,13 +5,10 @@
 #ifndef DEARENGINE_STATE_H
 #define DEARENGINE_STATE_H
 
-#include "engine/window/ConsoleWindow.h"
-#include "engine/window/EntityComponentWindow.h"
-#include "engine/window/SceneTreeWindow.h"
-#include "engine/window/SceneViewportWindow.h"
 #include "SDL3/SDL_video.h"
 
 #include "application/Application.h"
+#include "engine/editor/window/IEditorSubWindow.h"
 
 struct AppState {
     // 运行模式
@@ -28,8 +25,8 @@ struct AppState {
     double current_time = 0;
     Uint64 delta_time_ns = 0;    // 帧时间
     double delta_time = 0;
-    std::vector<DE::IEngineWindow*> engine_windows;    // 引擎窗口
-    DE::IEngineWindow *focused_engine_window = nullptr; // 当前获得焦点的引擎窗口（每帧由各窗口在 LogicIterate 中根据 ImGui 焦点更新）
+    std::vector<DE::IEditorSubWindow*> editor_subwindows;    // 引擎窗口
+    DE::IEditorSubWindow *focused_editor_subwindow = nullptr; // 当前获得焦点的引擎窗口（每帧由各窗口在 LogicIterate 中根据 ImGui 焦点更新）
     unsigned int default_program = 0;    // 场景视口
 };
 

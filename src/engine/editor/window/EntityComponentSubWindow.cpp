@@ -2,38 +2,38 @@
 // Created by ImSetal on 2026/2/8.
 //
 
-#include "EntityComponentWindow.h"
+#include "EntityComponentSubWindow.h"
 
 #include <typeindex>
 
 #include "imgui.h"
 #include "../EngineEditor.h"
-#include "../../State.h"
+#include "../../../State.h"
 
 namespace DE {
-    EntityComponentWindow::EntityComponentWindow() = default;
+    EntityComponentSubWindow::EntityComponentSubWindow() = default;
 
     /** 窗口标题，用于 ImGui::Begin(title, ...) */
-    const char* EntityComponentWindow::Title() const {
+    const char* EntityComponentSubWindow::Title() const {
         return "实体组件";
     }
 
-    bool EntityComponentWindow::Init(void *appstate) {
-        return IEngineWindow::Init(appstate);
+    bool EntityComponentSubWindow::Init(void *appstate) {
+        return IEditorSubWindow::Init(appstate);
     }
 
-    bool EntityComponentWindow::Event() {
-        return IEngineWindow::Event();
+    bool EntityComponentSubWindow::Event() {
+        return IEditorSubWindow::Event();
     }
 
     /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-    bool EntityComponentWindow::LogicIterate(void *appstate) {
+    bool EntityComponentSubWindow::LogicIterate(void *appstate) {
         if (!open) return false;
         ImGui::Begin(Title());
         // 检查是否为焦点窗口
         auto state = static_cast<AppState*>(appstate);
         if (ImGui::IsWindowFocused())
-            state->focused_engine_window = this;
+            state->focused_editor_subwindow = this;
 
         DE::Entity* entity = DE::EngineEditor::GetSelectedEntity();
         if (!entity) {
@@ -60,11 +60,11 @@ namespace DE {
         return true;
     }
 
-    bool EntityComponentWindow::RenderIterate(void *appstate) {
-        return IEngineWindow::RenderIterate(appstate);
+    bool EntityComponentSubWindow::RenderIterate(void *appstate) {
+        return IEditorSubWindow::RenderIterate(appstate);
     }
 
-    bool EntityComponentWindow::Quit() {
-        return IEngineWindow::Quit();
+    bool EntityComponentSubWindow::Quit() {
+        return IEditorSubWindow::Quit();
     }
 }

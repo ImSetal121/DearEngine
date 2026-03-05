@@ -12,9 +12,9 @@ namespace DE {
      * 所有可停靠的引擎窗口（控制台、场景树、GameObject 组件、场景编辑视口）继承此类，
      * 实现 Title() 和 Draw()，由主循环或 EngineWindowManager 统一调用。
      */
-    class IEngineWindow {
+    class IEditorSubWindow {
     public:
-        virtual ~IEngineWindow() = default;
+        virtual ~IEditorSubWindow() = default;
         /** 窗口标题，用于 ImGui::Begin(title, ...) */
         virtual const char* Title() const = 0;
         /** 启动 */

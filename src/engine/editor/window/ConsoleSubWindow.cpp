@@ -2,36 +2,36 @@
 // Created by ImSetal on 2026/2/8.
 //
 
-#include "ConsoleWindow.h"
+#include "ConsoleSubWindow.h"
 
 #include "imgui.h"
-#include "../../State.h"
-#include "../core/Log.h"
+#include "../../../State.h"
+#include "../../core/Log.h"
 
 namespace DE {
-    ConsoleWindow::ConsoleWindow() = default;
+    ConsoleSubWindow::ConsoleSubWindow() = default;
 
     /** 窗口标题，用于 ImGui::Begin(title, ...) */
-    const char* ConsoleWindow::Title() const {
+    const char* ConsoleSubWindow::Title() const {
         return "控制台";
     }
 
-    bool ConsoleWindow::Init(void *appstate) {
-        return IEngineWindow::Init(appstate);
+    bool ConsoleSubWindow::Init(void *appstate) {
+        return IEditorSubWindow::Init(appstate);
     }
 
-    bool ConsoleWindow::Event() {
-        return IEngineWindow::Event();
+    bool ConsoleSubWindow::Event() {
+        return IEditorSubWindow::Event();
     }
 
     /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-    bool ConsoleWindow::LogicIterate(void *appstate) {
+    bool ConsoleSubWindow::LogicIterate(void *appstate) {
         if (!open) return false;
         ImGui::Begin(Title());
         // 检查是否为焦点窗口
         auto state = static_cast<AppState*>(appstate);
         if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows))
-            state->focused_engine_window = this;
+            state->focused_editor_subwindow = this;
 
         if (ImGui::Button("清空"))
             DE::Log::Clear();
@@ -64,11 +64,11 @@ namespace DE {
         return true;
     }
 
-    bool ConsoleWindow::RenderIterate(void *appstate) {
-        return IEngineWindow::RenderIterate(appstate);
+    bool ConsoleSubWindow::RenderIterate(void *appstate) {
+        return IEditorSubWindow::RenderIterate(appstate);
     }
 
-    bool ConsoleWindow::Quit() {
-        return IEngineWindow::Quit();
+    bool ConsoleSubWindow::Quit() {
+        return IEditorSubWindow::Quit();
     }
 }

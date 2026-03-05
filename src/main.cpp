@@ -11,7 +11,7 @@
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl3.h"
-#include "engine/EngineEditor.h"
+#include "engine/editor/EngineEditor.h"
 #include "engine/util/Path.h"
 #include "glad/glad.h"
 #include <glm/glm.hpp>

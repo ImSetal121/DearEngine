@@ -1,18 +1,17 @@
 //
-// Created by ImSetal on 2026/2/8.
+// Created by ImSetal on 2026/2/22.
 //
 
-#ifndef DEARENGINE_SCENETREEWINDOW_H
-#define DEARENGINE_SCENETREEWINDOW_H
-#include "IEngineWindow.h"
-#include "../core/Entity.h"
+#ifndef DEARENGINE_ASSETMANAGERWINDOW_H
+#define DEARENGINE_ASSETMANAGERWINDOW_H
+#include "IEditorSubWindow.h"
 
 namespace DE {
-    class SceneTreeWindow : public IEngineWindow {
+    class AssetManagerSubWindow : public IEditorSubWindow {
     public:
-        SceneTreeWindow();
+        AssetManagerSubWindow();
         /** 窗口标题，用于 ImGui::Begin(title, ...) */
-        const char* Title() const override;
+        const char *Title() const override {return "资产管理器";};
         /** 启动 */
         bool Init(void *appstate) override;
         /** 事件 */
@@ -23,9 +22,7 @@ namespace DE {
         bool RenderIterate(void *appstate) override;
         /** 结束 */
         bool Quit() override;
-        /** 绘制单个实体 */
-        static void DrawEntityNode(DE::Entity* entity);
     };
-}
+} // DE
 
-#endif //DEARENGINE_SCENETREEWINDOW_H
+#endif //DEARENGINE_ASSETMANAGERWINDOW_H

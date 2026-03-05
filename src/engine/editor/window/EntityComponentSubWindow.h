@@ -4,12 +4,12 @@
 
 #ifndef DEARENGINE_ENTITYCOMPONENTWINDOW_H
 #define DEARENGINE_ENTITYCOMPONENTWINDOW_H
-#include "IEngineWindow.h"
+#include "IEditorSubWindow.h"
 
 namespace DE {
-    class EntityComponentWindow : public IEngineWindow {
+    class EntityComponentSubWindow : public IEditorSubWindow {
     public:
-        EntityComponentWindow();
+        EntityComponentSubWindow();
         /** 窗口标题，用于 ImGui::Begin(title, ...) */
         const char* Title() const override;
         /** 启动 */

@@ -2,35 +2,35 @@
 // Created by ImSetal on 2026/2/8.
 //
 
-#include "SceneTreeWindow.h"
+#include "SceneTreeSubWindow.h"
 #include "imgui.h"
 #include "../EngineEditor.h"
-#include "../../State.h"
+#include "../../../State.h"
 
 namespace DE {
-    SceneTreeWindow::SceneTreeWindow() = default;
+    SceneTreeSubWindow::SceneTreeSubWindow() = default;
 
     /** 窗口标题，用于 ImGui::Begin(title, ...) */
-    const char* SceneTreeWindow::Title() const {
+    const char* SceneTreeSubWindow::Title() const {
         return "场景树";
     }
 
-    bool SceneTreeWindow::Init(void *appstate) {
-        return IEngineWindow::Init(appstate);
+    bool SceneTreeSubWindow::Init(void *appstate) {
+        return IEditorSubWindow::Init(appstate);
     }
 
-    bool SceneTreeWindow::Event() {
-        return IEngineWindow::Event();
+    bool SceneTreeSubWindow::Event() {
+        return IEditorSubWindow::Event();
     }
 
     /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-    bool SceneTreeWindow::LogicIterate(void *appstate) {
+    bool SceneTreeSubWindow::LogicIterate(void *appstate) {
         if (!open) return false;
         ImGui::Begin(Title());
         // 检查是否为焦点窗口
         auto state = static_cast<AppState*>(appstate);
         if (ImGui::IsWindowFocused())
-            state->focused_engine_window = this;
+            state->focused_editor_subwindow = this;
 
         DE::Scene* scene = DE::EngineEditor::GetEditingScene();
         if (scene) {
@@ -46,15 +46,15 @@ namespace DE {
         return true;
     }
 
-    bool SceneTreeWindow::RenderIterate(void *appstate) {
-        return IEngineWindow::RenderIterate(appstate);
+    bool SceneTreeSubWindow::RenderIterate(void *appstate) {
+        return IEditorSubWindow::RenderIterate(appstate);
     }
 
-    bool SceneTreeWindow::Quit() {
-        return IEngineWindow::Quit();
+    bool SceneTreeSubWindow::Quit() {
+        return IEditorSubWindow::Quit();
     }
 
-    void SceneTreeWindow::DrawEntityNode(DE::Entity *entity) {
+    void SceneTreeSubWindow::DrawEntityNode(DE::Entity *entity) {
         if (!entity) return;
 
         // 叶子节点用 ImGuiTreeNodeFlags_Leaf，有子节点则用默认
