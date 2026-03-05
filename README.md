@@ -4,10 +4,10 @@
 
 ## 构建与运行
 
-需 CMake 3.16+、C++26、OpenGL。
+需 CMake 4.0+、C++26、OpenGL。依赖（SDL3、ImGui、GLM、GLAD 等）已纳入仓库 `include/` 目录，由 CMake 直接引用，无需子模块或额外安装。
 
 ```bash
-git clone --recursive <repo-url>
+git clone <repo-url>
 cd DearEngine
 mkdir build && cd build
 cmake ..
