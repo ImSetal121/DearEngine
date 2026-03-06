@@ -8,6 +8,9 @@
 #include <typeinfo>
 
 #include "../render_context/RenderContext.h"
+#include "../../reflection/ReflectionMacros.h"
+#include "../../reflection/TypeInfo.h"
+#include "../../reflection/TypeRegistry.h"
 
 namespace DE {
 

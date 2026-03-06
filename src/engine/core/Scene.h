@@ -17,7 +17,6 @@ namespace DE {
         CameraComponent* main_camera;
 
         std::vector<std::unique_ptr<Entity>> root;
-        std::vector<std::unique_ptr<Entity>> GetRootList;
 
         ~Scene() = default;
     };

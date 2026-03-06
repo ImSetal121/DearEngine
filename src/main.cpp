@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
-#include <vector>
 #include <string>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -14,8 +13,6 @@
 #include "engine/editor/EngineEditor.h"
 #include "engine/util/Path.h"
 #include "glad/glad.h"
-#include <glm/glm.hpp>
-
 #include "engine/util/GLUtil.h"
 
 #ifdef _WIN32

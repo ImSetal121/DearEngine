@@ -30,6 +30,7 @@ add_executable(DearEngine
 target_link_libraries(DearEngine PRIVATE
         SDL3::SDL3
         glm::glm
+        cereal::cereal
         ${OPENGL_LIBRARIES}
 )
 

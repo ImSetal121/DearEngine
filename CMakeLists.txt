@@ -12,6 +12,7 @@ include(cmake)
 # 子模块与 ImGui 路径
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/imgui-docking)
 add_subdirectory(include/SDL EXCLUDE_FROM_ALL)
+add_subdirectory(include/cereal)
 set(GLM_ENABLE_CXX_20 ON)
 add_subdirectory(include/glm EXCLUDE_FROM_ALL)
 
