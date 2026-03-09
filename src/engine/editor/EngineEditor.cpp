@@ -24,6 +24,7 @@
 #include "SDL3/SDL_storage.h"
 #include "../util/Path.h"
 #include "window/AssetManagerSubWindow.h"
+#include "yaml-cpp/yaml.h"
 
 namespace DE {
     //正在编辑的场景
@@ -71,6 +72,18 @@ namespace DE {
             test_scene->main_camera = camera_entity->GetComponent<CameraComponent>();
             camera_entity->AddComponent<TransformComponent>();
             camera_entity->GetComponent<TransformComponent>()->position = glm::vec3(-5.0f, 0.0f, 0.0f);
+            // 测试序列化 TransformComponent
+            {
+                auto* transform = camera_entity->GetComponent<TransformComponent>();
+                if (transform) {
+                    std::string yaml_str = DE::yaml::Serialize<TransformComponent>(*transform);
+                    DE::Log::Info(std::string("TransformComponent YAML:\n") + yaml_str);
+                    std::string path = DE::GetEngineAssetsPath() + "test_transform.yaml";
+                    if (DE::yaml::SaveToFile<TransformComponent>(path, *transform)) {
+                        DE::Log::Info("Saved to " + path);
+                    }
+                }
+            }
             test_entity->children.push_back(std::move(test_children));
             test_scene->root.push_back(std::move(test_entity));
             test_scene->root.push_back(std::move(test_entity_1));
