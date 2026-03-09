@@ -27,81 +27,6 @@ bool hasArgv(int argc, char *argv[], std::string value) {
     return false;
 }
 
-void CreateDefaultProgram(void *appstate) {
-    auto state = static_cast<AppState *>(appstate);
-
-    // 使用 SDL_Storage 读取 default_scene_vert.vert / default_scene_frag.frag 并创建 program（内联）
-    SDL_Storage* storage = SDL_OpenFileStorage(DE::GetEngineAssetsPath().c_str());
-    if (!storage) {
-        DE::Log::Error("SDL_OpenFileStorage failed.");
-    }
-    while (!SDL_StorageReady(storage))
-        SDL_Delay(1);
-
-    Uint64 vs_size = 0, fs_size = 0;
-    if (!SDL_GetStorageFileSize(storage, "shader/default_scene_vert.vert", &vs_size) || vs_size == 0 ||
-        !SDL_GetStorageFileSize(storage, "shader/default_scene_frag.frag", &fs_size) || fs_size == 0) {
-        DE::Log::Error("SDL_GetStorageFileSize failed for shader files.");
-        SDL_CloseStorage(storage);
-        }
-
-    std::string vs_src(vs_size + 1, '\0');
-    std::string fs_src(fs_size + 1, '\0');
-    if (!SDL_ReadStorageFile(storage, "shader/default_scene_vert.vert", &vs_src[0], vs_size) ||
-        !SDL_ReadStorageFile(storage, "shader/default_scene_frag.frag", &fs_src[0], fs_size)) {
-        DE::Log::Error("SDL_ReadStorageFile failed for shader files.");
-        SDL_CloseStorage(storage);
-        }
-    vs_src[vs_size] = '\0';
-    fs_src[fs_size] = '\0';
-    SDL_CloseStorage(storage);
-
-    // size_t pos = 0;
-    // while ((pos = vs_src.find("gl_VertexIndex", pos)) != std::string::npos) {
-    //     vs_src.replace(pos, 14, "gl_VertexID");
-    //     pos += 11;
-    // }
-    const char* vs_cstr = vs_src.c_str();
-    const char* fs_cstr = fs_src.c_str();
-
-    GLuint vs_id = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vs_id, 1, &vs_cstr, nullptr);
-    glCompileShader(vs_id);
-    GLint ok = 0;
-    glGetShaderiv(vs_id, GL_COMPILE_STATUS, &ok);
-    if (!ok) {
-        char buf[512];
-        glGetShaderInfoLog(vs_id, sizeof(buf), nullptr, buf);
-        DE::Log::Error(std::string("Vertex shader compile: ") + buf);
-        glDeleteShader(vs_id);
-    }
-    GLuint fs_id = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fs_id, 1, &fs_cstr, nullptr);
-    glCompileShader(fs_id);
-    glGetShaderiv(fs_id, GL_COMPILE_STATUS, &ok);
-    if (!ok) {
-        char buf[512];
-        glGetShaderInfoLog(fs_id, sizeof(buf), nullptr, buf);
-        DE::Log::Error(std::string("Fragment shader compile: ") + buf);
-        glDeleteShader(vs_id);
-        glDeleteShader(fs_id);
-    }
-    state->default_program = glCreateProgram();
-    glAttachShader(state->default_program, vs_id);
-    glAttachShader(state->default_program, fs_id);
-    glLinkProgram(state->default_program);
-    glDeleteShader(vs_id);
-    glDeleteShader(fs_id);
-    glGetProgramiv(state->default_program, GL_LINK_STATUS, &ok);
-    if (!ok) {
-        char buf[512];
-        glGetProgramInfoLog(state->default_program, sizeof(buf), nullptr, buf);
-        DE::Log::Error(std::string("Program link: ") + buf);
-        glDeleteProgram(state->default_program);
-        state->default_program = 0;
-    }
-}
-
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
@@ -166,7 +91,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     // 创建默认着色程序
-    CreateDefaultProgram(state);
+    DE::CreateProgram(state->default_program, "shader/default_scene_vert.vert", "shader/default_scene_frag.frag");
 
     if (state->edit_mode) {
         SDL_ShowWindow(state->editor_window);
