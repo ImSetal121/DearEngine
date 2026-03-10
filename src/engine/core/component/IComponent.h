@@ -7,13 +7,14 @@
 
 #include <typeinfo>
 
+#include "../DObject.h"
 #include "../render_context/RenderContext.h"
 
 namespace DE {
 
     class Entity;  // 前向声明，避免与 Entity.h 循环包含
 
-    class IComponent {
+    class IComponent : public DObject {
     public:
         virtual const char* GetComponentName() const {
             return typeid(*this).name();

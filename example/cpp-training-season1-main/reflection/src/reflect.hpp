@@ -31,6 +31,11 @@
 namespace reflect {
 namespace details {
 
+/**
+ * 描述某个类的单个成员变量。
+ * 持有一个成员指针的“抽象视图”：通过 name()、GetValue、SetValue 按名称读写任意对象上该成员，
+ * 内部用 std::any + lambda 封装 getter/setter，供 TypeDescriptor 与反射调用使用。
+ */
 class MemberVariable {
  public:
   /// 默认构造，getter/setter 为空。
@@ -78,6 +83,11 @@ class MemberVariable {
   std::function<void(std::any, std::any)> setter_{nullptr};
 };
 
+/**
+ * 描述某个类的单个成员函数。
+ * 从成员函数指针构造，支持 const/非 const、有返回值/void；通过 Invoke 在给定对象上以
+ * std::any 参数调用，返回值也包装为 std::any。供 TypeDescriptor 与按名调用成员函数使用。
+ */
 class MemberFunction {
  public:
   /// 默认构造，未绑定任何函数。
@@ -165,6 +175,11 @@ class MemberFunction {
   std::function<std::any(std::any)> fn_{nullptr};
 };
 
+/**
+ * 类型的运行时描述符。
+ * 保存类型名称、成员变量列表（MemberVariable）、成员函数列表（MemberFunction），
+ * 并提供按名称查找 GetMemberVar / GetMemberFunc。由 RawTypeDescriptorBuilder 构建，并注册到 Registry。
+ */
 class TypeDescriptor {
  public:
   /// 返回类型名称。
@@ -210,6 +225,11 @@ class TypeDescriptor {
   std::vector<MemberFunction> member_funcs_;
 };
 
+/**
+ * 持有并构建一个 TypeDescriptor，析构时自动注册到 Registry。
+ * 通过 AddMemberVar / AddMemberFunc 填充成员，不暴露类型 T；构造时创建 TypeDescriptor，
+ * 析构时将其移交给 Registry::Register。TypeDescriptorBuilder<T> 对其做类型化封装并支持链式调用。
+ */
 class RawTypeDescriptorBuilder {
  public:
   /// 创建并持有 TypeDescriptor，并设置其名称（实现在 .cpp）。
@@ -244,6 +264,12 @@ class RawTypeDescriptorBuilder {
   std::unique_ptr<TypeDescriptor> desc_{nullptr};
 };
 
+/**
+ * 类型 T 的流式描述符构建器，供 AddClass<T>(name) 返回。
+ * 封装 RawTypeDescriptorBuilder，提供链式 AddMemberVar / AddMemberFunc，成员指针类型限定为 T 的成员，
+ * 构建完成后在 Raw 析构时自动注册到 Registry。
+ * @tparam T 要注册到反射系统的类类型
+ */
 template <typename T>
 class TypeDescriptorBuilder {
  public:
@@ -270,6 +296,11 @@ class TypeDescriptorBuilder {
   RawTypeDescriptorBuilder raw_builder_;
 };
 
+/**
+ * 全局类型注册表（单例）。
+ * 以类型名字符串为键存储 TypeDescriptor；提供 Find(name)、Register、Clear。
+ * 反射按名称查找类型时通过 GetByName -> Registry::Find 获取 TypeDescriptor。
+ */
 class Registry {
  public:
   /// 返回单例引用。

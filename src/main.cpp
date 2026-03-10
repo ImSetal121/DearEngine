@@ -11,6 +11,8 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl3.h"
 #include "engine/editor/EngineEditor.h"
+#include "engine/reflection/Reflect.h"
+#include "engine/reflection/ReflectInit.h"
 #include "engine/util/Path.h"
 #include "glad/glad.h"
 #include "engine/util/GLUtil.h"
@@ -92,6 +94,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     // 创建默认着色程序
     DE::CreateProgram(state->default_program, "shader/default_scene_vert.vert", "shader/default_scene_frag.frag");
+
+    // 初始化反射系统
+    DE::Reflect::Init();
 
     if (state->edit_mode) {
         SDL_ShowWindow(state->editor_window);

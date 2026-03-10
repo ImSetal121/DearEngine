@@ -13,6 +13,11 @@
 
 #include "reflect.hpp"
 
+/**
+ * 示例类，用于演示反射注册与按名访问。
+ * 通过静态 MakeReflectable() 将 name、x_ 及若干成员函数注册到 reflect，
+ * 供 TestFoo 等用例按名称读写成员、调用成员函数。
+ */
 class Foo {
  public:
   /// 按值接收字符串并打印（用于测试反射调用）。
@@ -86,6 +91,7 @@ void TestMemberVariable() {
   std::cout << ">>> TestMemberVariable" << std::endl;
   using namespace reflect::details;
 
+  /// 仅用于 TestMemberVariable 的局部结构体，包含 int a、float b 两个成员。
   struct S {
     int a{0};
     float b{0.0f};

@@ -9,6 +9,8 @@
 
 #include "IComponent.h"
 #include "TransformSpace.h"
+#include "../../reflection/Reflect.h"
+#include "../../reflection/Registry.h"
 
 namespace DE {
     class TransformComponent : public IComponent {
@@ -27,6 +29,14 @@ namespace DE {
         bool RenderIterate(void *appstate, RenderContext* render_context) override;
         bool End() override;
         bool Quit() override;
+
+        static void MakeReflectable() {
+            DE::Reflect::AddClass<TransformComponent>("TransformComponent")
+                .AddMemberVar("position", &TransformComponent::position)
+                .AddMemberVar("rotation", &TransformComponent::rotation)
+                .AddMemberVar("scale", &TransformComponent::scale)
+                .AddMemberVar("space", &TransformComponent::space);
+        }
 
         TransformComponent() = default;
         ~TransformComponent();

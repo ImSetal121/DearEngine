@@ -7,11 +7,12 @@
 
 #include <vector>
 
+#include "DObject.h"
 #include "Entity.h"
 #include "component/CameraComponent.h"
 
 namespace DE {
-    class Scene {
+    class Scene : public DObject{
     public:
         std::string name;
         CameraComponent* main_camera;

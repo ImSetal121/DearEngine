@@ -15,7 +15,7 @@
 
 namespace DE {
 
-    class Entity {
+    class Entity : public DObject {
     public:
         std::string name;
         Entity* parent = nullptr;

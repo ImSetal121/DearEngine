@@ -72,6 +72,21 @@ namespace DE {
             test_scene->main_camera = camera_entity->GetComponent<CameraComponent>();
             camera_entity->AddComponent<TransformComponent>();
             camera_entity->GetComponent<TransformComponent>()->position = glm::vec3(-5.0f, 0.0f, 0.0f);
+            {
+                auto trans = camera_entity->GetComponent<TransformComponent>();
+                if (trans) {
+                    auto trans_t = DE::Reflect::GetByName("TransformComponent");
+                    for (auto v : trans_t.member_vars()) {
+                        Log::Info("menber:" + v.name());
+
+                    }
+
+                    glm::vec3 pos = trans_t.GetMemberVar("position").GetValue<glm::vec3>(*trans);
+                    Log::Info("position:" + std::to_string(pos.x) + "," + std::to_string(pos.y) + "," + std::to_string(pos.z));
+
+                    trans_t.GetMemberVar("position").SetValue(*trans, glm::vec3(-3.0f, 0.0f, 0.0f));
+                }
+            }
             test_entity->children.push_back(std::move(test_children));
             test_scene->root.push_back(std::move(test_entity));
             test_scene->root.push_back(std::move(test_entity_1));
