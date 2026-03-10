@@ -6,8 +6,6 @@
 #define DEARENGINE_TRANSFORMCOMPONENT_H
 #include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
-#include "../../reflection//YamlConverters.h"
-#include "../../reflection//DeReflectionYaml.h"
 
 #include "IComponent.h"
 #include "TransformSpace.h"
@@ -32,13 +30,6 @@ namespace DE {
 
         TransformComponent() = default;
         ~TransformComponent();
-
-        DE_REFLECT(TransformComponent,
-            DE_FIELD(position),
-            DE_FIELD(rotation),
-            DE_FIELD(scale),
-            DE_FIELD(space)
-        )
     };
 } // DE
 

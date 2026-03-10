@@ -1,7 +1,19 @@
+/**
+ * @file reflect.hpp
+ * @brief C++ 简易运行时反射库头文件
+ *
+ * 参考：rttr (https://github.com/rttrorg/rttr)、
+ *      Preshing 博客 (https://preshing.com/20180116/a-primitive-reflection-system-in-cpp-part-1/)
+ *
+ * 本文件提供：
+ * - MemberVariable：成员变量描述，支持 GetValue/SetValue（内部用 std::any + 成员指针）
+ * - MemberFunction：成员函数描述，支持 Invoke，处理 const/非 const、有返回值/void
+ * - TypeDescriptor：类型描述，包含名称、成员变量列表、成员函数列表及按名查找接口
+ * - RawTypeDescriptorBuilder / TypeDescriptorBuilder：流式构建 TypeDescriptor（AddMemberVar/AddMemberFunc）
+ * - Registry：单例，按类型名字符串存储 TypeDescriptor
+ * - 对外 API：AddClass<T>(name)、GetByName(name)、ClearRegistry()
+ */
 #pragma once
-
-// https://github.com/rttrorg/rttr
-// https://preshing.com/20180116/a-primitive-reflection-system-in-cpp-part-1/
 
 #include <any>
 #include <functional>
@@ -16,8 +28,10 @@ namespace details {
 
 class MemberVariable {
  public:
+  /// 默认构造，getter/setter 为空。
   MemberVariable() = default;
 
+  /// 从成员指针 var 构造：绑定 getter（读 obj->*var）与 setter（写 obj->*var）。
   template <typename C, typename T>
   MemberVariable(T C::*var) {
     getter_ = [var](std::any obj) -> std::any {
@@ -31,15 +45,18 @@ class MemberVariable {
     };
   }
 
+  /// 返回本成员变量的名称。
   const std::string &name() const {
     return name_;
   }
 
+  /// 从对象 c 读取该成员的值，以类型 T 返回。
   template <typename T, typename C>
   T GetValue(const C &c) const {
     return std::any_cast<T>(getter_(&c));
   }
 
+  /// 将值 val 写入对象 c 的该成员。
   template <typename C, typename T>
   void SetValue(C &c, T val) {
     setter_(&c, val);
@@ -55,8 +72,10 @@ class MemberVariable {
 
 class MemberFunction {
  public:
+  /// 默认构造，未绑定任何函数。
   MemberFunction() = default;
 
+  /// 从非 const 有返回值成员函数指针构造，内部用 std::apply 调用。
   template <typename C, typename R, typename... Args>
   explicit MemberFunction(R (C::*func)(Args...)) {
     fn_ = [this, func](std::any obj_args) -> std::any {
@@ -68,6 +87,7 @@ class MemberFunction {
     };
   }
 
+  /// 从非 const void 成员函数指针构造。
   template <typename C, typename... Args>
   explicit MemberFunction(void (C::*func)(Args...)) {
     fn_ = [this, func](std::any obj_args) -> std::any {
@@ -78,6 +98,7 @@ class MemberFunction {
     };
   }
 
+  /// 从 const 有返回值成员函数指针构造，并标记 is_const_ = true。
   template <typename C, typename R, typename... Args>
   explicit MemberFunction(R (C::*func)(Args...) const) {
     fn_ = [this, func](std::any obj_args) -> std::any {
@@ -90,6 +111,7 @@ class MemberFunction {
     is_const_ = true;
   }
 
+  /// 从 const void 成员函数指针构造，并标记 is_const_ = true。
   template <typename C, typename... Args>
   explicit MemberFunction(void (C::*func)(Args...) const) {
     fn_ = [this, func](std::any obj_args) -> std::any {
@@ -101,14 +123,17 @@ class MemberFunction {
     is_const_ = true;
   }
 
+  /// 返回本成员函数的名称。
   const std::string &name() const {
     return name_;
   }
 
+  /// 返回是否为 const 成员函数。
   bool is_const() const {
     return is_const_;
   }
 
+  /// 在对象 c 上以参数 args 调用该成员函数，返回值包装为 std::any（void 则空 any）。
   template <typename C, typename... Args>
   std::any Invoke(C &c, Args &&... args) {
     if (is_const_) {
@@ -129,18 +154,22 @@ class MemberFunction {
 
 class TypeDescriptor {
  public:
+  /// 返回类型名称。
   const std::string &name() const {
     return name_;
   }
 
+  /// 返回该类型的所有成员变量描述列表。
   const std::vector<MemberVariable> &member_vars() const {
     return member_vars_;
   }
 
+  /// 返回该类型的所有成员函数描述列表。
   const std::vector<MemberFunction> &member_funcs() const {
     return member_funcs_;
   }
 
+  /// 按名称查找成员变量，未找到则返回默认构造的 MemberVariable。
   MemberVariable GetMemberVar(const std::string &name) const {
     for (const auto &mv : member_vars_) {
       if (mv.name() == name) {
@@ -150,6 +179,7 @@ class TypeDescriptor {
     return MemberVariable{};
   }
 
+  /// 按名称查找成员函数，未找到则返回默认构造的 MemberFunction。
   MemberFunction GetMemberFunc(const std::string &name) const {
     for (const auto &mf : member_funcs_) {
       if (mf.name() == name) {
@@ -169,8 +199,10 @@ class TypeDescriptor {
 
 class RawTypeDescriptorBuilder {
  public:
+  /// 创建并持有 TypeDescriptor，并设置其名称（实现在 .cpp）。
   explicit RawTypeDescriptorBuilder(const std::string &name);
 
+  /// 析构时将 TypeDescriptor 交给 Registry 注册（实现在 .cpp）。
   ~RawTypeDescriptorBuilder();
   RawTypeDescriptorBuilder(const RawTypeDescriptorBuilder &) = delete;
   RawTypeDescriptorBuilder &operator=(const RawTypeDescriptorBuilder &) =
@@ -178,6 +210,7 @@ class RawTypeDescriptorBuilder {
   RawTypeDescriptorBuilder(RawTypeDescriptorBuilder &&) = default;
   RawTypeDescriptorBuilder &operator=(RawTypeDescriptorBuilder &&) = default;
 
+  /// 添加一个成员变量：名称 name，成员指针 var，并加入 member_vars_。
   template <typename C, typename T>
   void AddMemberVar(const std::string &name, T C::*var) {
     MemberVariable mv{var};
@@ -185,6 +218,7 @@ class RawTypeDescriptorBuilder {
     desc_->member_vars_.push_back(std::move(mv));
   }
 
+  /// 添加一个成员函数：名称 name，函数指针 func，并加入 member_funcs_。
   template <typename FUNC>
   void AddMemberFunc(const std::string &name, FUNC func) {
     MemberFunction mf{func};
@@ -199,15 +233,18 @@ class RawTypeDescriptorBuilder {
 template <typename T>
 class TypeDescriptorBuilder {
  public:
+  /// 用类型名 name 创建 builder，内部创建 RawTypeDescriptorBuilder(name)。
   explicit TypeDescriptorBuilder(const std::string &name) : raw_builder_(name) {
   }
 
+  /// 链式添加成员变量并返回 *this。
   template <typename V>
   TypeDescriptorBuilder &AddMemberVar(const std::string &name, V T::*var) {
     raw_builder_.AddMemberVar(name, var);
     return *this;
   }
 
+  /// 链式添加成员函数并返回 *this。
   template <typename FUNC>
   TypeDescriptorBuilder &AddMemberFunc(const std::string &name, FUNC func) {
     raw_builder_.AddMemberFunc(name, func);
@@ -220,15 +257,19 @@ class TypeDescriptorBuilder {
 
 class Registry {
  public:
+  /// 返回单例引用。
   static Registry &instance() {
     static Registry inst;
     return inst;
   }
 
+  /// 按类型名查找并返回 TypeDescriptor 指针（实现在 .cpp）。
   TypeDescriptor *Find(const std::string &name);
 
+  /// 将描述符注册到 type_descs_，以类型名为键（实现在 .cpp）。
   void Register(std::unique_ptr<TypeDescriptor> desc);
 
+  /// 清空所有已注册类型描述（实现在 .cpp）。
   void Clear();
 
  private:
@@ -237,14 +278,17 @@ class Registry {
 
 }  // namespace details
 
+/// 创建类型 T 的 TypeDescriptorBuilder，用于链式注册成员变量与成员函数。
 template <typename T>
 details::TypeDescriptorBuilder<T> AddClass(const std::string &name) {
   details::TypeDescriptorBuilder<T> b{name};
   return b;
 }
 
+/// 按类型名查找并返回 TypeDescriptor 的引用。
 details::TypeDescriptor &GetByName(const std::string &name);
 
+/// 清空全局类型注册表。
 void ClearRegistry();
 
 }  // namespace reflect

@@ -1,27 +1,43 @@
+/**
+ * @file main.cpp
+ * @brief 反射示例程序的入口与测试用例
+ *
+ * 本文件包含：
+ * - Foo 示例类：演示如何通过 MakeReflectable() 注册成员变量与成员函数
+ * - TestMemberFunction：直接使用 reflect::details 中的 MemberFunction 测试按值/按 const 引用调用
+ * - TestMemberVariable：测试 MemberVariable 的 GetValue/SetValue
+ * - TestFoo：通过类型名 "Foo" 查找 TypeDescriptor，并测试按名称访问成员变量与调用成员函数
+ * - main：运行 TestFoo 作为主流程
+ */
 #include <iostream>
 
 #include "reflect.hpp"
 
 class Foo {
  public:
+  /// 按值接收字符串并打印（用于测试反射调用）。
   void PassByValue(std::string s) const {
     std::cout << "Foo::PassByValue(`" << s << "`)" << std::endl;
   }
 
+  /// 按 const 引用接收字符串并打印（用于测试 const 引用参数）。
   void PassByConstRef(const std::string &s) const {
     std::cout << "Foo::PassByConstRef(const `" << s << "` &)" << std::endl;
   }
 
+  /// 将 head 与 tail 拼接成新字符串并返回。
   std::string Concat(const std::string &head, const std::string &tail) {
     auto res = head + tail;
     return res;
   }
 
+  /// 根据给定 float 创建并返回 shared_ptr<float>（注：unique_ptr 会导致编译错误）。
   // std::unique_ptr will result in compile-time error
   std::shared_ptr<float> MakeFloatPtr(float i) {
     return std::make_shared<float>(i);
   }
 
+  /// 将本类注册到反射系统：添加成员变量 name、x_ 与上述成员函数。
   static void MakeReflectable() {
     reflect::AddClass<Foo>("Foo")
         .AddMemberVar("name", &Foo::name)
@@ -32,6 +48,7 @@ class Foo {
         .AddMemberFunc("MakeFloatPtr", &Foo::MakeFloatPtr);
   }
 
+  /// 返回私有成员 x_ 的值。
   int x() const { return x_; }
 
   std::string name;
@@ -40,6 +57,7 @@ class Foo {
   int x_{0};
 };
 
+/// 测试 MemberFunction：按值、const 引用调用及带返回值调用。
 void TestMemberFunction() {
   std::cout << ">>> TestMemberFunction" << std::endl;
   using namespace reflect::details;
@@ -63,6 +81,7 @@ void TestMemberFunction() {
   std::cout << "<<< TestMemberFunction OK\n" << std::endl;
 }
 
+/// 测试 MemberVariable 的 GetValue / SetValue 读写成员。
 void TestMemberVariable() {
   std::cout << ">>> TestMemberVariable" << std::endl;
   using namespace reflect::details;
@@ -84,6 +103,7 @@ void TestMemberVariable() {
   std::cout << "<<< TestMemberVariable OK\n" << std::endl;
 }
 
+/// 通过类型名 "Foo" 查找 TypeDescriptor，并测试按名访问成员变量与调用成员函数。
 void TestFoo() {
   std::cout << ">>> TestFoo\n" << std::endl;
 
@@ -135,4 +155,5 @@ void TestFoo() {
   std::cout << "<<< TestFoo OK\n" << std::endl;
 }
 
+/// 程序入口：执行 TestFoo。
 int main() { TestFoo(); }
