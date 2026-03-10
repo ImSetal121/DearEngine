@@ -12,6 +12,11 @@
  * - RawTypeDescriptorBuilder / TypeDescriptorBuilder：流式构建 TypeDescriptor（AddMemberVar/AddMemberFunc）
  * - Registry：单例，按类型名字符串存储 TypeDescriptor
  * - 对外 API：AddClass<T>(name)、GetByName(name)、ClearRegistry()
+ *
+ * 模板参数命名约定：
+ * - C (Class)：类类型，即拥有该成员/成员函数的类（如 Foo、S）
+ * - T (Type)：成员变量类型，或泛型值类型（如 int、float、std::string）
+ * - R：成员函数返回类型；Args：成员函数参数类型
  */
 #pragma once
 
@@ -32,6 +37,7 @@ class MemberVariable {
   MemberVariable() = default;
 
   /// 从成员指针 var 构造：绑定 getter（读 obj->*var）与 setter（写 obj->*var）。
+  /// @tparam C 类类型（拥有该成员的类）；@tparam T 成员变量类型
   template <typename C, typename T>
   MemberVariable(T C::*var) {
     getter_ = [var](std::any obj) -> std::any {
@@ -51,12 +57,14 @@ class MemberVariable {
   }
 
   /// 从对象 c 读取该成员的值，以类型 T 返回。
+  /// @tparam T 成员值类型；@tparam C 对象所属类类型
   template <typename T, typename C>
   T GetValue(const C &c) const {
     return std::any_cast<T>(getter_(&c));
   }
 
   /// 将值 val 写入对象 c 的该成员。
+  /// @tparam C 对象所属类类型；@tparam T 成员值类型
   template <typename C, typename T>
   void SetValue(C &c, T val) {
     setter_(&c, val);
@@ -76,6 +84,7 @@ class MemberFunction {
   MemberFunction() = default;
 
   /// 从非 const 有返回值成员函数指针构造，内部用 std::apply 调用。
+  /// @tparam C 类类型；@tparam R 返回类型；@tparam Args 参数类型
   template <typename C, typename R, typename... Args>
   explicit MemberFunction(R (C::*func)(Args...)) {
     fn_ = [this, func](std::any obj_args) -> std::any {
@@ -88,6 +97,7 @@ class MemberFunction {
   }
 
   /// 从非 const void 成员函数指针构造。
+  /// @tparam C 类类型；@tparam Args 参数类型
   template <typename C, typename... Args>
   explicit MemberFunction(void (C::*func)(Args...)) {
     fn_ = [this, func](std::any obj_args) -> std::any {
@@ -99,6 +109,7 @@ class MemberFunction {
   }
 
   /// 从 const 有返回值成员函数指针构造，并标记 is_const_ = true。
+  /// @tparam C 类类型；@tparam R 返回类型；@tparam Args 参数类型
   template <typename C, typename R, typename... Args>
   explicit MemberFunction(R (C::*func)(Args...) const) {
     fn_ = [this, func](std::any obj_args) -> std::any {
@@ -112,6 +123,7 @@ class MemberFunction {
   }
 
   /// 从 const void 成员函数指针构造，并标记 is_const_ = true。
+  /// @tparam C 类类型；@tparam Args 参数类型
   template <typename C, typename... Args>
   explicit MemberFunction(void (C::*func)(Args...) const) {
     fn_ = [this, func](std::any obj_args) -> std::any {
@@ -134,6 +146,7 @@ class MemberFunction {
   }
 
   /// 在对象 c 上以参数 args 调用该成员函数，返回值包装为 std::any（void 则空 any）。
+  /// @tparam C 对象所属类类型；@tparam Args 参数类型
   template <typename C, typename... Args>
   std::any Invoke(C &c, Args &&... args) {
     if (is_const_) {
@@ -211,6 +224,7 @@ class RawTypeDescriptorBuilder {
   RawTypeDescriptorBuilder &operator=(RawTypeDescriptorBuilder &&) = default;
 
   /// 添加一个成员变量：名称 name，成员指针 var，并加入 member_vars_。
+  /// @tparam C 类类型；@tparam T 成员变量类型
   template <typename C, typename T>
   void AddMemberVar(const std::string &name, T C::*var) {
     MemberVariable mv{var};
@@ -238,6 +252,7 @@ class TypeDescriptorBuilder {
   }
 
   /// 链式添加成员变量并返回 *this。
+  /// @tparam T 当前注册的类类型（TypeDescriptorBuilder<T>）；@tparam V 成员变量类型
   template <typename V>
   TypeDescriptorBuilder &AddMemberVar(const std::string &name, V T::*var) {
     raw_builder_.AddMemberVar(name, var);
