@@ -7,6 +7,7 @@
 #include "MemberFunction.h"
 #include "MemberVariable.h"
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -54,10 +55,22 @@ namespace DE {
                 return MemberFunction{};
             }
 
+            /// 将 const void* 包装为该类型对象的 std::any（供 GetValueAny 等使用）。
+            std::any WrapObject(const void *obj) const {
+                return wrap_object_ ? wrap_object_(obj) : std::any{};
+            }
+
+            /// 将 void* 包装为该类型对象的 std::any（供 SetValueAny 等反序列化使用）。
+            std::any WrapMutableObject(void *obj) const {
+                return wrap_mutable_object_ ? wrap_mutable_object_(obj) : std::any{};
+            }
+
         private:
             friend class RawTypeDescriptorBuilder;
 
             std::string name_;
+            std::function<std::any(const void *)> wrap_object_{nullptr};
+            std::function<std::any(void *)> wrap_mutable_object_{nullptr};
             std::vector<MemberVariable> member_vars_;
             std::vector<MemberFunction> member_funcs_;
         };

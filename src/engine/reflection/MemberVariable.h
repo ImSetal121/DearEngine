@@ -9,6 +9,7 @@
 #include <any>
 #include <functional>
 #include <string>
+#include <typeindex>
 
 namespace DE {
     namespace Reflect {
@@ -25,7 +26,7 @@ namespace DE {
             /// 从成员指针 var 构造：绑定 getter（读 obj->*var）与 setter（写 obj->*var）。
             /// @tparam C 类类型（拥有该成员的类）；@tparam T 成员变量类型
             template<typename C, typename T>
-            MemberVariable(T C::*var) {
+            MemberVariable(T C::*var) : type_(typeid(T)) {
                 getter_ = [var](std::any obj) -> std::any {
                     return std::any_cast<const C *>(obj)->*var;
                 };
@@ -56,10 +57,25 @@ namespace DE {
                 setter_(&c, val);
             }
 
+            /// 从对象 obj（std::any 包装的 const T*）读取该成员的值，以 std::any 返回（供序列化等使用）。
+            std::any GetValueAny(std::any obj) const {
+                return getter_ ? getter_(std::move(obj)) : std::any{};
+            }
+
+            /// 将值 val（std::any）写入对象 obj（std::any 包装的 T*），供反序列化等使用。
+            void SetValueAny(std::any obj, std::any val) const {
+                if (setter_)
+                    setter_(std::move(obj), std::move(val));
+            }
+
+            /// 该成员变量的类型（用于按类型查找序列化器等）。
+            const std::type_index &type() const { return type_; }
+
         private:
             friend class RawTypeDescriptorBuilder;
 
             std::string name_;
+            std::type_index type_{typeid(void)};
             std::function<std::any(std::any)> getter_{nullptr};
             std::function<void(std::any, std::any)> setter_{nullptr};
         };

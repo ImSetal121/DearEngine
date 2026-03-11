@@ -53,6 +53,17 @@ namespace DE {
                 desc_->member_funcs_.push_back(std::move(mf));
             }
 
+            /// 设置“对象包装”函数，用于将 const void* / void* 转为 std::any（序列化/反序列化用）。
+            template<typename T>
+            void SetObjectType() {
+                desc_->wrap_object_ = [](const void *p) {
+                    return std::any(static_cast<const T *>(p));
+                };
+                desc_->wrap_mutable_object_ = [](void *p) {
+                    return std::any(static_cast<T *>(p));
+                };
+            }
+
         private:
             std::unique_ptr<TypeDescriptor> desc_{nullptr};
         };
@@ -68,6 +79,7 @@ namespace DE {
         public:
             /// 用类型名 name 创建 builder，内部创建 RawTypeDescriptorBuilder(name)。
             explicit TypeDescriptorBuilder(const std::string &name) : raw_builder_(name) {
+                raw_builder_.SetObjectType<T>();
             }
 
             /// 链式添加成员变量并返回 *this。

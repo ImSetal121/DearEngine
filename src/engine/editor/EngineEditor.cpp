@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <format>
 #include <memory>
+#include <sstream>
 
 #include "imgui.h"
 #include "../core/Log.h"
@@ -25,6 +26,7 @@
 #include "../util/Path.h"
 #include "window/AssetManagerSubWindow.h"
 #include "yaml-cpp/yaml.h"
+#include "../serialization/ReflectYaml.h"
 
 namespace DE {
     //正在编辑的场景
@@ -85,6 +87,28 @@ namespace DE {
                     Log::Info("position:" + std::to_string(pos.x) + "," + std::to_string(pos.y) + "," + std::to_string(pos.z));
 
                     trans_t.GetMemberVar("position").SetValue(*trans, glm::vec3(-3.0f, 0.0f, 0.0f));
+
+                    // 测试反射序列化为 YAML
+                    YAML::Node yaml = Reflect::SerializeReflectedToYaml(trans, "TransformComponent");
+                    if (yaml.IsMap()) {
+                        std::stringstream ss;
+                        ss << yaml;
+                        Log::Info("[TransformComponent 序列化] " + ss.str());
+                        std::string path = GetEngineAssetsPath() + "transform_test.yaml";
+                        if (Reflect::SaveReflectedToYamlFile(trans, "TransformComponent", path))
+                            Log::Info("[TransformComponent 已写入] " + path);
+                    }
+
+                    // 测试从 transform.yaml 反序列化到当前组件
+                    std::string loadPath = GetEngineAssetsPath() + "transform.yaml";
+                    if (Reflect::LoadReflectedFromYamlFile(trans, "TransformComponent", loadPath)) {
+                        Log::Info("[TransformComponent 反序列化] 已从 " + loadPath + " 加载");
+                        glm::vec3 p = trans_t.GetMemberVar("position").GetValue<glm::vec3>(*trans);
+                        Log::Info("[TransformComponent 反序列化后] position: " +
+                            std::to_string(p.x) + ", " + std::to_string(p.y) + ", " + std::to_string(p.z));
+                    } else {
+                        Log::Warning("[TransformComponent 反序列化] 加载失败: " + loadPath);
+                    }
                 }
             }
             test_entity->children.push_back(std::move(test_children));
