@@ -8,8 +8,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "../DObject.h"
-#include "../../reflection/Reflect.h"
-#include "../../reflection/Registry.h"
+#include "../reflection/Reflect.h"
+#include "../reflection/Registry.h"
 
 namespace DE {
     class ICamera : public DObject {

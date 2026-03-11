@@ -5,10 +5,10 @@
 #include "Entity.h"
 #include "component/IComponent.h"
 #include "component/CameraComponent.h"
-#include "../reflection/Reflect.h"
-#include "../reflection/Registry.h"
-#include "../serialization/ReflectYaml.h"
-#include "../serialization/SceneSerialization.h"
+#include "./reflection/Reflect.h"
+#include "./reflection/Registry.h"
+#include "./serialization/ReflectYaml.h"
+#include "./serialization/SceneSerialization.h"
 
 #include <yaml-cpp/yaml.h>
 #include <fstream>

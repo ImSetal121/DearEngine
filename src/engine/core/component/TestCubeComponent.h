@@ -5,7 +5,7 @@
 #ifndef DEARENGINE_TESTCUBECOMPONENT_H
 #define DEARENGINE_TESTCUBECOMPONENT_H
 #include "IComponent.h"
-#include "../../reflection/Reflect.h"
+#include "../reflection/Reflect.h"
 
 namespace DE {
     class TestCubeComponent : public IComponent {

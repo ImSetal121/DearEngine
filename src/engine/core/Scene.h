@@ -10,8 +10,8 @@
 #include "DObject.h"
 #include "Entity.h"
 #include "component/CameraComponent.h"
-#include "../reflection/Reflect.h"
-#include "../reflection/Registry.h"
+#include "./reflection/Reflect.h"
+#include "./reflection/Registry.h"
 
 namespace DE {
     class Scene : public DObject {

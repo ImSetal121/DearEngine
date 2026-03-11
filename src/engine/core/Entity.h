@@ -13,8 +13,8 @@
 
 #include "DObject.h"
 #include "component/IComponent.h"
-#include "../reflection/Reflect.h"
-#include "../reflection/Registry.h"
+#include "./reflection/Reflect.h"
+#include "./reflection/Registry.h"
 
 namespace DE {
 

@@ -5,7 +5,7 @@
 #ifndef DEARENGINE_CAMERACOMPOENT_H
 #define DEARENGINE_CAMERACOMPOENT_H
 #include "IComponent.h"
-#include "../../reflection/Reflect.h"
+#include "../reflection/Reflect.h"
 
 namespace DE {
     class CameraComponent : public IComponent{

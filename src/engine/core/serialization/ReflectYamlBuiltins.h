@@ -6,7 +6,7 @@
 
 #include "ReflectYaml.h"
 
-#include "../core/component/TransformSpace.h"
+#include "../component/TransformSpace.h"
 
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>

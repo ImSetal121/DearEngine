@@ -4,8 +4,6 @@
  */
 #pragma once
 
-#include "../core/component/IComponent.h"
-
 #include <functional>
 #include <memory>
 #include <optional>

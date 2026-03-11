@@ -4,12 +4,12 @@
 
 #ifndef DEARENGINE_REFLECTINIT_H
 #define DEARENGINE_REFLECTINIT_H
-#include "../core/Scene.h"
-#include "../core/Entity.h"
-#include "../core/component/CameraComponent.h"
-#include "../core/component/TestCubeComponent.h"
-#include "../core/component/TransformComponent.h"
-#include "../core/render_context/ICamera.h"
+#include "../Scene.h"
+#include "../Entity.h"
+#include "../component/CameraComponent.h"
+#include "../component/TestCubeComponent.h"
+#include "../component/TransformComponent.h"
+#include "../render_context/ICamera.h"
 #include "../serialization/ReflectYamlBuiltins.h"
 #include "../serialization/SceneSerialization.h"
 

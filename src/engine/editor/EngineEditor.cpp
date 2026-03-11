@@ -28,7 +28,7 @@
 #include "../util/Path.h"
 #include "window/AssetManagerSubWindow.h"
 #include "yaml-cpp/yaml.h"
-#include "../serialization/ReflectYaml.h"
+#include "../core/serialization/ReflectYaml.h"
 
 namespace DE {
     // 文件对话框结果（可能从其他线程回调，主线程在 LogicIterate 中处理）
