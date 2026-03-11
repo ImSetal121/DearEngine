@@ -124,7 +124,7 @@ namespace DA {
         glEnable(GL_DEPTH_TEST);
         glUseProgram(state->default_program);
 
-        if (current_playing_scene && current_playing_scene->main_camera->camera) {
+        if (current_playing_scene && current_playing_scene->main_camera && current_playing_scene->main_camera->camera) {
             DE::RenderContext* render_context = new DE::RenderContext;
             render_context->camera = current_playing_scene->main_camera->camera;
             render_context->program = &state->default_program;
@@ -139,6 +139,18 @@ namespace DA {
             }
 
             delete render_context;
+        } else {
+            static bool s_main_camera_warned = false;
+            if (current_playing_scene && (!current_playing_scene->main_camera || !current_playing_scene->main_camera->camera)) {
+                if (!s_main_camera_warned) {
+                    DE::Log::Warning("主相机未设置，请为场景指定主相机或在实体上添加 CameraComponent 并设为场景主相机。");
+                    s_main_camera_warned = true;
+                }
+            } else {
+                s_main_camera_warned = false;
+            }
+            glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
 
         SDL_GL_SwapWindow(state->application_window);

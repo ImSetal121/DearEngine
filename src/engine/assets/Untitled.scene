@@ -1,0 +1,39 @@
+Scene:
+  name: ""
+  main_camera_entity_name: camera
+root:
+  - Entity:
+      name: entity
+    components:
+      TransformComponent:
+        position: [0, 0, 0]
+        rotation: [0, 0, 0]
+        scale: [1, 1, 1]
+        space: ParentSpace
+      TestCubeComponent:
+        {}
+    children:
+      - Entity:
+          name: children
+        components:
+          {}
+        children:
+          []
+  - Entity:
+      name: entity_1
+    components:
+      {}
+    children:
+      []
+  - Entity:
+      name: camera
+    components:
+      TransformComponent:
+        position: [-5, 0, 0]
+        rotation: [0, 0, 0]
+        scale: [1, 1, 1]
+        space: ParentSpace
+      CameraComponent:
+        {}
+    children:
+      []

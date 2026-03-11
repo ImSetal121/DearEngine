@@ -6,9 +6,14 @@
 
 namespace DE {
     namespace Reflect {
-        /// 按名称在 type_descs_ 中查找并返回 TypeDescriptor 指针。
+        /// 按名称在 type_descs_ 中查找并返回 TypeDescriptor 指针，未找到返回 nullptr。
         TypeDescriptor *Registry::Find(const std::string &name) {
-            return type_descs_.find(name)->second.get();
+            auto it = type_descs_.find(name);
+            return it == type_descs_.end() ? nullptr : it->second.get();
+        }
+
+        bool Registry::Contains(const std::string &name) const {
+            return type_descs_.find(name) != type_descs_.end();
         }
 
         /// 将描述符以类型名为键存入 type_descs_。

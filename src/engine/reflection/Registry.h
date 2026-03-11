@@ -25,8 +25,11 @@ namespace DE {
                 return inst;
             }
 
-            /// 按类型名查找并返回 TypeDescriptor 指针（实现在 .cpp）。
+            /// 按类型名查找并返回 TypeDescriptor 指针，未找到返回 nullptr（实现在 .cpp）。
             TypeDescriptor *Find(const std::string &name);
+
+            /// 是否存在指定类型名。
+            bool Contains(const std::string &name) const;
 
             /// 将描述符注册到 type_descs_，以类型名为键（实现在 .cpp）。
             void Register(std::unique_ptr<TypeDescriptor> desc);

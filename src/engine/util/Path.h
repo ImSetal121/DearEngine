@@ -33,6 +33,10 @@ namespace DE {
         return (GetContentRoot() / "src" / "engine" / "assets").generic_string() + "/";
     }
 
+    inline std::string GetApplicationAssetsPath() {
+        return (GetContentRoot() / "src" / "application" / "assets").generic_string() + "/";
+    }
+
     inline void CheckCurrentPath() {
         Log::Info(std::string("当前内容根路径: ") + GetContentRoot().string()+"\n");
     }

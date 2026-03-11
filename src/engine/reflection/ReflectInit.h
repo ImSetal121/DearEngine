@@ -10,6 +10,7 @@
 #include "../core/component/TransformComponent.h"
 #include "../core/render_context/ICamera.h"
 #include "../serialization/ReflectYamlBuiltins.h"
+#include "../serialization/SceneSerialization.h"
 
 namespace DE {
     namespace Reflect {
@@ -21,6 +22,7 @@ namespace DE {
             TestCubeComponent::MakeReflectable();
             ICamera::MakeReflectable();
             InitReflectYamlSerializers();
+            RegisterSceneComponentFactories();
         }
     }
 }
