@@ -11,13 +11,21 @@
 #include <unordered_map>
 #include <vector>
 
+#include "DObject.h"
 #include "component/IComponent.h"
+#include "../reflection/Reflect.h"
+#include "../reflection/Registry.h"
 
 namespace DE {
 
     class Entity : public DObject {
     public:
         std::string name;
+
+        static void MakeReflectable() {
+            DE::Reflect::AddClass<Entity>("Entity")
+                .AddMemberVar("name", &Entity::name);
+        }
         Entity* parent = nullptr;
         std::vector<std::unique_ptr<Entity>> children;
         std::unordered_map<std::type_index, std::unique_ptr<IComponent>> components;

@@ -5,6 +5,7 @@
 #ifndef DEARENGINE_TESTCUBECOMPONENT_H
 #define DEARENGINE_TESTCUBECOMPONENT_H
 #include "IComponent.h"
+#include "../../reflection/Reflect.h"
 
 namespace DE {
     class TestCubeComponent : public IComponent {
@@ -65,6 +66,10 @@ namespace DE {
         bool RenderIterate(void *appstate, RenderContext* render_context) override;
         bool End() override;
         bool Quit() override;
+
+        static void MakeReflectable() {
+            DE::Reflect::AddClass<TestCubeComponent>("TestCubeComponent");
+        }
     private:
         unsigned int VBO = 0;
         unsigned int cubeVAO = 0;

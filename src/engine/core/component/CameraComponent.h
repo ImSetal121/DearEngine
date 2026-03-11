@@ -5,6 +5,7 @@
 #ifndef DEARENGINE_CAMERACOMPOENT_H
 #define DEARENGINE_CAMERACOMPOENT_H
 #include "IComponent.h"
+#include "../../reflection/Reflect.h"
 
 namespace DE {
     class CameraComponent : public IComponent{
@@ -15,6 +16,11 @@ namespace DE {
         bool Start(void *appstate) override;
 
         CameraComponent() = default;
+
+        static void MakeReflectable() {
+            DE::Reflect::AddClass<CameraComponent>("CameraComponent")
+                .AddMemberVar("camera", &CameraComponent::camera);
+        }
     };
 } // DE
 

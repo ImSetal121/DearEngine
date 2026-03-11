@@ -5,11 +5,14 @@
 #ifndef DEARENGINE_CAMERACOMPONENT_H
 #define DEARENGINE_CAMERACOMPONENT_H
 #include <glm/glm.hpp>
-
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../DObject.h"
+#include "../../reflection/Reflect.h"
+#include "../../reflection/Registry.h"
+
 namespace DE {
-    class ICamera {
+    class ICamera : public DObject {
     public:
         // ========== Transform 引用（必须绑定）==========
         glm::vec3* position = nullptr;   // 绑定外部 position
@@ -20,6 +23,14 @@ namespace DE {
         float near_lane = 0.1f;
         float far_plane = 1000.0f;
         glm::vec4 clear_color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+        static void MakeReflectable() {
+            DE::Reflect::AddClass<ICamera>("ICamera")
+                .AddMemberVar("fov", &ICamera::fov)
+                .AddMemberVar("near_lane", &ICamera::near_lane)
+                .AddMemberVar("far_plane", &ICamera::far_plane)
+                .AddMemberVar("clear_color", &ICamera::clear_color);
+        }
 
         // ========== 方向向量计算 ==========
         // rotation 约定: x=pitch, y=yaw, z=roll
