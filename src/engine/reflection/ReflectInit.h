@@ -6,6 +6,7 @@
 #define DEARENGINE_REFLECTINIT_H
 #include "../core/Scene.h"
 #include "../core/Entity.h"
+#include "../core/component/CameraComponent.h"
 #include "../core/component/TestCubeComponent.h"
 #include "../core/component/TransformComponent.h"
 #include "../core/render_context/ICamera.h"
@@ -17,12 +18,11 @@ namespace DE {
         static void Init() {
             Scene::MakeReflectable();
             Entity::MakeReflectable();
-            TransformComponent::MakeReflectable();
-            CameraComponent::MakeReflectable();
-            TestCubeComponent::MakeReflectable();
             ICamera::MakeReflectable();
+            DE_REGISTER_SCENE_COMPONENT(TransformComponent, "TransformComponent");
+            DE_REGISTER_SCENE_COMPONENT(CameraComponent, "CameraComponent");
+            DE_REGISTER_SCENE_COMPONENT(TestCubeComponent, "TestCubeComponent");
             InitReflectYamlSerializers();
-            RegisterSceneComponentFactories();
         }
     }
 }

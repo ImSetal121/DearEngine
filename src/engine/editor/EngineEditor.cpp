@@ -239,7 +239,7 @@ namespace DE {
                                 { "场景文件 (*.yaml)", "yaml;yml" },
                                 { "All files", "*" }
                             };
-                            std::string defaultSavePath = (GetContentRoot() / "Untitled.scene").generic_string();
+                            std::string defaultSavePath = GetApplicationAssetsPath() + "Untitled.scene";
                             SDL_ShowSaveFileDialog(OnSaveFileDialog, nullptr, state->editor_window,
                                 filters, 2, defaultSavePath.c_str());
                         }
@@ -253,7 +253,7 @@ namespace DE {
                                 { "All files", "*" }
                             };
                             std::string defaultSavePath = editing_scene->save_path.empty()
-                                ? (GetContentRoot() / "Untitled.scene").generic_string()
+                                ? (GetApplicationAssetsPath() + "Untitled.scene")
                                 : editing_scene->save_path;
                             SDL_ShowSaveFileDialog(OnSaveFileDialog, nullptr, state->editor_window,
                                 filters, 2, defaultSavePath.c_str());
@@ -264,7 +264,9 @@ namespace DE {
                             { "场景文件 (*.yaml)", "yaml;yml" },
                             { "All files", "*" }
                         };
-                        static std::string defaultDir = GetContentRoot().generic_string();
+                        std::string defaultDir = GetApplicationAssetsPath();
+                        if (!defaultDir.empty() && defaultDir.back() == '/')
+                            defaultDir.pop_back();
                         SDL_ShowOpenFileDialog(OnOpenFileDialog, nullptr, state->editor_window,
                             filters, 2, defaultDir.c_str(), false);
                     }

@@ -42,7 +42,14 @@ inline std::type_index GetComponentTypeIndex(const std::string &typeName) {
     return it->second;
 }
 
-/// 在反射初始化后调用，注册所有可序列化组件的工厂（实现在 SceneSerialization.cpp）
-void RegisterSceneComponentFactories();
+/**
+ * 新增场景组件时，在 ReflectInit.h 的 Init() 中加一行：
+ *   DE_REGISTER_SCENE_COMPONENT(YourComponent, "YourComponent");
+ * 并加上对应 #include，即可同时完成反射与场景序列化工厂注册。
+ */
+#define DE_REGISTER_SCENE_COMPONENT(Type, Name) do { \
+    Type::MakeReflectable(); \
+    RegisterComponentFactory(Name, typeid(Type), [] { return std::make_unique<Type>(); }); \
+} while(0)
 
 } // namespace DE
