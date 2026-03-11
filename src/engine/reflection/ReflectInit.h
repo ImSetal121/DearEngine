@@ -7,13 +7,11 @@
 #include "../core/component/TransformComponent.h"
 
 namespace DE {
-namespace Reflect {
-
-static void Init() {
-    TransformComponent::MakeReflectable();
-}
-
-}
+    namespace Reflect {
+        static void Init() {
+            TransformComponent::MakeReflectable();
+        }
+    }
 }
 
 #endif //DEARENGINE_REFLECTINIT_H
