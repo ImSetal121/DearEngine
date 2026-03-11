@@ -5,7 +5,7 @@
 #ifndef DEARENGINE_REFLECTINIT_H
 #define DEARENGINE_REFLECTINIT_H
 #include "../core/component/TransformComponent.h"
-#include "../serialization/ReflectYaml.h"
+#include "../serialization/ReflectYamlBuiltins.h"
 
 namespace DE {
     namespace Reflect {
