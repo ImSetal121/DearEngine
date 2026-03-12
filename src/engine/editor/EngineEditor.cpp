@@ -236,7 +236,7 @@ namespace DE {
                             Log::Info("场景已保存: " + editing_scene->save_path);
                         } else {
                             static const SDL_DialogFileFilter filters[] = {
-                                { "场景文件 (*.yaml)", "yaml;yml" },
+                                { "场景文件 (*.scene)", "scene" },
                                 { "All files", "*" }
                             };
                             std::string defaultSavePath = GetApplicationAssetsPath() + "Untitled.scene";
@@ -249,7 +249,7 @@ namespace DE {
                             Log::Warning("没有正在编辑的场景，无法另存为");
                         } else {
                             static const SDL_DialogFileFilter filters[] = {
-                                { "场景文件 (*.yaml)", "yaml;yml" },
+                                { "场景文件 (*.scene)", "scene" },
                                 { "All files", "*" }
                             };
                             std::string defaultSavePath = editing_scene->save_path.empty()

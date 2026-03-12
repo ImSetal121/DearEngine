@@ -6,7 +6,6 @@
 #define DEARENGINE_GLUTIL_H
 #include "Path.h"
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
 #include "glad/glad.h"
 
 namespace DE {
