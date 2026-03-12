@@ -4,7 +4,6 @@ find_package(OpenGL REQUIRED)
 
 file(GLOB_RECURSE SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 file(GLOB_RECURSE HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
-
 set(ALL_FILES ${SRC_FILES} ${HEADER_FILES})
 
 add_executable(DearEngine
@@ -49,3 +48,20 @@ set(CONTENT_ROOT_RAW "${CMAKE_SOURCE_DIR}")
 string(REPLACE "\\" "/" CONTENT_ROOT_RAW "${CONTENT_ROOT_RAW}")
 # 只传路径，不要包一层引号；C++ 里用字符串化宏得到字符串字面量
 target_compile_definitions(DearEngine PRIVATE CONTENT_ROOT="${CONTENT_ROOT_RAW}")
+
+# -----------------------------------------------------------------------------
+# 默认安装到构建目录下的 install/（避免写 /usr/local 需要 sudo）
+# 若已通过 -DCMAKE_INSTALL_PREFIX=... 指定则不改动
+# -----------------------------------------------------------------------------
+set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Install directory" FORCE)
+
+# 安装可执行文件到 bin
+install(TARGETS DearEngine RUNTIME DESTINATION bin)
+
+# 安装资产到 Content（与 bin 同级，即安装根下 Content/...）
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/engine/assets
+        DESTINATION bin/Content/engine
+        FILES_MATCHING PATTERN "*")
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/application/assets
+        DESTINATION bin/Content/application
+        FILES_MATCHING PATTERN "*")
