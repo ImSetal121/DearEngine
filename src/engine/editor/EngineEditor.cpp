@@ -96,6 +96,15 @@ namespace DE {
         }
     }
 
+    // 递归：对单个实体及其所有子实体的组件调用 EditorStart
+    static void EditorStartEntity(DE::Entity* entity, void* appstate) {
+        if (!entity) return;
+        for (auto& kv : entity->components)
+            kv.second->EditorStart(appstate);
+        for (auto& child : entity->children)
+            EditorStartEntity(child.get(), appstate);
+    }
+
     // 示例状态
     bool show_demo_window = false;
     long window_title_update_time = 0;
@@ -184,6 +193,10 @@ namespace DE {
             test_scene->root.push_back(std::move(dir_light_entity));
 
             editing_scene = std::move(test_scene);
+
+            for (auto& entity : editing_scene->root) {
+                EditorStartEntity(entity.get(), appstate);
+            }
         }
 
         // s_pendingPath = "/Users/imsetal/AllProjects/Project/DearEngine/src/application/assets/Untitled.scene";
