@@ -178,9 +178,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
 
     if (state->application_is_running && state->application) {
         if (!state->application->Event(appstate, event)) {
-            state->application->End(appstate);
-            if (!state->edit_mode)
+            if (!state->edit_mode) {
+                state->application->End(appstate);
                 return SDL_APP_SUCCESS;
+            }
+            // edit_mode: End() 与场景恢复统一由 SDL_AppIterate 处理
         }
     }
 
@@ -228,7 +230,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         state->application->End(state);
         state->application.reset();
         if (state->edit_mode) {
-            // ToDo
+            DE::EngineEditor::RestoreScene(state);
         }
     }
     if (state->application_is_running && state->application) {

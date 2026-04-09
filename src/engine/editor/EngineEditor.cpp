@@ -231,7 +231,12 @@ namespace DE {
 
     void StopPreviewApplication(AppState * state) {
         state->application_is_running = false;
-        if (editing_scene) {
+        EngineEditor::RestoreScene(state);
+    }
+
+    void EngineEditor::RestoreScene(void* appstate) {
+        if (editing_scene && !editing_scene->save_path.empty()) {
+            std::lock_guard<std::mutex> lock(s_fileDialogMutex);
             s_pendingPath = editing_scene->save_path;
             s_pendingAction = PendingFileAction::Open;
         }

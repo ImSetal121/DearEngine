@@ -30,6 +30,9 @@ namespace DE {
         static Entity* GetSelectedEntity();
         static void SetSelectedEntity(Entity* entity);
 
+        /** 预览停止后恢复编辑场景（从磁盘重新加载） */
+        static void RestoreScene(void* appstate);
+
     };
 }
 
