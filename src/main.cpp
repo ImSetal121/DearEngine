@@ -227,6 +227,9 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     if (state->application_is_running == false && state->application) { //检查是否未关闭
         state->application->End(state);
         state->application.reset();
+        if (state->edit_mode) {
+            // ToDo
+        }
     }
     if (state->application_is_running && state->application) {
         state->application->LogicIterate(state);

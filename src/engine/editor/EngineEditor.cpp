@@ -210,13 +210,31 @@ namespace DE {
     }
 
     void StartPreviewApplication(AppState * state) {
-        state->application = std::make_unique<DA::Application>();
-        state->application->Start(state, editing_scene.get(), 0, {});
-        state->application_is_running = true;
+        if (!editing_scene) {
+            Log::Warning("没有正在编辑的场景，无法运行");
+        } else if (!editing_scene->save_path.empty()) {
+            editing_scene->Save();
+
+            state->application = std::make_unique<DA::Application>();
+            state->application->Start(state, editing_scene.get(), 0, {});
+            state->application_is_running = true;
+        } else {
+            static const SDL_DialogFileFilter filters[] = {
+                { "场景文件 (*.scene)", "scene" },
+                { "All files", "*" }
+            };
+            std::string defaultSavePath = GetApplicationAssetsPath() + "Untitled.scene";
+            SDL_ShowSaveFileDialog(OnSaveFileDialog, nullptr, state->editor_window,
+                filters, 2, defaultSavePath.c_str());
+        }
     }
 
     void StopPreviewApplication(AppState * state) {
         state->application_is_running = false;
+        if (editing_scene) {
+            s_pendingPath = editing_scene->save_path;
+            s_pendingAction = PendingFileAction::Open;
+        }
     }
 
     bool EngineEditor::LogicIterate(void *appstate) {

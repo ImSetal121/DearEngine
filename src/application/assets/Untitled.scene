@@ -1,5 +1,5 @@
 Scene:
-  name: ""
+  name: Untitled
   main_camera_entity_name: camera
 root:
   - Entity:
@@ -7,7 +7,7 @@ root:
     components:
       TransformComponent:
         position: [0, 0, 0]
-        rotation: [42.020958, 31.515718, 0]
+        rotation: [0, 0, 0]
         scale: [1, 1, 1]
         space: ParentSpace
       TestCubeComponent:
