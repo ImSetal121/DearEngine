@@ -21,6 +21,7 @@
 #include "../../State.h"
 #include "../../application/Application.h"
 #include "../core/component/CameraComponent.h"
+#include "../core/component/DirLightComponent.h"
 #include "../core/component/TestCubeComponent.h"
 #include "../core/component/TransformComponent.h"
 #include "glad/glad.h"
@@ -117,68 +118,76 @@ namespace DE {
         for (IEditorSubWindow* window : state->editor_subwindows)
             window->Init(appstate);
 
-        // {
-        //     // 测试场景
-        //     auto test_scene = std::make_unique<Scene>();
-        //     auto test_entity = std::make_unique<Entity>();
-        //     test_entity->name = "entity";
-        //     auto test_children = std::make_unique<Entity>();
-        //     test_children->name = "children";
-        //     auto test_entity_1 = std::make_unique<Entity>();
-        //     test_entity_1->name = "entity_1";
-        //     auto camera_entity = std::make_unique<Entity>();
-        //     camera_entity->name = "camera";
-        //
-        //     test_entity->AddComponent<TestCubeComponent>();
-        //     test_entity->AddComponent<TransformComponent>();
-        //     camera_entity->AddComponent<CameraComponent>();
-        //     test_scene->main_camera = camera_entity->GetComponent<CameraComponent>();
-        //     camera_entity->AddComponent<TransformComponent>();
-        //     camera_entity->GetComponent<TransformComponent>()->position = glm::vec3(-5.0f, 0.0f, 0.0f);
-        //     // {
-        //     //     auto trans = camera_entity->GetComponent<TransformComponent>();
-        //     //     if (trans) {
-        //     //         auto trans_t = DE::Reflect::GetByName("TransformComponent");
-        //     //         for (auto v : trans_t.member_vars()) {
-        //     //             Log::Info("menber:" + v.name());
-        //
-        //     //         }
-        //
-        //     //         glm::vec3 pos = trans_t.GetMemberVar("position").GetValue<glm::vec3>(*trans);
-        //     //         Log::Info("position:" + std::to_string(pos.x) + "," + std::to_string(pos.y) + "," + std::to_string(pos.z));
-        //
-        //     //         trans_t.GetMemberVar("position").SetValue(*trans, glm::vec3(-3.0f, 0.0f, 0.0f));
-        //
-        //     //         // 测试反射序列化为 YAML
-        //     //         YAML::Node yaml = Reflect::SerializeReflectedToYaml(trans, "TransformComponent");
-        //     //         if (yaml.IsMap()) {
-        //     //             std::stringstream ss;
-        //     //             ss << yaml;
-        //     //             Log::Info("[TransformComponent 序列化] " + ss.str());
-        //     //             std::string path = GetEngineAssetsPath() + "transform_test.yaml";
-        //     //             if (Reflect::SaveReflectedToYamlFile(trans, "TransformComponent", path))
-        //     //                 Log::Info("[TransformComponent 已写入] " + path);
-        //     //         }
-        //
-        //     //         // 测试从 transform.yaml 反序列化到当前组件
-        //     //         std::string loadPath = GetEngineAssetsPath() + "transform.yaml";
-        //     //         if (Reflect::LoadReflectedFromYamlFile(trans, "TransformComponent", loadPath)) {
-        //     //             Log::Info("[TransformComponent 反序列化] 已从 " + loadPath + " 加载");
-        //     //             glm::vec3 p = trans_t.GetMemberVar("position").GetValue<glm::vec3>(*trans);
-        //     //             Log::Info("[TransformComponent 反序列化后] position: " +
-        //     //                 std::to_string(p.x) + ", " + std::to_string(p.y) + ", " + std::to_string(p.z));
-        //     //         } else {
-        //     //             Log::Warning("[TransformComponent 反序列化] 加载失败: " + loadPath);
-        //     //         }
-        //     //     }
-        //     // }
-        //     test_entity->children.push_back(std::move(test_children));
-        //     test_scene->root.push_back(std::move(test_entity));
-        //     test_scene->root.push_back(std::move(test_entity_1));
-        //     test_scene->root.push_back(std::move(camera_entity));
-        //
-        //     editing_scene = std::move(test_scene);
-        // }
+        {
+            // 测试场景
+            auto test_scene = std::make_unique<Scene>();
+            auto test_entity = std::make_unique<Entity>();
+            test_entity->name = "entity";
+            auto test_children = std::make_unique<Entity>();
+            test_children->name = "children";
+            auto test_entity_1 = std::make_unique<Entity>();
+            test_entity_1->name = "entity_1";
+            auto camera_entity = std::make_unique<Entity>();
+            camera_entity->name = "camera";
+            auto dir_light_entity = std::make_unique<Entity>();
+            dir_light_entity->name = "dir_light";
+
+            test_entity->AddComponent<TestCubeComponent>();
+            test_entity->AddComponent<TransformComponent>();
+            camera_entity->AddComponent<CameraComponent>();
+            test_scene->main_camera = camera_entity->GetComponent<CameraComponent>();
+            camera_entity->AddComponent<TransformComponent>();
+            camera_entity->GetComponent<TransformComponent>()->position = glm::vec3(-5.0f, 0.0f, 0.0f);
+            dir_light_entity->AddComponent<TransformComponent>();
+            dir_light_entity->AddComponent<DirLightComponent>();
+            // {
+            //     auto trans = camera_entity->GetComponent<TransformComponent>();
+            //     if (trans) {
+            //         auto trans_t = DE::Reflect::GetByName("TransformComponent");
+            //         for (auto v : trans_t.member_vars()) {
+            //             Log::Info("menber:" + v.name());
+
+            //         }
+
+            //         glm::vec3 pos = trans_t.GetMemberVar("position").GetValue<glm::vec3>(*trans);
+            //         Log::Info("position:" + std::to_string(pos.x) + "," + std::to_string(pos.y) + "," + std::to_string(pos.z));
+
+            //         trans_t.GetMemberVar("position").SetValue(*trans, glm::vec3(-3.0f, 0.0f, 0.0f));
+
+            //         // 测试反射序列化为 YAML
+            //         YAML::Node yaml = Reflect::SerializeReflectedToYaml(trans, "TransformComponent");
+            //         if (yaml.IsMap()) {
+            //             std::stringstream ss;
+            //             ss << yaml;
+            //             Log::Info("[TransformComponent 序列化] " + ss.str());
+            //             std::string path = GetEngineAssetsPath() + "transform_test.yaml";
+            //             if (Reflect::SaveReflectedToYamlFile(trans, "TransformComponent", path))
+            //                 Log::Info("[TransformComponent 已写入] " + path);
+            //         }
+
+            //         // 测试从 transform.yaml 反序列化到当前组件
+            //         std::string loadPath = GetEngineAssetsPath() + "transform.yaml";
+            //         if (Reflect::LoadReflectedFromYamlFile(trans, "TransformComponent", loadPath)) {
+            //             Log::Info("[TransformComponent 反序列化] 已从 " + loadPath + " 加载");
+            //             glm::vec3 p = trans_t.GetMemberVar("position").GetValue<glm::vec3>(*trans);
+            //             Log::Info("[TransformComponent 反序列化后] position: " +
+            //                 std::to_string(p.x) + ", " + std::to_string(p.y) + ", " + std::to_string(p.z));
+            //         } else {
+            //             Log::Warning("[TransformComponent 反序列化] 加载失败: " + loadPath);
+            //         }
+            //     }
+            // }
+            test_entity->children.push_back(std::move(test_children));
+            test_scene->root.push_back(std::move(test_entity));
+            test_scene->root.push_back(std::move(test_entity_1));
+            test_scene->root.push_back(std::move(camera_entity));
+            test_scene->root.push_back(std::move(dir_light_entity));
+
+            editing_scene = std::move(test_scene);
+        }
+
+        // s_pendingPath = "/Users/imsetal/AllProjects/Project/DearEngine/src/application/assets/Untitled.scene";
+        // s_pendingAction = PendingFileAction::Open;
 
         return true;
     }

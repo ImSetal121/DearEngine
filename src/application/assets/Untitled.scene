@@ -1,17 +1,17 @@
 Scene:
-  name: Untitled
+  name: ""
   main_camera_entity_name: camera
 root:
   - Entity:
       name: entity
     components:
-      TestCubeComponent:
-        {}
       TransformComponent:
         position: [0, 0, 0]
-        rotation: [0, 0, 0]
+        rotation: [42.020958, 31.515718, 0]
         scale: [1, 1, 1]
         space: ParentSpace
+      TestCubeComponent:
+        {}
     children:
       - Entity:
           name: children
@@ -28,10 +28,22 @@ root:
   - Entity:
       name: camera
     components:
+      TransformComponent:
+        position: [-5, 0, 0]
+        rotation: [0, 0, 0]
+        scale: [1, 1, 1]
+        space: ParentSpace
       CameraComponent:
         {}
+    children:
+      []
+  - Entity:
+      name: dir_light
+    components:
+      DirLightComponent:
+        {}
       TransformComponent:
-        position: [-10, 0, 0]
+        position: [0, 0, 0]
         rotation: [0, 0, 0]
         scale: [1, 1, 1]
         space: ParentSpace

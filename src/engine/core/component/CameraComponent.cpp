@@ -3,7 +3,6 @@
 //
 
 #include "CameraComponent.h"
-
 #include "TransformComponent.h"
 #include "../Entity.h"
 #include "../Log.h"
@@ -11,6 +10,11 @@
 namespace DE {
     const char * CameraComponent::GetComponentName() const {
         return "Camera";
+    }
+
+    bool CameraComponent::EditorStart(void *appstate) {
+        Start(appstate);
+        return IComponent::EditorStart(appstate);
     }
 
     bool CameraComponent::Start(void *appstate) {

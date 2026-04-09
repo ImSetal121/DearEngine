@@ -56,8 +56,11 @@ namespace DE {
             //绑定cubeVAO对象
             glBindVertexArray(cubeVAO);
             //设置顶点位置属性指针
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
             glEnableVertexAttribArray(0);
+            //设置顶点法向属性指针
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+            glEnableVertexAttribArray(1);
         }
 
         if (render_context) {
@@ -74,6 +77,29 @@ namespace DE {
             glUniformMatrix4fv(glGetUniformLocation(*render_context->program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
             glUniformMatrix4fv(glGetUniformLocation(*render_context->program, "view"), 1, GL_FALSE, glm::value_ptr(view));
             glUniformMatrix4fv(glGetUniformLocation(*render_context->program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+            // 定向光
+            if (render_context->dirLight) {
+                glUniform3f(glGetUniformLocation(*render_context->program, "dirLight.direction"),
+                            render_context->dirLight->direction.x,
+                            render_context->dirLight->direction.y,
+                            render_context->dirLight->direction.z);
+                glUniform3f(glGetUniformLocation(*render_context->program, "dirLight.ambient"),
+                            render_context->dirLight->ambient.x,
+                            render_context->dirLight->ambient.y,
+                            render_context->dirLight->ambient.z);
+                glUniform3f(glGetUniformLocation(*render_context->program, "dirLight.diffuse"),
+                            render_context->dirLight->diffuse.x,
+                            render_context->dirLight->diffuse.y,
+                            render_context->dirLight->diffuse.z);
+                glUniform3f(glGetUniformLocation(*render_context->program, "dirLight.specular"),
+                            render_context->dirLight->specular.x,
+                            render_context->dirLight->specular.y,
+                            render_context->dirLight->specular.z);
+            }
+
+            // 传入相机位置
+            glUniform3fv(glGetUniformLocation(*render_context->program, "viewPos"), 1, glm::value_ptr(*render_context->camera->position));
 
             glBindVertexArray(cubeVAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);

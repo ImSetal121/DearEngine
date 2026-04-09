@@ -7,6 +7,7 @@
 #include "../Scene.h"
 #include "../Entity.h"
 #include "../component/CameraComponent.h"
+#include "../component/DirLightComponent.h"
 #include "../component/TestCubeComponent.h"
 #include "../component/TransformComponent.h"
 #include "../render_context/ICamera.h"
@@ -22,6 +23,7 @@ namespace DE {
             DE_REGISTER_SCENE_COMPONENT(TransformComponent, "TransformComponent");
             DE_REGISTER_SCENE_COMPONENT(CameraComponent, "CameraComponent");
             DE_REGISTER_SCENE_COMPONENT(TestCubeComponent, "TestCubeComponent");
+            DE_REGISTER_SCENE_COMPONENT(DirLightComponent, "DirLightComponent");
             InitReflectYamlSerializers();
         }
     }

@@ -5,6 +5,7 @@
 #ifndef DEARENGINE_RENDERCONTEXT_H
 #define DEARENGINE_RENDERCONTEXT_H
 #include "ICamera.h"
+#include "IDirLight.h"
 
 namespace DE {
     struct RenderContext {
@@ -14,6 +15,7 @@ namespace DE {
         int* screenHeight = nullptr;
 
         ICamera* camera = nullptr;
+        IDirLight* dirLight = nullptr;
     };
 }
 

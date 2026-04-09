@@ -13,6 +13,7 @@ namespace DE {
         const char* GetComponentName() const override;
         ICamera* camera = nullptr;
 
+        bool EditorStart(void *appstate) override;
         bool Start(void *appstate) override;
 
         CameraComponent() = default;
