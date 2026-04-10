@@ -26,6 +26,10 @@ cmake --build .
 
 详细渲染与扩展见 **docs/场景视口渲染学习指导.md**。
 
+## 贡献
+
+欢迎提交 Issue 和 Pull Request，详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
 ## 许可证
 
 见仓库 LICENSE；依赖（SDL3、ImGui、GLM、GLAD 等）遵循各自许可。
