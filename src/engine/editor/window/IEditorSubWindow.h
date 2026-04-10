@@ -22,7 +22,7 @@ namespace DE {
         /** 事件 */
         virtual bool Event() {return true;};
         /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-        virtual bool LogicIterate(void *appstate) {return true;};
+        virtual bool EditorIterate(void *appstate) {return true;};
         /** 每帧渲染，内部应包含处理视口纹理绘制等 */
         virtual bool RenderIterate(void *appstate) {return true;};
         /** 结束 */

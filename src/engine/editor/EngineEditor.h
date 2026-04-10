@@ -18,8 +18,8 @@ namespace DE {
         static bool Init(void *appstate, int argc, char *argv[]);
         /** 引擎生命周期:事件 */
         static bool Event(void *appstate, SDL_Event *event);
-        /** 引擎生命周期:每帧逻辑 */
-        static bool LogicIterate(void *appstate);
+        /** 引擎生命周期:每帧编辑器 */
+        static bool EditorIterate(void *appstate);
         /** 引擎生命周期:每帧渲染 */
         static bool RenderIterate(void *appstate);
         /** 引擎生命周期:结束 */

@@ -27,7 +27,7 @@ namespace DE {
     }
 
     /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-    bool EntityComponentSubWindow::LogicIterate(void *appstate) {
+    bool EntityComponentSubWindow::EditorIterate(void *appstate) {
         if (!open) return false;
         ImGui::Begin(Title());
         // 检查是否为焦点窗口

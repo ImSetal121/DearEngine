@@ -244,7 +244,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
-        if (!DE::EngineEditor::LogicIterate(appstate))
+        if (!DE::EngineEditor::EditorIterate(appstate))
             return SDL_APP_FAILURE;
     }
 

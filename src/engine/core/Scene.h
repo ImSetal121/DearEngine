@@ -21,15 +21,16 @@ namespace DE {
         CameraComponent* main_camera;
         std::vector<std::unique_ptr<Entity>> root;
 
-        static void MakeReflectable() {
-            DE::Reflect::AddClass<Scene>("Scene")
-                .AddMemberVar("name", &Scene::name);
-        }
-
+        void AddEntity(std::unique_ptr<Entity> entity);
+        Entity* GetEntityByName(const std::string& name);
         void Save();
         void Load();
 
         ~Scene() = default;
+        static void MakeReflectable() {
+            DE::Reflect::AddClass<Scene>("Scene")
+                .AddMemberVar("name", &Scene::name);
+        }
     };
 }
 

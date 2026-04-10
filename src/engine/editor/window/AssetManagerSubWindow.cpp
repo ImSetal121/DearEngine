@@ -21,7 +21,7 @@ namespace DE {
         return IEditorSubWindow::Event();
     }
 
-    bool AssetManagerSubWindow::LogicIterate(void *appstate) {
+    bool AssetManagerSubWindow::EditorIterate(void *appstate) {
         if (!open) return false;
         ImGui::Begin(Title());
         // 检查是否为焦点窗口
@@ -30,7 +30,7 @@ namespace DE {
             state->focused_editor_subwindow = this;
 
         ImGui::End();
-        return IEditorSubWindow::LogicIterate(appstate);
+        return IEditorSubWindow::EditorIterate(appstate);
     }
 
     bool AssetManagerSubWindow::RenderIterate(void *appstate) {

@@ -24,7 +24,7 @@ namespace DE {
     }
 
     /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-    bool SceneTreeSubWindow::LogicIterate(void *appstate) {
+    bool SceneTreeSubWindow::EditorIterate(void *appstate) {
         if (!open) return false;
         ImGui::Begin(Title());
         // 检查是否为焦点窗口
@@ -34,6 +34,9 @@ namespace DE {
 
         DE::Scene* scene = DE::EngineEditor::GetEditingScene();
         if (scene) {
+            if (ImGui::Button("+添加实体")) {
+                scene->AddEntity(std::make_unique<Entity>());
+            }
             for (auto& entity : scene->root) {
                 DrawEntityNode(entity.get());
             }

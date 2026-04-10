@@ -137,6 +137,36 @@ std::unique_ptr<Entity> DeserializeEntity(const YAML::Node &node) {
 
 } // namespace
 
+Entity* Scene::GetEntityByName(const std::string& name) {
+    return FindEntityByNameInScene(this, name);
+}
+
+void Scene::AddEntity(std::unique_ptr<Entity> entity) {
+    if (entity->name.empty()) {
+        int i = 1;
+        while (true) {
+            if (GetEntityByName("entity " + std::to_string(i)) == nullptr) {
+                entity->name = "entity " + std::to_string(i);
+                break;
+            }
+            i++;
+        }
+    }else {
+        if (GetEntityByName(entity->name) != nullptr) {
+            int i = 1;
+            std::string original_name = entity->name;
+            while (true) {
+                if (GetEntityByName(original_name + " " + std::to_string(i)) == nullptr) {
+                    entity->name = original_name + " " + std::to_string(i);
+                    break;
+                }
+                i++;
+            }
+        }
+    }
+    root.push_back(std::move(entity));
+}
+
 void Scene::Save() {
     if (save_path.empty())
         return;

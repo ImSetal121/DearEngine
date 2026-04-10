@@ -197,10 +197,10 @@ namespace DE {
             //     }
             // }
             test_entity->AddChild(std::move(test_children));
-            test_scene->root.push_back(std::move(test_entity));
-            test_scene->root.push_back(std::move(test_entity_1));
-            test_scene->root.push_back(std::move(camera_entity));
-            test_scene->root.push_back(std::move(dir_light_entity));
+            test_scene->AddEntity(std::move(test_entity));
+            test_scene->AddEntity(std::move(test_entity_1));
+            test_scene->AddEntity(std::move(camera_entity));
+            test_scene->AddEntity(std::move(dir_light_entity));
 
             editing_scene = std::move(test_scene);
 
@@ -252,7 +252,7 @@ namespace DE {
         }
     }
 
-    bool EngineEditor::LogicIterate(void *appstate) {
+    bool EngineEditor::EditorIterate(void *appstate) {
         auto *state = static_cast<AppState *>(appstate);
         ImGuiIO& io = ImGui::GetIO(); (void)io;
 
@@ -356,7 +356,7 @@ namespace DE {
             ImGui::End();
 
             for (IEditorSubWindow* window : state->editor_subwindows)
-                window->LogicIterate(state);
+                window->EditorIterate(state);
 
             // 可选. 显示大型演示窗口（大部分示例代码在 ImGui::ShowDemoWindow() 中，可浏览其代码以进一步了解 Dear ImGui）。
             if (show_demo_window)

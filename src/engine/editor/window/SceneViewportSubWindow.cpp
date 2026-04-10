@@ -62,7 +62,7 @@ namespace DE {
     }
 
     /** 每帧调用，内部应包含 ImGui::Begin(Title(), &open) ... ImGui::End() */
-    bool SceneViewportSubWindow::LogicIterate(void *appstate) {
+    bool SceneViewportSubWindow::EditorIterate(void *appstate) {
         if (!open) return false;
         auto state = static_cast<AppState*>(appstate);
         if (state->application_is_running)
