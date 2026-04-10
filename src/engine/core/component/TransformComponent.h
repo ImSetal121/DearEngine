@@ -20,6 +20,10 @@ namespace DE {
         glm::vec3 scale = glm::vec3(1.0f);
         TransformSpace space = ParentSpace;
 
+        glm::vec3 position_world = glm::vec3(0.0f);
+
+        void SyncWorldTransform();
+
         const char* GetComponentName() const override;
 
         bool EditorStart(void *appstate) override;

@@ -22,7 +22,7 @@ namespace DE {
         if (transform == nullptr)
             DE::Log::Warning("["+GetOwner()->name+"]["+ CameraComponent::GetComponentName()+"]需要Transform组件才能够正常工作.");
         else {
-            camera = new ICamera(&transform->position, &transform->rotation);
+            camera = new ICamera(&transform->position_world, &transform->rotation);
         }
         return IComponent::Start(appstate);
     }

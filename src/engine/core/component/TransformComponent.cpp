@@ -4,7 +4,28 @@
 
 #include "TransformComponent.h"
 
+#include "../Entity.h"
+
 namespace DE {
+    glm::vec3 AddParentPosition(Entity* e) {
+        if (e->HasComponent<TransformComponent>() && e->GetComponent<TransformComponent>()->space == ParentSpace) {
+            if (e->parent && e->parent->HasComponent<TransformComponent>()) {
+                return AddParentPosition(e->parent) + e->GetComponent<TransformComponent>()->position;
+            }else {
+                return e->GetComponent<TransformComponent>()->position;
+            }
+        }
+        return e->GetComponent<TransformComponent>()->position;
+    }
+    
+    void TransformComponent::SyncWorldTransform() {
+        if (space == ParentSpace) {
+            position_world = AddParentPosition(GetOwner());
+        }else {
+            position_world = position;
+        }
+    }
+
     const char * TransformComponent::GetComponentName() const {
         return "变换";
     }

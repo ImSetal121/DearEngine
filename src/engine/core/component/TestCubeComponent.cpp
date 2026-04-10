@@ -68,7 +68,7 @@ namespace DE {
                 (float)*render_context->screenWidth / (float)*render_context->screenHeight, 0.1f, 100.0f);
             glm::mat4 view = render_context->camera->GetViewMatrix();
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, transform_component->position);
+            model = glm::translate(model, transform_component->position_world);
             model = glm::rotate(model, glm::radians(transform_component->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
             model = glm::rotate(model, glm::radians(transform_component->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
             model = glm::rotate(model, glm::radians(transform_component->rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));

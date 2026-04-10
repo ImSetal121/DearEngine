@@ -141,8 +141,9 @@ namespace DE {
             auto dir_light_entity = std::make_unique<Entity>();
             dir_light_entity->name = "dir_light";
 
-            test_entity->AddComponent<TestCubeComponent>();
             test_entity->AddComponent<TransformComponent>();
+            test_children->AddComponent<TestCubeComponent>();
+            test_children->AddComponent<TransformComponent>();
             camera_entity->AddComponent<CameraComponent>();
             test_scene->main_camera = camera_entity->GetComponent<CameraComponent>();
             camera_entity->AddComponent<TransformComponent>();
@@ -186,7 +187,7 @@ namespace DE {
             //         }
             //     }
             // }
-            test_entity->children.push_back(std::move(test_children));
+            test_entity->AddChild(std::move(test_children));
             test_scene->root.push_back(std::move(test_entity));
             test_scene->root.push_back(std::move(test_entity_1));
             test_scene->root.push_back(std::move(camera_entity));
