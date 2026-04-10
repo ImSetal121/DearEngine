@@ -21,6 +21,8 @@ namespace DE {
         TransformSpace space = ParentSpace;
 
         glm::vec3 position_world = glm::vec3(0.0f);
+        glm::vec3 rotation_world = glm::vec3(0.0f);
+        glm::vec3 scale_world = glm::vec3(1.0f);
 
         void SyncWorldTransform();
 
@@ -29,6 +31,7 @@ namespace DE {
         bool EditorStart(void *appstate) override;
         bool Start(void *appstate) override;
         bool Event() override;
+        bool EditorIterate(void *appstate) override;
         bool LogicIterate(void *appstate) override;
         bool RenderIterate(void *appstate, RenderContext* render_context) override;
         bool End() override;

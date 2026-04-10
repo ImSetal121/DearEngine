@@ -10,13 +10,17 @@ root:
         rotation: [0, 0, 0]
         scale: [1, 1, 1]
         space: ParentSpace
-      TestCubeComponent:
-        {}
     children:
       - Entity:
           name: children
         components:
-          {}
+          TransformComponent:
+            position: [0, 0, 0]
+            rotation: [0, 0, 0]
+            scale: [1, 1, 1]
+            space: ParentSpace
+          TestCubeComponent:
+            {}
         children:
           []
   - Entity:

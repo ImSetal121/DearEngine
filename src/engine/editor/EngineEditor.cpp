@@ -105,6 +105,15 @@ namespace DE {
             EditorStartEntity(child.get(), appstate);
     }
 
+    // 递归：对单个实体及其所有子实体的组件调用 EditorIterate
+    static void EditorIterateEntity(DE::Entity* entity, void* appstate) {
+        if (!entity) return;
+        for (auto& kv : entity->components)
+            kv.second->EditorIterate(appstate);
+        for (auto& child : entity->children)
+            EditorIterateEntity(child.get(), appstate);
+    }
+
     // 示例状态
     bool show_demo_window = false;
     long window_title_update_time = 0;
@@ -353,6 +362,12 @@ namespace DE {
             if (show_demo_window)
                 ImGui::ShowDemoWindow(&show_demo_window);
 
+        }
+
+        if (!state->application_is_running) {
+            for (auto& entity : editing_scene->root) {
+                EditorIterateEntity(entity.get(), appstate);
+            }
         }
 
         if (GetEditingScene() == nullptr) {

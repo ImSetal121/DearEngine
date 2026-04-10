@@ -58,7 +58,7 @@ namespace DE {
                     // 通用渲染
                     if (member_var.type() == std::type_index(typeid(glm::vec3))) {
                         glm::vec3 val = std::any_cast<glm::vec3>(member_var.GetValueAny(type_descriptor.WrapObject(kv.second.get())));
-                        if (ImGui::DragFloat3(member_var.name().c_str(), &val.x)) {
+                        if (ImGui::DragFloat3(member_var.name().c_str(), &val.x, 0.125f)) {
                             member_var.SetValueAny(type_descriptor.WrapMutableObject(kv.second.get()), val);
                         }
                     }

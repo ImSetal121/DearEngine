@@ -69,9 +69,10 @@ namespace DE {
             glm::mat4 view = render_context->camera->GetViewMatrix();
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, transform_component->position_world);
-            model = glm::rotate(model, glm::radians(transform_component->rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(transform_component->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(transform_component->rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::rotate(model, glm::radians(transform_component->rotation_world.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(transform_component->rotation_world.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(transform_component->rotation_world.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::scale(model, transform_component->scale_world);
 
 
             glUniformMatrix4fv(glGetUniformLocation(*render_context->program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));

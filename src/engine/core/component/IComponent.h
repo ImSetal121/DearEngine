@@ -23,6 +23,7 @@ namespace DE {
         virtual bool EditorStart(void *appstate) {return true;};
         virtual bool Start(void *appstate) {return true;};
         virtual bool Event() {return true;};
+        virtual bool EditorIterate(void *appstate) {return true;};
         virtual bool LogicIterate(void *appstate) {return true;};
         virtual bool RenderIterate(void *appstate, RenderContext* render_context) {return true;};
         virtual bool End() {return true;};
