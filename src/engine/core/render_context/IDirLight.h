@@ -19,7 +19,7 @@ namespace DE {
         // 高光颜色
         glm::vec3 specular = glm::vec3(1.0f);
 
-        IDirLight();
+        IDirLight() = default;
         IDirLight(glm::vec3 dir) : direction(dir) {}
         IDirLight(glm::vec3 dir, glm::vec3 amb, glm::vec3 diff, glm::vec3 spec) : direction(dir), ambient(amb), diffuse(diff), specular(spec) {}
         ~IDirLight();

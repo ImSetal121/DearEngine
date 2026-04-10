@@ -52,6 +52,17 @@ namespace DE {
                 const std::type_index& typeId = kv.first;
                 // typeid.name() 可能返回修饰名，例如 "class DE::TestComponent"
                 ImGui::BulletText("%s", kv.second->GetComponentName());
+                // 属性编辑区域
+                Reflect::TypeDescriptor type_descriptor = Reflect::GetByName(Reflect::GetTypeName(typeId)->c_str());
+                for (auto& member_var : type_descriptor.member_vars()) {
+                    // 通用渲染
+                    if (member_var.type() == std::type_index(typeid(glm::vec3))) {
+                        glm::vec3 val = std::any_cast<glm::vec3>(member_var.GetValueAny(type_descriptor.WrapObject(kv.second.get())));
+                        if (ImGui::DragFloat3(member_var.name().c_str(), &val.x)) {
+                            member_var.SetValueAny(type_descriptor.WrapMutableObject(kv.second.get()), val);
+                        }
+                    }
+                }
             }
         }
 
