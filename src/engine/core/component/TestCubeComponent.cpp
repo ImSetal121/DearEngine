@@ -32,10 +32,10 @@ namespace DE {
     }
 
     bool TestCubeComponent::LogicIterate(void *appstate) {
-        auto* state = static_cast<AppState*>(appstate);
-        auto* transform_component = GetOwner()->GetComponent<TransformComponent>();
-        transform_component->rotation = glm::vec3(run_time*40, run_time*30, 0.0f);
-        run_time += state->delta_time;
+        // auto* state = static_cast<AppState*>(appstate);
+        // auto* transform_component = GetOwner()->GetComponent<TransformComponent>();
+        // transform_component->rotation = glm::vec3(run_time*40, run_time*30, 0.0f);
+        // run_time += state->delta_time;
         return IComponent::LogicIterate(appstate);
     }
 

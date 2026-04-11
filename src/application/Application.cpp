@@ -69,6 +69,8 @@ namespace DA {
         // 显示程序窗口
         SDL_ShowWindow(state->application_window);
 
+        render_context = new DE::RenderContext;
+
         //遍历场景组件,调用组件Start方法.
         if (current_playing_scene) {
             for (auto& entity : current_playing_scene->root) {
@@ -125,7 +127,6 @@ namespace DA {
         glUseProgram(state->default_program);
 
         if (current_playing_scene && current_playing_scene->main_camera && current_playing_scene->main_camera->camera) {
-            DE::RenderContext* render_context = new DE::RenderContext;
             render_context->camera = current_playing_scene->main_camera->camera;
             render_context->program = &state->default_program;
             render_context->screenWidth = &w;
@@ -137,8 +138,6 @@ namespace DA {
             for (auto& entity : current_playing_scene->root) {
                 RenderIterateEntity(entity.get(), appstate, render_context);
             }
-
-            delete render_context;
         } else {
             static bool s_main_camera_warned = false;
             if (current_playing_scene && (!current_playing_scene->main_camera || !current_playing_scene->main_camera->camera)) {

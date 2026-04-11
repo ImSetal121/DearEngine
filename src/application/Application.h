@@ -12,6 +12,7 @@ namespace DA {
     class Application {
     public:
         DE::Scene* current_playing_scene = nullptr;
+        DE::RenderContext* render_context = nullptr;
 
         /** 应用程序生命周期:启动 */
         bool Start(void *appstate, DE::Scene *scene, int argc, char *argv[]);
