@@ -6,7 +6,7 @@
 #define DEARENGINE_SCENETREEWINDOW_H
 
 #include "IEditorSubWindow.h"
-#include "../../core/Entity.h"
+#include "../../core/Scene.h"
 
 namespace DE {
     class SceneTreeSubWindow : public IEditorSubWindow {
@@ -25,7 +25,7 @@ namespace DE {
         /** 结束 */
         bool Quit() override;
         /** 绘制单个实体 */
-        static void DrawEntityNode(Entity* entity);
+        static void DrawEntityNode(Scene* scene, Entity* entity);
     };
 }
 

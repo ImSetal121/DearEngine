@@ -32,6 +32,8 @@ namespace DE {
 
         ~Entity() = default;
 
+        Entity *GetChildByName(const std::string &name);
+
         // 子实体操作
         // 添加子实体
         Entity* AddChild(std::unique_ptr<Entity> child);
