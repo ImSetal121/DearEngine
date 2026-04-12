@@ -77,13 +77,20 @@ namespace DE {
         }
         ImGui::Separator();
 
+        std::type_index pendingRemove = typeid(void);
+
         if (entity->components.empty()) {
             ImGui::TextDisabled("(无组件)");
         } else {
             for (auto& kv : entity->components) {
+                ImGui::PushID(kv.second.get());
                 const std::type_index& typeId = kv.first;
-                // typeid.name() 可能返回修饰名，例如 "class DE::TestComponent"
                 ImGui::BulletText("%s", kv.second->GetComponentName());
+                ImGui::SameLine();
+                ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 80);
+                if (ImGui::SmallButton("删除此组件")) {
+                    pendingRemove = typeId;
+                }
                 // 属性编辑区域
                 Reflect::TypeDescriptor type_descriptor = Reflect::GetByName(Reflect::GetTypeName(typeId)->c_str());
                 for (auto& member_var : type_descriptor.member_vars()) {
@@ -112,8 +119,12 @@ namespace DE {
                         if (ImGui::ColorEdit3("高光颜色", &val->specular.x)) {}
                     }
                 }
+                ImGui::PopID();
             }
         }
+
+        if (pendingRemove != typeid(void))
+            entity->components.erase(pendingRemove);
 
         ImGui::End();
 
