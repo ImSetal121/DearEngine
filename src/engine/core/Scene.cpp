@@ -8,7 +8,7 @@
 #include "./reflection/Reflect.h"
 #include "./reflection/Registry.h"
 #include "./serialization/ReflectYaml.h"
-#include "./serialization/SceneSerialization.h"
+#include "reflection/ComponentFactory.h"
 
 #include <yaml-cpp/yaml.h>
 #include <fstream>

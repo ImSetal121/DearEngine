@@ -12,7 +12,7 @@
 #include "../component/TransformComponent.h"
 #include "../render_context/ICamera.h"
 #include "../serialization/ReflectYamlBuiltins.h"
-#include "../serialization/SceneSerialization.h"
+#include "ComponentFactory.h"
 
 namespace DE {
     namespace Reflect {

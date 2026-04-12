@@ -52,6 +52,11 @@ namespace DE {
             raw->SetOwner(this);
             return raw;
         }
+
+        void AddComponent(std::type_index typeId, std::unique_ptr<IComponent> comp) {
+            comp->SetOwner(this);
+            components[typeId] = std::move(comp);
+        }
         
         // 获取组件（返回 nullptr 表示不存在）
         template<typename T>
@@ -72,6 +77,7 @@ namespace DE {
         bool HasComponent() const {
             return components.find(std::type_index(typeid(T))) != components.end();
         }
+
     };
 
 }

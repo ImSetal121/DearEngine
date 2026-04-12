@@ -10,6 +10,7 @@
 #include "../EngineEditor.h"
 #include "../../../State.h"
 #include "../../core/component/TransformSpace.h"
+#include "../../core/reflection/ComponentFactory.h"
 
 namespace DE {
     EntityComponentSubWindow::EntityComponentSubWindow() = default;
@@ -125,6 +126,19 @@ namespace DE {
 
         if (pendingRemove != typeid(void))
             entity->components.erase(pendingRemove);
+
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth()/2 - 32);
+        if (ImGui::Button("添加组件")) {
+            ImGui::OpenPopup("add_component_popup");
+        }
+        if (ImGui::BeginPopup("add_component_popup")) {
+            for (auto& component_map : g_componentFactories) {
+                if (ImGui::MenuItem(component_map.first.c_str())) {
+                    entity->AddComponent(g_componentTypeIndex.at(component_map.first), std::move(component_map.second()));
+                }
+            }
+            ImGui::EndPopup();
+        }
 
         ImGui::End();
 
