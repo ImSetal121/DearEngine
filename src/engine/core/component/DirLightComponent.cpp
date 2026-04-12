@@ -18,7 +18,7 @@ namespace DE {
     }
 
     bool DirLightComponent::Start(void *appstate) {
-        dir_light = new IDirLight();
+        dir_light = new IDirLight(glm::vec3(0.0f));
         return IComponent::Start(appstate);
     }
 
@@ -35,11 +35,11 @@ namespace DE {
                 glm::vec3 direction = glm::normalize(glm::vec3(rotMat * glm::vec4(0, -1, 0, 0)));
                 dir_light->direction = direction;
             }
-        }
 
-        if (render_context) {
-            if (render_context->dirLight == nullptr) {
-                render_context->dirLight = dir_light;
+            if (render_context) {
+                if (render_context->dirLight == nullptr) {
+                    render_context->dirLight = dir_light;
+                }
             }
         }
         return IComponent::RenderIterate(appstate, render_context);

@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <optional>
 
+#include "../../core/component/TransformComponent.h"
+
 namespace DE {
 
     // ---- Drag-drop helpers ----
@@ -85,6 +87,7 @@ namespace DE {
         Entity* target;
     };
     static std::optional<PendingDrop> s_pendingDrop;
+    Entity* s_pendingParent = nullptr;  // nullptr表示添加到根节点
 
     // 节点之间的插入区域（零占高：绘制后重置光标，不影响间距）
     static void DrawInsertZone(Entity* before) {
@@ -143,7 +146,8 @@ namespace DE {
         DE::Scene* scene = DE::EngineEditor::GetEditingScene();
         if (scene) {
             if (ImGui::Button("+添加实体")) {
-                scene->AddEntity(std::make_unique<Entity>());
+                s_pendingParent = nullptr;
+                ImGui::OpenPopup("add_component_popup");
             }
             for (auto& entity : scene->root) {
                 DrawInsertZone(entity.get());
@@ -173,6 +177,33 @@ namespace DE {
             }
         } else {
             ImGui::TextDisabled("(无场景)");
+        }
+
+
+        if (ImGui::BeginPopup("add_component_popup")) {
+            std::unique_ptr<Entity> new_entity = nullptr;
+
+            if (ImGui::MenuItem("空实体")) {
+                new_entity = std::make_unique<Entity>();
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Camera")) {
+                new_entity = std::make_unique<Entity>();
+                new_entity->AddComponent<TransformComponent>();
+                new_entity->AddComponent<CameraComponent>();
+                new_entity->name = "Camera";
+            }
+
+            if (new_entity) {
+                if (s_pendingParent)
+                    s_pendingParent->AddChild(std::move(new_entity));
+                else
+                    scene->AddEntity(std::move(new_entity));
+            }
+
+            ImGui::EndPopup();
         }
 
         ImGui::End();
@@ -207,7 +238,9 @@ namespace DE {
 
         if (ImGui::BeginPopupContextItem()) {
             if (ImGui::MenuItem("添加子实体"))
-                entity->AddChild(std::make_unique<Entity>());
+                // entity->AddChild(std::make_unique<Entity>());
+                s_pendingParent = entity;
+                ImGui::OpenPopup("add_component_popup");
             if (ImGui::MenuItem("删除此实体")) {
                 s_pendingDelete = entity;
             }

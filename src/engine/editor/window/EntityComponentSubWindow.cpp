@@ -13,6 +13,7 @@
 #include "../../core/reflection/ComponentFactory.h"
 
 namespace DE {
+
     EntityComponentSubWindow::EntityComponentSubWindow() = default;
 
     /** 窗口标题，用于 ImGui::Begin(title, ...) */
@@ -115,9 +116,13 @@ namespace DE {
 
                     if (member_var.type() == std::type_index(typeid(IDirLight*))) {
                         auto val = std::any_cast<IDirLight*>(member_var.GetValueAny(type_descriptor.WrapObject(kv.second.get())));
-                        if (ImGui::ColorEdit3("环境光颜色", &val->ambient.x)) {}
-                        if (ImGui::ColorEdit3("漫反射颜色", &val->diffuse.x)) {}
-                        if (ImGui::ColorEdit3("高光颜色", &val->specular.x)) {}
+                        if (val) {
+                            if (ImGui::ColorEdit3("环境光颜色", &val->ambient.x)) {}
+                            if (ImGui::ColorEdit3("漫反射颜色", &val->diffuse.x)) {}
+                            if (ImGui::ColorEdit3("高光颜色", &val->specular.x)) {}
+                        } else {
+                            ImGui::TextDisabled("(dir_light 未初始化)");
+                        }
                     }
                 }
                 ImGui::PopID();
@@ -134,7 +139,9 @@ namespace DE {
         if (ImGui::BeginPopup("add_component_popup")) {
             for (auto& component_map : g_componentFactories) {
                 if (ImGui::MenuItem(component_map.first.c_str())) {
-                    entity->AddComponent(g_componentTypeIndex.at(component_map.first), std::move(component_map.second()));
+                    auto* comp = entity->AddComponent(g_componentTypeIndex.at(component_map.first),
+                    std::move(component_map.second()));
+                    comp->EditorStart(appstate);
                 }
             }
             ImGui::EndPopup();

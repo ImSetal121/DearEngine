@@ -53,10 +53,13 @@ namespace DE {
             return raw;
         }
 
-        void AddComponent(std::type_index typeId, std::unique_ptr<IComponent> comp) {
+        IComponent* AddComponent(std::type_index typeId, std::unique_ptr<IComponent> comp) {
             comp->SetOwner(this);
+            IComponent* raw = comp.get();
             components[typeId] = std::move(comp);
+            return raw;
         }
+
         
         // 获取组件（返回 nullptr 表示不存在）
         template<typename T>
