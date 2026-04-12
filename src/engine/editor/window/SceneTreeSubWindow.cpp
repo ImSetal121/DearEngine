@@ -77,6 +77,8 @@ namespace DE {
         }
     }
 
+    static Entity* s_pendingDelete = nullptr;
+
     struct PendingDrop {
         Entity* dragged;
         enum class Op { Reparent, InsertBefore } op;
@@ -148,7 +150,14 @@ namespace DE {
                 DrawEntityNode(scene, entity.get());
             }
 
-            // 树渲染完毕后再执行拖拽操作，避免迭代中修改容器
+            // 树渲染完毕后统一处理删除/拖拽，避免迭代中修改容器
+            if (s_pendingDelete) {
+                if (DE::EngineEditor::GetSelectedEntity() == s_pendingDelete)
+                    DE::EngineEditor::SetSelectedEntity(nullptr);
+                DetachEntity(scene, s_pendingDelete); // unique_ptr 离开作用域即销毁
+                s_pendingDelete = nullptr;
+            }
+
             if (s_pendingDrop) {
                 auto op = *s_pendingDrop;
                 s_pendingDrop.reset();
@@ -199,6 +208,9 @@ namespace DE {
         if (ImGui::BeginPopupContextItem()) {
             if (ImGui::MenuItem("添加子实体"))
                 entity->AddChild(std::make_unique<Entity>());
+            if (ImGui::MenuItem("删除此实体")) {
+                s_pendingDelete = entity;
+            }
             ImGui::EndPopup();
         }
 
