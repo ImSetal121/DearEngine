@@ -30,6 +30,7 @@ target_link_libraries(DearEngine PRIVATE
         SDL3::SDL3
         glm::glm
         yaml-cpp::yaml-cpp
+        Jolt
         ${OPENGL_LIBRARIES}
 )
 
@@ -38,6 +39,7 @@ target_include_directories(DearEngine PRIVATE
         ${IMGUI_DIR}/backends
         ${OPENGL_INCLUDE_DIR}
         ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/include/JoltPhysics
 )
 
 # -----------------------------------------------------------------------------

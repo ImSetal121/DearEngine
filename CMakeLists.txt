@@ -28,5 +28,7 @@ add_subdirectory(include/yaml-cpp)
 set(GLM_ENABLE_CXX_20 ON)
 add_subdirectory(include/glm EXCLUDE_FROM_ALL)
 
+add_subdirectory(include/JoltPhysics/Build EXCLUDE_FROM_ALL)
+
 # 应用在 src 里单独管理
 add_subdirectory(src)
