@@ -406,7 +406,21 @@ int main(int argc, char** argv)
     // BodyCreationSettings 构造参数依次是：形状、位置、旋转、运动类型、对象层
     // RVec3(0, -1, 0) 把地板中心放在 Y=-1 处，使其上表面恰好在 Y=0（世界原点平面）。
     // Quat::sIdentity() 表示无旋转（单位四元数）。
-    // EMotionType::Static 表示静止刚体：不受力、不被约束求解器移动，但参与碰撞响应。
+    //
+    // EMotionType 有三种选项：
+    //
+    //   Static    — 完全静止，不受任何力或冲量影响，物理引擎不为它积分运动方程。
+    //               好比场景里钉死的墙和地板：其他物体会被它弹开，但它自己纹丝不动。
+    //               CPU 开销最低，适合地形、建筑等永远不移动的物体。
+    //
+    //   Kinematic — 由程序直接驱动位置/速度，不响应力和碰撞冲量。
+    //               好比游戏里的移动平台或电梯：它能把站在上面的角色推开，
+    //               但你撞它一拳，它不会因为受力而改变轨迹——路径完全由代码控制。
+    //               常用于需要精确运动控制、又要和动态物体交互的对象。
+    //
+    //   Dynamic   — 完全由物理引擎模拟：受重力、受碰撞冲量、有惯性和摩擦。
+    //               好比真实世界里扔出去的球：你只需给初速度，之后引擎全权接管。
+    //               CPU 开销最高，适合箱子、道具、布娃娃等需要真实物理表现的对象。
     BodyCreationSettings floor_settings(floor_shape,
                                         RVec3(0.0_r, -1.0_r, 0.0_r),
                                         Quat::sIdentity(),
@@ -419,7 +433,16 @@ int main(int argc, char** argv)
     Body *floor = body_interface.CreateBody(floor_settings);
 
     // AddBody 把刚体"插入"物理世界，使其参与碰撞和宽相。
-    // EActivation::DontActivate 表示地板不需要被激活（它是静止的，不需要物理更新）。
+    //
+    // EActivation 有两个选项：
+    //
+    //   Activate      — 立即激活，物理引擎从本帧开始模拟它的运动。
+    //                   适合需要马上运动的动态对象，比如扔出去的球。
+    //
+    //   DontActivate  — 保持当前激活状态不变（新加入的对象默认是未激活的）。
+    //                   适合静止对象（地板、墙壁），它们不需要每帧被模拟，
+    //                   引擎只在其他对象碰到它时才会用到它的碰撞数据。
+    //                   注意：此选项不会强制让一个已激活的对象进入休眠。
     body_interface.AddBody(floor->GetID(), EActivation::DontActivate);
 
     // ── 13. 创建球体（动态刚体）──────────────────────────────────────────────
