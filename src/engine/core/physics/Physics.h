@@ -14,6 +14,8 @@
 #include "Jolt/Core/JobSystemThreadPool.h"
 #include "Jolt/Core/TempAllocator.h"
 #include <Jolt/Physics/PhysicsSystem.h>
+
+#include "PhysicsContactListener.h"
 #include "Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h"
 
 namespace JPH {
@@ -37,6 +39,9 @@ namespace BroadPhaseLayers
 }
 
 namespace DE {
+    class RigidBodyComponent;
+    class PhysicsContactListener;
+
     static void TraceImpl(const char *inFMT, ...)
     {
         // va_list 是 C 语言可变参数的标准用法，类似 printf 的处理方式。
@@ -166,12 +171,28 @@ namespace DE {
                 broad_phase_layer_interface_,
                 object_vs_broadphase_layer_filter_,
                 object_vs_object_layer_filter_);
+            contact_listener_ = std::make_unique<PhysicsContactListener>();
+            physics_system_->SetContactListener(contact_listener_.get());
         }
 
         void ResetWorld() {
+            contact_listener_.reset();
             physics_system_.reset();
             job_system_.reset();
             temp_allocator_.reset();
+        }
+
+        void RegisterBody(JPH::BodyID id, RigidBodyComponent* comp) {
+            body_map_[id] = comp;
+        }
+
+        void UnregisterBody(JPH::BodyID id) {
+            body_map_.erase(id);
+        }
+
+        RigidBodyComponent* GetComponent(JPH::BodyID id) {
+            auto it = body_map_.find(id);
+            return it != body_map_.end() ? it -> second : nullptr;
         }
 
         JPH::PhysicsSystem* GetPhysicsSystem() {
@@ -183,6 +204,8 @@ namespace DE {
         std::unique_ptr<JPH::TempAllocatorImpl> temp_allocator_;
         std::unique_ptr<JPH::JobSystemThreadPool> job_system_;
         std::unique_ptr<JPH::PhysicsSystem> physics_system_;
+        std::unique_ptr<PhysicsContactListener> contact_listener_;
+        std::unordered_map<JPH::BodyID, RigidBodyComponent*> body_map_;
         BPLayerInterfaceImpl broad_phase_layer_interface_;                    // 对象层 → 宽相层 映射
         ObjectVsBroadPhaseLayerFilterImpl object_vs_broadphase_layer_filter_; // 对象层 vs 宽相层 碰撞过滤
         ObjectLayerPairFilterImpl object_vs_object_layer_filter_;             // 对象层 vs 对象层 碰撞过滤
