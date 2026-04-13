@@ -101,6 +101,10 @@ namespace Layers
     // MOVING：有物理运动的对象（受重力、碰撞等影响）。
     static constexpr ObjectLayer MOVING     = 1;
 
+    // NUM_LAYERS 是一个"哨兵常量"，值等于最后一个层的索引 + 1，即层的总数。
+    // 用途一：定义数组大小，如 mObjectToBroadPhase[Layers::NUM_LAYERS]，自动跟随层数扩容。
+    // 用途二：边界检查，如 JPH_ASSERT(inLayer < Layers::NUM_LAYERS)，防止越界访问。
+    // 如果将来新增一个层 TRIGGER = 2，只需把 NUM_LAYERS 改为 3，其他地方自动适配。
     static constexpr ObjectLayer NUM_LAYERS = 2;
 }
 
@@ -137,7 +141,7 @@ namespace BroadPhaseLayers
 {
     static constexpr BroadPhaseLayer NON_MOVING(0);
     static constexpr BroadPhaseLayer MOVING(1);
-    static constexpr uint NUM_LAYERS(2);
+    static constexpr uint NUM_LAYERS(2); // 同上，宽相层总数，用于数组定义和越界检查
 }
 
 // 这个类回答：「对象层 X 映射到哪个宽相层？」
@@ -179,6 +183,7 @@ public:
 #endif
 
 private:
+    // 数组大小由 NUM_LAYERS 决定，新增层时不需要手动改这里。
     BroadPhaseLayer mObjectToBroadPhase[Layers::NUM_LAYERS];
 };
 
@@ -351,7 +356,7 @@ int main(int argc, char** argv)
     //       所以这三个对象必须在 physics_system 销毁之前一直存活。
     //       这里把它们放在栈上，在 main 结束时和 physics_system 一起析构，没问题。
 
-    BPLayerInterfaceImpl broad_phase_layer_interface;          // 对象层 → 宽相层 映射
+    BPLayerInterfaceImpl broad_phase_layer_interface;                    // 对象层 → 宽相层 映射
     ObjectVsBroadPhaseLayerFilterImpl object_vs_broadphase_layer_filter; // 对象层 vs 宽相层 碰撞过滤
     ObjectLayerPairFilterImpl object_vs_object_layer_filter;             // 对象层 vs 对象层 碰撞过滤
 
