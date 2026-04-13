@@ -10,6 +10,7 @@
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl3.h"
+#include "engine/core/physics/Physics.h"
 #include "engine/editor/EngineEditor.h"
 #include "engine/core/reflection/Reflect.h"
 #include "engine/core/reflection/ReflectInit.h"
@@ -97,6 +98,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     // 初始化反射系统
     DE::Reflect::Init();
+
+    // 初始化物理系统
+    DE::Physics::Instance().Init();
 
     if (state->edit_mode) {
         SDL_ShowWindow(state->editor_window);
