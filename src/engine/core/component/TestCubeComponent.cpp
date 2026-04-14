@@ -13,6 +13,7 @@
 #include "../../../State.h"
 #include "glad/glad.h"
 #include "glm/glm.hpp"
+#include <glm/gtc/quaternion.hpp>
 
 namespace DE {
     const char * TestCubeComponent::GetComponentName() const {
@@ -69,10 +70,7 @@ namespace DE {
             glm::mat4 view = render_context->camera->GetViewMatrix();
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, transform_component->position_world);
-            // model = glm::rotate(model, glm::radians(transform_component->rotation_world.x), glm::vec3(1.0f, 0.0f, 0.0f));
-            // model = glm::rotate(model, glm::radians(transform_component->rotation_world.y), glm::vec3(0.0f, 1.0f, 0.0f));
-            // model = glm::rotate(model, glm::radians(transform_component->rotation_world.z), glm::vec3(0.0f, 0.0f, 1.0f));
-            model = model * glm::mat4_cast(transform_component->rotation_quat_world);
+            model = model * glm::mat4_cast(transform_component->rotation_world);
             model = glm::scale(model, transform_component->scale_world);
 
 

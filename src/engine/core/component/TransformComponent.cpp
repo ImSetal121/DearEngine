@@ -8,6 +8,17 @@
 #include <glm/gtc/quaternion.hpp>
 
 namespace DE {
+
+    // 递归计算世界空间旋转四元数（父链乘法）
+    static glm::quat ComputeWorldRotationQuat(Entity* e) {
+        auto* tc = e->GetComponent<TransformComponent>();
+        glm::quat local = glm::quat(glm::radians(tc->rotation));
+        if (tc->space == ParentSpace && e->parent && e->parent->HasComponent<TransformComponent>()) {
+            return ComputeWorldRotationQuat(e->parent) * local;
+        }
+        return local;
+    }
+
     glm::vec3 AddParentPosition(Entity* e) {
         if (e->HasComponent<TransformComponent>() && e->GetComponent<TransformComponent>()->space == ParentSpace) {
             if (e->parent && e->parent->HasComponent<TransformComponent>()) {
@@ -17,17 +28,6 @@ namespace DE {
             }
         }
         return e->GetComponent<TransformComponent>()->position;
-    }
-
-    glm::vec3 AddParentRotation(Entity* e) {
-        if (e->HasComponent<TransformComponent>() && e->GetComponent<TransformComponent>()->space == ParentSpace) {
-            if (e->parent && e->parent->HasComponent<TransformComponent>()) {
-                return AddParentRotation(e->parent) + e->GetComponent<TransformComponent>()->rotation;
-            }else {
-                return e->GetComponent<TransformComponent>()->rotation;
-            }
-        }
-        return e->GetComponent<TransformComponent>()->rotation;
     }
 
     glm::vec3 AddParentScale(Entity* e) {
@@ -40,16 +40,16 @@ namespace DE {
         }
         return e->GetComponent<TransformComponent>()->scale;
     }
-    
+
     void TransformComponent::SyncWorldTransform() {
         if (space == ParentSpace) {
             position_world = AddParentPosition(GetOwner());
-            rotation_world = AddParentRotation(GetOwner());
-            scale_world = AddParentScale(GetOwner());
-        }else {
+            rotation_world = ComputeWorldRotationQuat(GetOwner());
+            scale_world    = AddParentScale(GetOwner());
+        } else {
             position_world = position;
-            rotation_world = rotation;
-            scale_world = scale;
+            rotation_world = glm::quat(glm::radians(rotation));
+            scale_world    = scale;
         }
     }
 
@@ -62,17 +62,24 @@ namespace DE {
         position_world = pos;
     }
 
-    void TransformComponent::SetWorldRotation(glm::vec3 rot) {
-        if (space == ParentSpace && GetOwner()->parent && GetOwner()->parent->HasComponent<TransformComponent>()) {
-            rotation = rot - AddParentRotation(GetOwner()->parent);
-        } else {
-            rotation = rot;
-        }
-        rotation_world = rot;
+    // 从欧拉角（角度）设置世界旋转，同时反推本地 rotation
+    void TransformComponent::SetWorldRotation(glm::vec3 rotation_degrees) {
+        glm::quat world_quat = glm::quat(glm::radians(rotation_degrees));
+        SetWorldRotation(world_quat);
+        // 同步 euler 显示值（editor 用）
+        rotation = glm::degrees(glm::eulerAngles(rotation_world));
     }
 
-    void TransformComponent::SetWorldRotation(glm::quat rotation) {
-        rotation_quat_world = rotation;
+    // 直接设置世界旋转四元数，同时反推本地 rotation euler
+    void TransformComponent::SetWorldRotation(glm::quat world_quat) {
+        if (space == ParentSpace && GetOwner()->parent && GetOwner()->parent->HasComponent<TransformComponent>()) {
+            glm::quat parent_quat = ComputeWorldRotationQuat(GetOwner()->parent);
+            glm::quat local_quat  = glm::inverse(parent_quat) * world_quat;
+            rotation = glm::degrees(glm::eulerAngles(local_quat));
+        } else {
+            rotation = glm::degrees(glm::eulerAngles(world_quat));
+        }
+        rotation_world = world_quat;
     }
 
     void TransformComponent::SetWorldScale(glm::vec3 s) {
@@ -86,26 +93,19 @@ namespace DE {
     }
 
     void TransformComponent::SetWorldTransform(glm::mat4 transform) {
-        // 提取世界位置（第 4 列）
         glm::vec3 world_pos = glm::vec3(transform[3]);
-
-        // 提取世界缩放（各列的长度）
         glm::vec3 world_scale(
             glm::length(glm::vec3(transform[0])),
             glm::length(glm::vec3(transform[1])),
             glm::length(glm::vec3(transform[2]))
         );
-
-        // 提取世界旋转（归一化后转四元数再转欧拉角，单位：角度）
         glm::mat3 rot_mat(
             glm::vec3(transform[0]) / world_scale.x,
             glm::vec3(transform[1]) / world_scale.y,
             glm::vec3(transform[2]) / world_scale.z
         );
-        glm::vec3 world_rot = glm::degrees(glm::eulerAngles(glm::quat_cast(rot_mat)));
-
         SetWorldPosition(world_pos);
-        SetWorldRotation(world_rot);
+        SetWorldRotation(glm::quat_cast(rot_mat));
         SetWorldScale(world_scale);
     }
 

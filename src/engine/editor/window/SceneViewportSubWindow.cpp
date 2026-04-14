@@ -48,7 +48,7 @@ namespace DE {
         glGenVertexArrays(1, &scene_vao);
 
         render_context = new RenderContext();
-        camera = new ICamera(&camera_position, &camera_rotation);
+        camera = new ICamera(&camera_position, &camera_rotation_quat);
         render_context->camera = camera;
         render_context->program = &state->default_program;
         render_context->screenWidth = &scene_viewport_texture_width;
@@ -111,6 +111,9 @@ namespace DE {
                 camera_rotation.y += io.MouseDelta.x * camera_sensitivity;  // yaw
                 camera_rotation.x -= io.MouseDelta.y * camera_sensitivity;  // pitch
                 camera_rotation.x = glm::clamp(camera_rotation.x, -89.0f, 89.0f);
+                // 同步到四元数：pitch 绕 X，yaw 绕 Y（取反使鼠标右移对应右转）
+                camera_rotation_quat = glm::quat(glm::radians(
+                    glm::vec3(camera_rotation.x, -camera_rotation.y, 0.0f)));
             }
 
             // WASD 移动

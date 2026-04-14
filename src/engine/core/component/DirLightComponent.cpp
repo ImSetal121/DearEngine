@@ -28,10 +28,7 @@ namespace DE {
             if (transform == nullptr)
                 DE::Log::Warning("["+GetOwner()->name+"]["+ DirLightComponent::GetComponentName()+"]需要Transform组件才能够正常工作.");
             else {
-                glm::mat4 rotMat = glm::mat4(1.0f);
-                rotMat = glm::rotate(rotMat,glm::radians(transform->rotation_world.x), glm::vec3(1, 0,0));
-                rotMat = glm::rotate(rotMat,glm::radians(transform->rotation_world.y), glm::vec3(0, 1,0));
-                rotMat = glm::rotate(rotMat,glm::radians(transform->rotation_world.z), glm::vec3(0, 0,1));
+                glm::mat4 rotMat = glm::mat4_cast(transform->rotation_world);
                 glm::vec3 direction = glm::normalize(glm::vec3(rotMat * glm::vec4(0, -1, 0, 0)));
                 dir_light->direction = direction;
             }

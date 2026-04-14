@@ -6,6 +6,7 @@
 #define DEARENGINE_CAMERACOMPONENT_H
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include "../DObject.h"
 #include "../reflection/Reflect.h"
@@ -15,8 +16,8 @@ namespace DE {
     class ICamera : public DObject {
     public:
         // ========== Transform 引用（必须绑定）==========
-        glm::vec3* position = nullptr;   // 绑定外部 position
-        glm::vec3* rotation = nullptr;   // 绑定外部 rotation (pitch, yaw, roll)
+        glm::vec3* position = nullptr;
+        glm::quat* rotation = nullptr;   // 绑定外部 rotation_world（四元数）
 
         // ========== 相机参数 ==========
         float fov = 60.0f;
@@ -33,23 +34,17 @@ namespace DE {
         }
 
         // ========== 方向向量计算 ==========
-        // rotation 约定: x=pitch, y=yaw, z=roll
+        // 默认朝向 -Z，rotation 四元数直接旋转基向量
         glm::vec3 GetFront() const {
-            float pitch = rotation->x;
-            float yaw = rotation->y;
-            glm::vec3 front;
-            front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-            front.y = sin(glm::radians(pitch));
-            front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-            return glm::normalize(front);
+            return *rotation * glm::vec3(0.0f, 0.0f, -1.0f);
         }
 
         glm::vec3 GetRight() const {
-            return glm::normalize(glm::cross(GetFront(), glm::vec3(0.0f, 1.0f, 0.0f)));
+            return *rotation * glm::vec3(1.0f, 0.0f, 0.0f);
         }
 
         glm::vec3 GetUp() const {
-            return glm::normalize(glm::cross(GetRight(), GetFront()));
+            return *rotation * glm::vec3(0.0f, 1.0f, 0.0f);
         }
 
         // ========== 视图矩阵 ==========
@@ -57,7 +52,7 @@ namespace DE {
             return glm::lookAt(*position, *position + GetFront(), GetUp());
         }
 
-        ICamera(glm::vec3* pos, glm::vec3* rot) : position(pos), rotation(rot) {}
+        ICamera(glm::vec3* pos, glm::quat* rot) : position(pos), rotation(rot) {}
     };
 } // DE
 

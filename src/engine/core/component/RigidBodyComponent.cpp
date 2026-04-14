@@ -7,8 +7,7 @@
 #include "../Log.h"
 #include "../Entity.h"
 #include "../physics/Physics.h"
-#include "glm/detail/type_quat.hpp"
-#include "glm/gtc/quaternion.inl"
+#include <glm/gtc/quaternion.hpp>
 #include "Jolt/Physics/Body/BodyCreationSettings.h"
 #include "Jolt/Physics/Collision/Shape/BoxShape.h"
 
@@ -28,9 +27,8 @@ namespace DE {
         else {
             transform->SyncWorldTransform();
 
-            // glm 转四元数
-            glm::quat q =
-            glm::quat(glm::radians(transform->rotation_world));
+            // rotation_world 已是四元数，直接使用
+            const glm::quat& q = transform->rotation_world;
             JPH::Quat jph_rot(q.x, q.y, q.z, q.w);
             JPH::BodyCreationSettings shape_settings;
             switch (shape_type) {
@@ -73,9 +71,10 @@ namespace DE {
             JPH::RVec3 pos = bi.GetPosition(body_id_);
             JPH::Quat rot = bi.GetRotation(body_id_);
             glm::quat q(rot.GetW(), rot.GetX(), rot.GetY(), rot.GetZ());
-            transform->SetWorldRotation(q);  // 直接存，不转欧拉角
-            // 欧拉角仍然更新一下，用于 editor 显示
-            transform->SetWorldRotation(glm::degrees(glm::eulerAngles(q)));
+            // 直接写四元数，无欧拉角中转
+            transform->rotation_world = q;
+            // 同步 euler 仅供编辑器显示（近似值，不参与物理计算）
+            transform->rotation = glm::degrees(glm::eulerAngles(q));
             transform->SetWorldPosition(glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ()));
         }
         return IComponent::LogicIterate(appstate);
