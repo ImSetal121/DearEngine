@@ -108,12 +108,12 @@ namespace DE {
             ImGuiIO& io = ImGui::GetIO();
             // 鼠标旋转
             if (io.MouseDelta.x != 0.0f || io.MouseDelta.y != 0.0f) {
-                camera_rotation.y += io.MouseDelta.x * camera_sensitivity;  // yaw
+                camera_rotation.y -= io.MouseDelta.x * camera_sensitivity;  // yaw
                 camera_rotation.x -= io.MouseDelta.y * camera_sensitivity;  // pitch
                 camera_rotation.x = glm::clamp(camera_rotation.x, -89.0f, 89.0f);
                 // 同步到四元数：pitch 绕 X，yaw 绕 Y（取反使鼠标右移对应右转）
                 camera_rotation_quat = glm::quat(glm::radians(
-                    glm::vec3(camera_rotation.x, -camera_rotation.y, 0.0f)));
+                    glm::vec3(camera_rotation.x, camera_rotation.y, 0.0f)));
             }
 
             // WASD 移动

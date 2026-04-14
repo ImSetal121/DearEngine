@@ -69,7 +69,7 @@ namespace DE {
     //当前选中的实体
     Entity* selected_entity = nullptr;
 
-    void ProcessPendingFileAction() {
+    void ProcessPendingFileAction(void* appstate) {
         std::string path;
         PendingFileAction action = PendingFileAction::None;
         {
@@ -92,6 +92,7 @@ namespace DE {
             new_scene->Load();
             selected_entity = nullptr;
             editing_scene = std::move(new_scene);
+            editing_scene->EditorStartAllEntity(appstate);
             Log::Info("场景已打开: " + path);
         }
     }
@@ -277,7 +278,7 @@ namespace DE {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
             ImGui::Begin("MainDockHost", nullptr, host_flags);
             ImGui::PopStyleVar(3);
-            ProcessPendingFileAction();
+            ProcessPendingFileAction(appstate);
             // 1. 最上方固定菜单栏
             if (ImGui::BeginMenuBar())
             {

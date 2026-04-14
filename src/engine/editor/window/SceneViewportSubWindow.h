@@ -26,8 +26,8 @@ namespace DE {
         // 视口相机
         ICamera* camera = nullptr;
         glm::vec3 camera_position = glm::vec3(-5.0f, 0.0f, 0.0f);
-        glm::vec3 camera_rotation = glm::vec3(0.0f, 0.0f, 0.0f); // pitch/yaw，仅用于输入计算
-        glm::quat camera_rotation_quat = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+        glm::vec3 camera_rotation = glm::vec3(0.0f, -90.0f, 0.0f); // pitch/yaw，仅用于输入计算
+        glm::quat camera_rotation_quat = glm::quat(glm::radians(glm::vec3(camera_rotation.x, camera_rotation.y, 0.0f)));
         float camera_sensitivity = 1.0f;
         float camera_move_speed = 10.0f;
         // 渲染上下文

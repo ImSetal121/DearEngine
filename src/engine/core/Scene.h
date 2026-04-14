@@ -28,6 +28,8 @@ namespace DE {
         void Load();
         void Init();
         void End();
+        void EditorStartAllEntity(void* appstate);
+        void EditorIterateAllEntity(void* appstate);
 
         ~Scene() = default;
         static void MakeReflectable() {
