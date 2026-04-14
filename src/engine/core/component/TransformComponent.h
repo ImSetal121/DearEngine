@@ -11,6 +11,7 @@
 #include "TransformSpace.h"
 #include "../reflection/Reflect.h"
 #include "../reflection/Registry.h"
+#include "glm/detail/type_quat.hpp"
 
 namespace DE {
     class TransformComponent : public IComponent {
@@ -22,9 +23,15 @@ namespace DE {
 
         glm::vec3 position_world = glm::vec3(0.0f);
         glm::vec3 rotation_world = glm::vec3(0.0f);
+        glm::quat rotation_quat_world = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
         glm::vec3 scale_world = glm::vec3(1.0f);
 
         void SyncWorldTransform();
+        void SetWorldTransform(glm::mat4 transform);
+        void SetWorldPosition(glm::vec3 position);
+        void SetWorldRotation(glm::vec3 rotation);
+        void SetWorldRotation(glm::quat rotation);
+        void SetWorldScale(glm::vec3 scale);
 
         const char* GetComponentName() const override;
 

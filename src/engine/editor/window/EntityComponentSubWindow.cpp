@@ -10,6 +10,8 @@
 #include "../EngineEditor.h"
 #include "../../../State.h"
 #include "../../core/component/TransformSpace.h"
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/MotionType.h>
 #include "../../core/reflection/ComponentFactory.h"
 
 namespace DE {
@@ -110,6 +112,16 @@ namespace DE {
                         int current = (int)val;
                         if (ImGui::Combo(member_var.name().c_str(), &current, items, 2)) {
                             auto new_val = static_cast<TransformSpace>(current);
+                            member_var.SetValueAny(type_descriptor.WrapMutableObject(kv.second.get()), new_val);
+                        }
+                    }
+
+                    if (member_var.type() == std::type_index(typeid(JPH::EMotionType))) {
+                        auto val = std::any_cast<JPH::EMotionType>(member_var.GetValueAny(type_descriptor.WrapObject(kv.second.get())));
+                        const char* items[] = {"Static", "Kinematic", "Dynamic"};
+                        int current = static_cast<int>(val);
+                        if (ImGui::Combo(member_var.name().c_str(), &current, items, 3)) {
+                            auto new_val = static_cast<JPH::EMotionType>(current);
                             member_var.SetValueAny(type_descriptor.WrapMutableObject(kv.second.get()), new_val);
                         }
                     }

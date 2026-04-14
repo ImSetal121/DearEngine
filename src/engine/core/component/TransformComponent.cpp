@@ -5,6 +5,7 @@
 #include "TransformComponent.h"
 
 #include "../Entity.h"
+#include <glm/gtc/quaternion.hpp>
 
 namespace DE {
     glm::vec3 AddParentPosition(Entity* e) {
@@ -50,6 +51,62 @@ namespace DE {
             rotation_world = rotation;
             scale_world = scale;
         }
+    }
+
+    void TransformComponent::SetWorldPosition(glm::vec3 pos) {
+        if (space == ParentSpace && GetOwner()->parent && GetOwner()->parent->HasComponent<TransformComponent>()) {
+            position = pos - AddParentPosition(GetOwner()->parent);
+        } else {
+            position = pos;
+        }
+        position_world = pos;
+    }
+
+    void TransformComponent::SetWorldRotation(glm::vec3 rot) {
+        if (space == ParentSpace && GetOwner()->parent && GetOwner()->parent->HasComponent<TransformComponent>()) {
+            rotation = rot - AddParentRotation(GetOwner()->parent);
+        } else {
+            rotation = rot;
+        }
+        rotation_world = rot;
+    }
+
+    void TransformComponent::SetWorldRotation(glm::quat rotation) {
+        rotation_quat_world = rotation;
+    }
+
+    void TransformComponent::SetWorldScale(glm::vec3 s) {
+        if (space == ParentSpace && GetOwner()->parent && GetOwner()->parent->HasComponent<TransformComponent>()) {
+            glm::vec3 parent_scale = AddParentScale(GetOwner()->parent);
+            scale = s / parent_scale;
+        } else {
+            scale = s;
+        }
+        scale_world = s;
+    }
+
+    void TransformComponent::SetWorldTransform(glm::mat4 transform) {
+        // 提取世界位置（第 4 列）
+        glm::vec3 world_pos = glm::vec3(transform[3]);
+
+        // 提取世界缩放（各列的长度）
+        glm::vec3 world_scale(
+            glm::length(glm::vec3(transform[0])),
+            glm::length(glm::vec3(transform[1])),
+            glm::length(glm::vec3(transform[2]))
+        );
+
+        // 提取世界旋转（归一化后转四元数再转欧拉角，单位：角度）
+        glm::mat3 rot_mat(
+            glm::vec3(transform[0]) / world_scale.x,
+            glm::vec3(transform[1]) / world_scale.y,
+            glm::vec3(transform[2]) / world_scale.z
+        );
+        glm::vec3 world_rot = glm::degrees(glm::eulerAngles(glm::quat_cast(rot_mat)));
+
+        SetWorldPosition(world_pos);
+        SetWorldRotation(world_rot);
+        SetWorldScale(world_scale);
     }
 
     const char * TransformComponent::GetComponentName() const {

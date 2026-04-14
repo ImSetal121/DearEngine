@@ -11,7 +11,6 @@
 namespace DA {
     class Application {
     public:
-        DE::Scene* current_playing_scene = nullptr;
         DE::RenderContext* render_context = nullptr;
 
         /** 应用程序生命周期:启动 */
@@ -25,10 +24,12 @@ namespace DA {
         /** 应用程序生命周期:结束 */
         bool End(void *appstate);
 
-        void SetCurrentPlayingScene(DE::Scene* scene);
+        void SetCurrentPlayingScene(DE::Scene* scene, void* appstate);
 
         Application() = default;
         ~Application() = default;
+    private:
+        DE::Scene* current_playing_scene_ = nullptr;
     };
 } // DA
 

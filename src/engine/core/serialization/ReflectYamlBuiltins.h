@@ -8,6 +8,9 @@
 
 #include "../component/TransformSpace.h"
 
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/MotionType.h>
+
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
@@ -65,6 +68,24 @@ inline void InitReflectYamlSerializers() {
         if (s == "WorldSpace")
             return std::any(TransformSpace::WorldSpace);
         return std::any(TransformSpace::ParentSpace);
+    });
+
+    RegisterTypeYamlSerializer(typeid(JPH::EMotionType), [](const std::any &a) {
+        const char *names[] = {"Static", "Kinematic", "Dynamic"};
+        int idx = static_cast<int>(std::any_cast<JPH::EMotionType>(a));
+        if (idx < 0 || idx > 2)
+            idx = 0;
+        return YAML::Node(names[idx]);
+    });
+    RegisterTypeYamlDeserializer(typeid(JPH::EMotionType), [](const YAML::Node &node) -> std::any {
+        if (!node.IsScalar())
+            return std::any(JPH::EMotionType::Static);
+        std::string s = node.as<std::string>();
+        if (s == "Kinematic")
+            return std::any(JPH::EMotionType::Kinematic);
+        if (s == "Dynamic")
+            return std::any(JPH::EMotionType::Dynamic);
+        return std::any(JPH::EMotionType::Static);
     });
 
     RegisterTypeYamlSerializer(typeid(glm::vec4), [](const std::any &a) {

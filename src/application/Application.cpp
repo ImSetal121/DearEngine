@@ -8,6 +8,7 @@
 
 #include "../State.h"
 #include "../engine/core/Log.h"
+#include "../engine/core/physics/Physics.h"
 #include "../engine/util/GLUtil.h"
 #include "glad/glad.h"
 #include "SDL3/SDL_oldnames.h"
@@ -62,7 +63,7 @@ namespace DA {
     }
 
     bool Application::Start(void *appstate, DE::Scene *scene, int argc, char *argv[]) {
-        SetCurrentPlayingScene(scene);
+        SetCurrentPlayingScene(scene, appstate);
         std::printf("应用程序开始运行.\n");
         auto state = static_cast<AppState*>(appstate);
 
@@ -70,13 +71,6 @@ namespace DA {
         SDL_ShowWindow(state->application_window);
 
         render_context = new DE::RenderContext;
-
-        //遍历场景组件,调用组件Start方法.
-        if (current_playing_scene) {
-            for (auto& entity : current_playing_scene->root) {
-                StartEntity(entity.get(), appstate);
-            }
-        }
 
         return true;
     }
@@ -88,8 +82,8 @@ namespace DA {
             return false;
         }
 
-        if (current_playing_scene) {
-            for (auto& entity : current_playing_scene->root) {
+        if (current_playing_scene_) {
+            for (auto& entity : current_playing_scene_->root) {
                 EventEntity(entity.get(), appstate, event);
             }
         }
@@ -99,8 +93,11 @@ namespace DA {
     bool Application::LogicIterate(void *appstate) {
         auto state = static_cast<AppState*>(appstate);
 
-        if (current_playing_scene) {
-            for (auto& entity : current_playing_scene->root) {
+        // 物理世界步进
+        DE::Physics::Instance().StepWorld(state->delta_time);
+
+        if (current_playing_scene_) {
+            for (auto& entity : current_playing_scene_->root) {
                 LogicIterateEntity(entity.get(), appstate);
             }
         }
@@ -126,8 +123,8 @@ namespace DA {
         glEnable(GL_DEPTH_TEST);
         glUseProgram(state->default_program);
 
-        if (current_playing_scene && current_playing_scene->main_camera && current_playing_scene->main_camera->camera) {
-            render_context->camera = current_playing_scene->main_camera->camera;
+        if (current_playing_scene_ && current_playing_scene_->main_camera && current_playing_scene_->main_camera->camera) {
+            render_context->camera = current_playing_scene_->main_camera->camera;
             render_context->program = &state->default_program;
             render_context->screenWidth = &w;
             render_context->screenHeight = &h;
@@ -135,12 +132,12 @@ namespace DA {
             glClearColor(render_context->camera->clear_color.x, render_context->camera->clear_color.y, render_context->camera->clear_color.z, render_context->camera->clear_color.w);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            for (auto& entity : current_playing_scene->root) {
+            for (auto& entity : current_playing_scene_->root) {
                 RenderIterateEntity(entity.get(), appstate, render_context);
             }
         } else {
             static bool s_main_camera_warned = false;
-            if (current_playing_scene && (!current_playing_scene->main_camera || !current_playing_scene->main_camera->camera)) {
+            if (current_playing_scene_ && (!current_playing_scene_->main_camera || !current_playing_scene_->main_camera->camera)) {
                 if (!s_main_camera_warned) {
                     DE::Log::Warning("主相机未设置，请为场景指定主相机或在实体上添加 CameraComponent 并设为场景主相机。");
                     s_main_camera_warned = true;
@@ -160,8 +157,8 @@ namespace DA {
     bool Application::End(void *appstate) {
         auto state = static_cast<AppState*>(appstate);
 
-        if (current_playing_scene) {
-            for (auto& entity : current_playing_scene->root) {
+        if (current_playing_scene_) {
+            for (auto& entity : current_playing_scene_->root) {
                 EndEntity(entity.get(), appstate);
             }
         }
@@ -171,7 +168,19 @@ namespace DA {
         return true;
     }
 
-    void Application::SetCurrentPlayingScene(DE::Scene* scene) {
-        current_playing_scene = scene;
+    void Application::SetCurrentPlayingScene(DE::Scene* scene, void* appstate) {
+        if (current_playing_scene_) {
+            // 释放物理世界和场景
+            for (auto& entity : current_playing_scene_->root) {
+                EndEntity(entity.get(), appstate);
+            }
+            DE::Physics::Instance().ResetWorld();
+        }
+        current_playing_scene_ = scene;
+        //加载物理世界
+        DE::Physics::Instance().InitWorld();
+        for (auto& entity : current_playing_scene_->root) {
+            StartEntity(entity.get(), appstate);
+        }
     }
 } // DA

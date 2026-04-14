@@ -23,8 +23,11 @@ namespace DE {
 
         void AddEntity(std::unique_ptr<Entity> entity);
         Entity* GetEntityByName(const std::string& name);
+        std::unique_ptr<Entity> CloneEntity(Entity* e);
         void Save();
         void Load();
+        void Init();
+        void End();
 
         ~Scene() = default;
         static void MakeReflectable() {

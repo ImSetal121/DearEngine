@@ -6,6 +6,7 @@
 #define DEARENGINE_DEPHYSICS_H
 #include "../DObject.h"
 
+#include <iostream>
 #include <Jolt/Jolt.h>
 #include <Jolt/Core/Memory.h>
 
@@ -15,12 +16,7 @@
 #include "Jolt/Core/TempAllocator.h"
 #include <Jolt/Physics/PhysicsSystem.h>
 
-#include "PhysicsContactListener.h"
 #include "Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h"
-
-namespace JPH {
-    class PhysicsSystem;
-}
 
 namespace Layers {
     // NON_MOVING：地板、墙壁等静止对象。它们不移动，所以宽相树不需要每帧重建。
@@ -162,25 +158,9 @@ namespace DE {
             JPH::RegisterTypes();
         }
 
-        void InitWorld() {
-            temp_allocator_ = std::make_unique<JPH::TempAllocatorImpl>(10 * 1024 * 1024);
-            job_system_ = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers,
-                                                                     std::thread::hardware_concurrency() - 1);
-            physics_system_ = std::make_unique<JPH::PhysicsSystem>();
-            physics_system_->Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactConstraints,
-                broad_phase_layer_interface_,
-                object_vs_broadphase_layer_filter_,
-                object_vs_object_layer_filter_);
-            contact_listener_ = std::make_unique<PhysicsContactListener>();
-            physics_system_->SetContactListener(contact_listener_.get());
-        }
-
-        void ResetWorld() {
-            contact_listener_.reset();
-            physics_system_.reset();
-            job_system_.reset();
-            temp_allocator_.reset();
-        }
+        void InitWorld();
+        void StepWorld(float delta_time);
+        void ResetWorld();
 
         void RegisterBody(JPH::BodyID id, RigidBodyComponent* comp) {
             body_map_[id] = comp;
@@ -198,17 +178,19 @@ namespace DE {
         JPH::PhysicsSystem* GetPhysicsSystem() {
             return physics_system_.get();
         }
+        ~Physics();
     private:
-        Physics() = default;
-
+        Physics();
         std::unique_ptr<JPH::TempAllocatorImpl> temp_allocator_;
         std::unique_ptr<JPH::JobSystemThreadPool> job_system_;
         std::unique_ptr<JPH::PhysicsSystem> physics_system_;
         std::unique_ptr<PhysicsContactListener> contact_listener_;
         std::unordered_map<JPH::BodyID, RigidBodyComponent*> body_map_;
-        BPLayerInterfaceImpl broad_phase_layer_interface_;                    // 对象层 → 宽相层 映射
-        ObjectVsBroadPhaseLayerFilterImpl object_vs_broadphase_layer_filter_; // 对象层 vs 宽相层 碰撞过滤
-        ObjectLayerPairFilterImpl object_vs_object_layer_filter_;             // 对象层 vs 对象层 碰撞过滤
+        BPLayerInterfaceImpl broad_phase_layer_interface_;
+        ObjectVsBroadPhaseLayerFilterImpl object_vs_broadphase_layer_filter_;
+        ObjectLayerPairFilterImpl object_vs_object_layer_filter_;
+        float accumulator_ = 0.0f;
+        float fixed_step_ = 1.0f/60.0f;
     };
 
 }

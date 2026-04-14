@@ -1,0 +1,92 @@
+Scene:
+  name: TestPhysics
+  main_camera_entity_name: camera
+root:
+  - Entity:
+      name: camera
+    components:
+      CameraComponent:
+        {}
+      TransformComponent:
+        position: [-8, 4, 0]
+        rotation: [-18, 0, 0]
+        scale: [1, 1, 1]
+        space: ParentSpace
+    children:
+      []
+  - Entity:
+      name: dir_light
+    components:
+      TransformComponent:
+        position: [0, 0, 0]
+        rotation: [0, 9.375, 14]
+        scale: [1, 1, 1]
+        space: ParentSpace
+      DirLightComponent:
+        {}
+    children:
+      []
+  - Entity:
+      name: floor
+    components:
+      RigidBodyComponent:
+        motion_type: Static
+        box_half_extent: [4, 0.0625, 4]
+        sphere_radius: 0.5
+      TransformComponent:
+        position: [0, 0, 0]
+        rotation: [0, 0, 0]
+        scale: [8, 0.125, 8]
+        space: ParentSpace
+      TestCubeComponent:
+        {}
+    children:
+      []
+  - Entity:
+      name: cube
+    components:
+      TransformComponent:
+        position: [0, 3, 0]
+        rotation: [0, 0, 0]
+        scale: [1, 1, 1]
+        space: ParentSpace
+      TestCubeComponent:
+        {}
+      RigidBodyComponent:
+        motion_type: Dynamic
+        box_half_extent: [0.5, 0.5, 0.5]
+        sphere_radius: 0.5
+    children:
+      []
+  - Entity:
+      name: cube 1
+    components:
+      RigidBodyComponent:
+        motion_type: Dynamic
+        box_half_extent: [0.5, 0.5, 0.5]
+        sphere_radius: 0.5
+      TestCubeComponent:
+        {}
+      TransformComponent:
+        position: [-0.625, 4.375, 0.25]
+        rotation: [0, 0, 0]
+        scale: [1, 1, 1]
+        space: ParentSpace
+    children:
+      []
+  - Entity:
+      name: cube 1 1
+    components:
+      TransformComponent:
+        position: [-1.375, 6, -0.5]
+        rotation: [0, 0, 0]
+        scale: [1, 1, 1]
+        space: ParentSpace
+      TestCubeComponent:
+        {}
+      RigidBodyComponent:
+        motion_type: Dynamic
+        box_half_extent: [0.5, 0.5, 0.5]
+        sphere_radius: 0.5
+    children:
+      []

@@ -80,6 +80,7 @@ namespace DE {
     }
 
     static Entity* s_pendingDelete = nullptr;
+    static Entity* s_pendingCopy = nullptr;
 
     struct PendingDrop {
         Entity* dragged;
@@ -162,6 +163,19 @@ namespace DE {
                 s_pendingDelete = nullptr;
             }
 
+            if (s_pendingCopy) {
+                auto clone = scene->CloneEntity(s_pendingCopy);
+                if (clone) {
+                    if (s_pendingCopy->parent) {
+                        ResolveNameConflict(scene, s_pendingCopy->parent, clone.get());
+                        s_pendingCopy->parent->AddChild(std::move(clone));
+                    } else {
+                        scene->AddEntity(std::move(clone));
+                    }
+                }
+                s_pendingCopy = nullptr;
+            }
+
             if (s_pendingDrop) {
                 auto op = *s_pendingDrop;
                 s_pendingDrop.reset();
@@ -241,6 +255,9 @@ namespace DE {
                 // entity->AddChild(std::make_unique<Entity>());
                 s_pendingParent = entity;
                 ImGui::OpenPopup("add_component_popup");
+            if (ImGui::MenuItem("复制此实体")) {
+                s_pendingCopy = entity;
+            }
             if (ImGui::MenuItem("删除此实体")) {
                 s_pendingDelete = entity;
             }

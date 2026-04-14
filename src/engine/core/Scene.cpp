@@ -137,6 +137,11 @@ std::unique_ptr<Entity> DeserializeEntity(const YAML::Node &node) {
 
 } // namespace
 
+std::unique_ptr<Entity> Scene::CloneEntity(Entity* e) {
+    if (!e) return nullptr;
+    return DeserializeEntity(SerializeEntity(e));
+}
+
 Entity* Scene::GetEntityByName(const std::string& name) {
     return FindEntityByNameInScene(this, name);
 }
@@ -247,4 +252,9 @@ void Scene::Load() {
     name = std::filesystem::path(save_path).stem().string();
 }
 
+void Scene::Init() {
+}
+
+void Scene::End() {
+}
 } // namespace DE
