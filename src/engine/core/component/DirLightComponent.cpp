@@ -34,9 +34,7 @@ namespace DE {
             }
 
             if (render_context) {
-                if (render_context->dirLight == nullptr) {
-                    render_context->dirLight = dir_light;
-                }
+                render_context->dirLight = dir_light;
             }
         }
         return IComponent::RenderIterate(appstate, render_context);
